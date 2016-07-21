@@ -1,0 +1,153 @@
+==========================================================================
+ ++++ Main AN section ++++
+==========================================================================
+
+  tab:qcd-SMHT
+
+    code:
+      draw_badjet_cat_v3.c
+
+    Run it for htl, htm, and hth and look at the text at the bottom.
+
+==========================================================================
+
+  fig:qcd-mdp-badjet-dphi-dists
+
+    files:
+         plots/qcd-dphi/badjet-cat-mdp-htl-mht1-liny.pdf
+         plots/qcd-dphi/badjet-cat-mdp-htm-mht1-liny.pdf
+         plots/qcd-dphi/badjet-cat-mdp-hth-mht1-liny.pdf
+         plots/qcd-dphi/badjet-cat-mdp-htl-mht2-liny.pdf
+         plots/qcd-dphi/badjet-cat-mdp-htm-mht2-liny.pdf
+         plots/qcd-dphi/badjet-cat-mdp-hth-mht2-liny.pdf
+         plots/qcd-dphi/badjet-cat-mdp-htl-mht3-liny.pdf
+         plots/qcd-dphi/badjet-cat-mdp-htm-mht3-liny.pdf
+         plots/qcd-dphi/badjet-cat-mdp-hth-mht3-liny.pdf
+         plots/qcd-dphi/badjet-cat-mdp-htm-mht4-liny.pdf
+         plots/qcd-dphi/badjet-cat-mdp-hth-mht4-liny.pdf
+         plots/qcd-dphi/badjet-cat-mdp-htm-mht5-liny.pdf
+         plots/qcd-dphi/badjet-cat-mdp-hth-mht5-liny.pdf
+
+    code:
+      syst_2015_v2.c
+      draw_badjet_cat_v3.c
+
+==========================================================================
+
+  fig:qcd-ratio-and-dratio
+
+    files:
+      plots/qcd-dphi/plot-ratio-hth-nbsum.pdf
+      plots/qcd-dphi/plot-dr-hth-nbsum.pdf
+      plots/qcd-dphi/plot-ratio-htm-nbsum.pdf
+      plots/qcd-dphi/plot-dr-htm-nbsum.pdf
+      plots/qcd-dphi/plot-ratio-htl-nbsum.pdf
+      plots/qcd-dphi/plot-dr-htl-nbsum.pdf
+
+    code:
+      calc_model_ratios_v4.c
+      draw_qcd_ratio_v2b.c
+      run_draw_ratios_mc_and_model_v1.c ( calls draw_ratios_mc_and_model_v1.c )
+
+==========================================================================
+
+  fig:qcd-mdp-badjet-Rqcd-vs-mht-bin
+
+    files:
+      plots/qcd-dphi/badjet-Rqcd-vs-mht-bin-htl.pdf
+      plots/qcd-dphi/badjet-Rqcd-vs-mht-bin-htm.pdf
+      plots/qcd-dphi/badjet-Rqcd-vs-mht-bin-hth.pdf
+
+    code:
+      draw_badjet_cat_v3.c
+
+==========================================================================
+
+  fig:qcd-modelfit
+
+    files:
+      plots/qcd-dphi/qcdmc-chi2-modelfit.pdf
+      plots/qcd-dphi/data-chi2-modelfit.pdf
+
+    code:
+      modelfit3.c
+      run_modelfit3_on_data.c
+
+==========================================================================
+
+  tab:qcd-mdp-model-pars
+
+    code:
+      modelfit3.c
+      run_modelfit3_on_data.c
+
+==========================================================================
+
+  fig:qcd-mc-closure-sums
+
+    files:
+      plots/qcd-dphi/closure-sum-ht.pdf
+      plots/qcd-dphi/closure-sum-mht.pdf
+      plots/qcd-dphi/closure-sum-njet.pdf
+      plots/qcd-dphi/closure-sum-nb.pdf
+      plots/qcd-dphi/closure-sum-10boxes.pdf
+
+    code:
+      draw_qcd_ratio_v3.c
+      create_model_ratio_hist1.c
+      dump_qcdmc_ldp_vals.c
+      closure_sums3.c
+
+==========================================================================
+
+  fig:qcd-mc-closure
+
+    files:
+      plots/qcd-dphi/closure-all-v4.pdf
+
+    code:
+      draw_qcd_ratio_v3.c
+      create_model_ratio_hist1.c
+      closure_v4.c
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+==========================================================================
+  ++++ Appendix on junk cleaning ++++
+==========================================================================
+
+  fig:rejected-mht-and-met-over-calomet
+
+    files:
+      plots/qcd-dphi/rejected-mht-liny.pdf
+      plots/qcd-dphi/rejected-met_over_calomet-liny.pdf
+      plots/qcd-dphi/rejected-mht-logy.pdf
+      plots/qcd-dphi/rejected-met_over_calomet-logy.pdf
+
+    code:
+      draw_rejected.c
+
+==========================================================================
+
+  fig:data-and-qcd-met-and-calomet
+
+    files:
+      plots/qcd-dphi/met-data.pdf
+      plots/qcd-dphi/calomet-data.pdf
+      plots/qcd-dphi/met-qcd.pdf
+      plots/qcd-dphi/calomet-qcd.pdf
+
+    code:
+      draw_met_calomet.c
+
+==========================================================================
+
+  fig:qcd-ht
+
+    files:
+      plots/qcd-dphi/qcd-ht-liny.pdf
+      plots/qcd-dphi/qcd-ht-logy.pdf
+
+    code:
+      draw_ht.c
+
+==========================================================================
