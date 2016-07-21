@@ -1,4 +1,16 @@
 
+
+  Before doing any of the stuff below, you will need to have a local copy of
+  the analysis root files.  The code as written below expects it to be in
+  these sub directories
+
+    fnal-prod-v9-skims
+    fnal-prod-v9-skims-slimmed
+
+
+
+
+ -------
   data_turnon1.c
       input is slimmed data
       output is outputfiles/data-turnon.root
