@@ -133,6 +133,8 @@
       h_eff_nj4 -> Draw("same") ;
 
 
+      gSystem -> Exec( "mkdir -p outputfiles" ) ;
+
       saveHist("outputfiles/data-turnon.root", "h*") ;
 
 
