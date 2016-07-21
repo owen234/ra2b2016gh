@@ -2,3 +2,9 @@
 
    I run this code on strange.ucr.edu after copying the production root files from the FNAL LPC.
 
+   The slimming step only saves the necessary TTree variables and also computes and adds
+   a few new ones to the output TTree.  For the data, it adds these booleans
+     pass_pfmet100_trig
+     pass_pfmetnomu100_trig
+   that are necessary to ensure only events that pass the correct trigger(s) are used.
+
