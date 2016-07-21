@@ -566,7 +566,11 @@ void fill_data_hists_loop_v2d::Loop( bool verb, int nloop )
          if ( tbi_mht == 1 ) {
             sprintf( binlabel, "Nj%d-MHTC-HT%d (C%1d)   C%2d", tbi_nj, tbi_ht, tbi_ht, control_bi ) ;
          } else {
-            sprintf( binlabel, "Nj%d-MHT%d-HT%d (%2d)   %2d", tbi_nj, print_bi_mht, tbi_ht, print_bi_htmht, print_bi ) ;
+            if ( tbi_mht <= 3 ) {
+               sprintf( binlabel, "Nj%d-MHT%d-HT%d (%2d)   %2d", tbi_nj, print_bi_mht, tbi_ht, print_bi_htmht, print_bi ) ;
+            } else {
+               sprintf( binlabel, "Nj%d-MHT%d-HT%d (%2d)   %2d", tbi_nj, print_bi_mht, tbi_ht+1, print_bi_htmht, print_bi ) ;
+            }
          }
          //---------
          hp -> GetXaxis() -> SetBinLabel( bi, binlabel ) ;
@@ -599,7 +603,11 @@ void fill_data_hists_loop_v2d::Loop( bool verb, int nloop )
          if ( tbi_mht == 1 ) {
             sprintf( binlabel, "Nj%d-Nb%d-MHTC-HT%d (C%1d)   C%2d  %3d", tbi_nj, print_bi_nb, tbi_ht, tbi_ht, control_bi, bi ) ;
          } else {
-            sprintf( binlabel, "Nj%d-Nb%d-MHT%d-HT%d (%2d)   S%3d  %3d", tbi_nj, print_bi_nb, print_bi_mht, tbi_ht, print_bi_htmht, print_bi, bi ) ;
+            if ( tbi_mht <= 3 ) {
+               sprintf( binlabel, "Nj%d-Nb%d-MHT%d-HT%d (%2d)   S%3d  %3d", tbi_nj, print_bi_nb, print_bi_mht, tbi_ht, print_bi_htmht, print_bi, bi ) ;
+            } else {
+               sprintf( binlabel, "Nj%d-Nb%d-MHT%d-HT%d (%2d)   S%3d  %3d", tbi_nj, print_bi_nb, print_bi_mht, tbi_ht+1, print_bi_htmht, print_bi, bi ) ;
+            }
          }
          //---------
          hp -> GetXaxis() -> SetBinLabel( bi, binlabel ) ;
