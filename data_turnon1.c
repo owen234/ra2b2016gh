@@ -2,6 +2,10 @@
 #include "histio.c"
 
 
+   void add_overflow( TH1F* hp ) ;
+
+  //---------
+
    void data_turnon1() {
 
       TChain ch_ht("tree") ;
@@ -11,10 +15,17 @@
       ///////ch_ht.Add("fnal-prod-v7-skims-slimmed/tree_LDP/tree_JetHT_2016B-2.6ifb-slimskim.root") ;
       ///////ch_met.Add("fnal-prod-v7-skims-slimmed/tree_LDP/tree_MET_2016B-2.6ifb-slimskim.root") ;
      //-----------
-      ch_ht.Add("fnal-prod-v9-skims-slimmed/tree_LDP/tree_JetHT_2016B-slimskim.root") ;
-      ch_ht.Add("fnal-prod-v9-skims-slimmed/tree_LDP/tree_JetHT_2016C-slimskim.root") ;
-      ch_met.Add("fnal-prod-v9-skims-slimmed/tree_LDP/tree_MET_2016B-slimskim.root") ;
-      ch_met.Add("fnal-prod-v9-skims-slimmed/tree_LDP/tree_MET_2016C-slimskim.root") ;
+      ///////ch_ht.Add("fnal-prod-v9-skims-slimmed/tree_LDP/tree_JetHT_2016B-slimskim.root") ;
+      ///////ch_ht.Add("fnal-prod-v9-skims-slimmed/tree_LDP/tree_JetHT_2016C-slimskim.root") ;
+      ///////ch_met.Add("fnal-prod-v9-skims-slimmed/tree_LDP/tree_MET_2016B-slimskim.root") ;
+      ///////ch_met.Add("fnal-prod-v9-skims-slimmed/tree_LDP/tree_MET_2016C-slimskim.root") ;
+     //-----------
+      ch_ht.Add("fnal-prod-v9-skims-slimmed/tree_LDP_july21a/tree_JetHT_2016B-slimskim.root") ;
+      ch_ht.Add("fnal-prod-v9-skims-slimmed/tree_LDP_july21a/tree_JetHT_2016C-slimskim.root") ;
+      ch_ht.Add("fnal-prod-v9-skims-slimmed/tree_LDP_july21a/tree_JetHT_2016D-slimskim.root") ;
+      ch_met.Add("fnal-prod-v9-skims-slimmed/tree_LDP_july21a/tree_MET_2016B-slimskim.root") ;
+      ch_met.Add("fnal-prod-v9-skims-slimmed/tree_LDP_july21a/tree_MET_2016C-slimskim.root") ;
+      ch_met.Add("fnal-prod-v9-skims-slimmed/tree_LDP_july21a/tree_MET_2016D-slimskim.root") ;
      //-----------
 
       //int nbin(35) ;
@@ -52,6 +63,16 @@
 
       ch_ht.Draw("MHT>>h_mht_nj4_denom","HBHEIsoNoiseFilter == 1 && HBHENoiseFilter == 1 && eeBadScFilter == 1 && EcalDeadCellTriggerPrimitiveFilter == 1 && NVtx > 0 && JetID && NJets>=9 && HT>900 && (MET>100 && CaloMET>80 && MET/CaloMET<5) && pass_ht800_trig" ) ;
       ch_met.Draw("MHT>>h_mht_nj4_numer", "HBHEIsoNoiseFilter == 1 && HBHENoiseFilter == 1 && eeBadScFilter == 1 && EcalDeadCellTriggerPrimitiveFilter == 1 && NVtx > 0 && JetID && NJets>=9 && HT>900 && (MET>100 && CaloMET>80 && MET/CaloMET<5) && pass_ht800_trig && (pass_pfmet100_trig||pass_pfmetnomu100_trig)" ) ;
+
+      add_overflow( h_mht_nj1_denom ) ;
+      add_overflow( h_mht_nj2_denom ) ;
+      add_overflow( h_mht_nj3_denom ) ;
+      add_overflow( h_mht_nj4_denom ) ;
+
+      add_overflow( h_mht_nj1_numer ) ;
+      add_overflow( h_mht_nj2_numer ) ;
+      add_overflow( h_mht_nj3_numer ) ;
+      add_overflow( h_mht_nj4_numer ) ;
 
 
       for ( int bi=1; bi<=nbin; bi++ ) {
@@ -140,3 +161,19 @@
 
 
    } // data_turnon1
+
+ //=========================================================
+
+   void add_overflow( TH1F* hp ) {
+
+      float last_val = hp -> GetBinContent( hp -> GetNbinsX() ) ;
+      float overflow_val = hp -> GetBinContent( hp -> GetNbinsX() + 1 ) ;
+
+      hp -> SetBinContent( hp -> GetNbinsX(), last_val + overflow_val ) ;
+
+   } // add_overflow
+
+
+ //=========================================================
+
+
