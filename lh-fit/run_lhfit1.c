@@ -159,13 +159,126 @@
 
 
       TMatrixDSym cov_mat = fitResult -> covarianceMatrix() ;
+      TMatrixDSym cov_mat_modelpars_only(6) ;
       for ( int i=0; i<10; i++ ) {
          printf( "  row %2d : ", i ) ;
          for ( int j=0; j<10; j++ ) {
             printf("  %12.8f  ", cov_mat[i][j] ) ;
+            if ( i < 6 && j < 6 ) {
+               cov_mat_modelpars_only[i][j] = cov_mat[i][j] ;
+            }
          } // j
          printf("\n") ;
       } // i
+
+
+      FILE* ofp_covmat(0x0) ;
+      sprintf( output_file, "%s/kqcd-parameter-fit-covmat.tex", output_dir ) ;
+      if ( (ofp_covmat=fopen( output_file, "w" ))==NULL ) {
+         printf("\n\n *** Problem opening %s\n\n", output_file ) ;
+         return ;
+      }
+
+
+      char model_par_names[10][100] ;
+
+      RooArgList float_pars_final = fitResult -> floatParsFinal() ;
+      RooArgList kqcd_pars ;
+      for ( int pi=0; pi<6; pi++ ) {
+         TString pname( float_pars_final.at(pi)->GetName() ) ;
+         sprintf( model_par_names[pi], "%s", pname.Data() ) ;
+         float val = ((RooAbsReal*)float_pars_final.at(pi))->getVal() ;
+         float err = ((RooRealVar*)float_pars_final.at(pi))->getError() ;
+         fprintf( ofp_covmat, " %15s  %10.5f +/- %7.5f\n", model_par_names[pi], val, err ) ;
+      }
+
+
+
+
+      printf("\n\n\n ====== Cov mat of model pars only:\n") ;
+      printf("               ") ;
+      fprintf( ofp_covmat, "  covmat_columns            " ) ;
+      for ( int i=0; i<6; i++ ) {
+         printf("  %12s  ", model_par_names[i] ) ;
+         fprintf( ofp_covmat, "  %12s  ",  model_par_names[i] ) ;
+      } // i
+      printf("\n") ;
+      fprintf( ofp_covmat, "\n" ) ;
+      for ( int i=0; i<6; i++ ) {
+         printf( "%12s : ", model_par_names[i] ) ;
+         fprintf( ofp_covmat, "  covmat_row%d %12s  ", i+1, model_par_names[i] ) ;
+         for ( int j=0; j<6; j++ ) {
+             printf("  %12.8f  ", cov_mat_modelpars_only[i][j] ) ;
+             fprintf( ofp_covmat, "  %12.8f  ", cov_mat_modelpars_only[i][j] ) ;
+         } // j
+         printf("\n") ;
+         fprintf( ofp_covmat, "\n" ) ;
+      } // i
+      printf("\n\n\n") ;
+      fclose( ofp_covmat ) ;
+
+
+
+
+      TVectorD eigen_vals( 6 ) ;
+      TMatrixD eigen_vector_matrix = cov_mat_modelpars_only.EigenVectors( eigen_vals ) ;
+
+      printf("\n\n") ;
+      for ( int i=0; i<6; i++ ) {
+         printf("   Eigen value %d : %12.8f\n", i, eigen_vals[i] ) ;
+      } // i
+
+      printf("\n\n Eigen vector matrix:\n") ;
+      for ( int i=0; i<6; i++ ) {
+         for ( int j=0; j<6; j++ ) {
+            printf("  %12.8f  ", eigen_vector_matrix[i][j] ) ;
+         } // j
+         printf("\n" ) ;
+      } // i
+      printf("\n\n") ;
+
+      printf("\n\n  Check of eigen vectors:\n") ;
+      for ( int i=0; i<6; i++ ) {
+         printf("  Eigen value %d : %12.8f\n", i, eigen_vals[i] ) ;
+         TMatrixT<double> eigen_vector_col(6,1) ;
+         TMatrixT<double> eigen_vector_row(1,6) ;
+         double largest_component_val(0.) ;
+         int largest_component_ind(-1) ;
+         printf("      Eigen vector elements : ") ;
+         for ( int j=0; j<6; j++ ) {
+            eigen_vector_col(j,0) = eigen_vector_matrix[j][i] ;
+            eigen_vector_row(0,j) = eigen_vector_matrix[j][i] ;
+            if ( fabs( eigen_vector_matrix[j][i] ) > largest_component_val ) {
+               largest_component_val = fabs( eigen_vector_matrix[j][i] ) ;
+               largest_component_ind = j ;
+            }
+            printf( "  %12.8f  ", eigen_vector_col(j,0) ) ;
+         }
+         printf("\n") ;
+         printf("   Largest component is %s\n", model_par_names[largest_component_ind] ) ;
+         TMatrixT<double> cm_times_ev(6,1) ;
+         cm_times_ev.Mult( cov_mat_modelpars_only, eigen_vector_col ) ;
+         printf("      CM times eigen vector : ") ;
+         for ( int j=0; j<6; j++ ) {
+            printf( "  %12.8f  ", cm_times_ev(j,0) ) ;
+         }
+         printf("\n") ;
+         printf("      after div  by EV      : ") ;
+         for ( int j=0; j<6; j++ ) {
+            printf( "  %12.8f  ", cm_times_ev(j,0) / eigen_vals[i] ) ;
+         }
+         printf("\n") ;
+         TMatrixT<double> ev_times_cm_times_ev(1,1) ;
+         ev_times_cm_times_ev.Mult( eigen_vector_row, cm_times_ev ) ;
+         printf("  EVec times CM times EVec (should EVal) :  %12.8f\n", ev_times_cm_times_ev(0,0) ) ;
+
+         printf("\n\n") ;
+      } //
+
+
+
+
+      if ( !make_all_plots ) return ;
 
 
       gStyle -> SetPadRightMargin(0.20) ;
@@ -210,10 +323,9 @@
       }
 
 
-      RooArgList float_pars_final = fitResult -> floatParsFinal() ;
-      RooArgList kqcd_pars ;
       for ( int pi=0; pi<float_pars_final.getSize(); pi++ ) {
          TString pname( float_pars_final.at(pi)->GetName() ) ;
+         if ( pi < 6 ) sprintf( model_par_names[pi], "%s", pname.Data() ) ;
          TString latex_pname = pname ;
          latex_pname.ReplaceAll("_"," ") ;
          if ( pname.Index( "Kqcd" ) == 0 || pname.Index( "Sqcd" ) == 0 ) {

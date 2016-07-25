@@ -2,8 +2,8 @@
    TH1* get_hist( TFile* tf, const char* hname ) ;
 
    void make_lostlep_input_files1(
-                                 const char* ldp_input_root_file = "non-qcd-inputs-topup1/LLPrediction_QCD_LDP_Jul12.root",
-                                 const char* hdp_input_root_file = "non-qcd-inputs-topup1/LLPrediction_QCD_HDP_Jul12.root",
+                                 const char* ldp_input_root_file = "non-qcd-inputs-topup2/LLPrediction_QCD_LDP_Jul22_12p9ifb.root",
+                                 const char* hdp_input_root_file = "non-qcd-inputs-topup2/LLPrediction_QCD_HDP_Jul22_12p9ifb.root",
                                  const char* output_text_file = "outputfiles/combine-input-lostlep.txt",
                                  const char* nbsum_text_file = "outputfiles/nbsum-input-lostlep.txt"
                                ) {

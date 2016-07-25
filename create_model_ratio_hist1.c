@@ -39,7 +39,7 @@
 
 #include "histio.c"
 
-   void create_model_ratio_hist1( const char* model_pars_file = "model-pars-qcdmc3.txt",
+   void create_model_ratio_hist1( const char* model_pars_file = "model-pars-qcdmc4.txt",
                                   const char* qcd_ratio_file = "outputfiles/qcdmc-ratio-v3.root" ) {
 
       gDirectory -> Delete( "h*" ) ;

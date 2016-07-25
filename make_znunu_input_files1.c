@@ -1,8 +1,8 @@
 
    TH1F* get_hist( TFile* tf, const char* hname ) ;
 
-   void make_znunu_input_files1( const char* ldp_input_root_file = "non-qcd-inputs-topup1/ZinvHistos_ldp.root",
-                                 const char* hdp_input_root_file = "non-qcd-inputs-topup1/ZinvHistos_hdp.root",
+   void make_znunu_input_files1( const char* ldp_input_root_file = "non-qcd-inputs-topup2/ZinvHistos_ldp.root",
+                                 const char* hdp_input_root_file = "non-qcd-inputs-topup2/ZinvHistos_hdp.root",
                                  const char* output_text_file = "outputfiles/combine-input-znunu.txt",
                                  const char* nbsum_text_file  = "outputfiles/nbsum-input-znunu.txt"
                                ) {

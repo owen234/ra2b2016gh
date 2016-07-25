@@ -12,7 +12,8 @@ double calc_dphi( double phi1, double phi2 ) ;
 
 void syst_2015_v2::Loop( int max_dump, bool verb )
 {
-   double lumi = 2300 ;
+   /////double lumi = 2300 ;
+   double lumi = 12903. ;
 
    setup_bins() ;
 

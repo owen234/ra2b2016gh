@@ -38,7 +38,8 @@ void fill_hists_loop_v2d::Loop( bool verb, int nloop )
    //double lumi = 2300. ;
    //double lumi = 815. ;
    ///////double lumi = 2585. ;
-   double lumi = 7632. ;
+   //////double lumi = 7632. ;
+   double lumi = 12903. ;
 
    bool islostlep(false) ;
    bool ishadtau(false) ;
