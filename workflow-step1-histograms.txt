@@ -1,0 +1,54 @@
+
+
+  Before doing any of the stuff below, you will need to have a local copy of
+  the analysis root files.  The code as written below expects it to be in
+  these sub directories
+
+    fnal-prod-v9-skims
+    fnal-prod-v9-skims-slimmed
+
+  See the slim-code subdirectory on how to make slimmed files.
+
+
+
+ -------
+  data_turnon1.c
+      input is slimmed data
+      output is outputfiles/data-turnon.root
+      from the command line
+        .L data_turnon1.c
+        data_turnon1()
+
+ -------
+  fill_hists_loop_v2d.c
+      input is slimmed skims of QCD MC and outputfiles/data-turnon.root file above for QCD fake-met
+      output is
+         outputfiles/hists-v2c-qcd.root
+      from the command line
+         .L fill_hists_loop_v2d.c
+         fill_hists_loop_v2d f
+         f.Loop()
+
+ -------
+  *** Optional.  Not used for AN material ***
+  run_fill_hists_loop_v2c.c (uses fill_hists_loop_v2c.c)
+      input is slimmed skims and outputfiles/data-turnon.root file above for QCD fake-met
+         trigger turn-on.
+      output is 
+         outputfiles/hists-v2c-hadtau.root
+         outputfiles/hists-v2c-lostlep.root
+         outputfiles/hists-v2c-znunu.root
+      from the command line
+         .L run_fill_hists_loop_v2c.c
+         run_fill_hists_loop_v2c()
+
+ -------
+  fill_data_hists_loop_v2d.c
+      input is slimmed skims (MET dataset!)
+      output is outputfiles/hists-data-v2d.root
+      from the command line
+         .L fill_data_hists_loop_v2d.c
+         fill_data_hists_loop_v2d f
+         f.Loop()
+
+

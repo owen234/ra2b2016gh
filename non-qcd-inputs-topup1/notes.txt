@@ -1,0 +1,13 @@
+
+
+  lostlep:  Simon email, July 12, 10:42 am
+    http://www.desy.de/~kurzsimo/LLPrediction_Jul12/LLPrediction_QCD_LDP_Jul12.root
+    http://www.desy.de/~kurzsimo/LLPrediction_Jul12/LLPrediction_QCD_HDP_Jul12.root
+
+  hadtau:  Aditee email, July 11, 3:29 pm
+    /afs/cern.ch/user/a/arane/workspace/public/Analysis_Apr7/ARElog46_7.6ifb_HadTauEstimation_data_formatted.root
+
+  znunu:  Bill Ford email to list, July 12, 11:04 pm
+    https://www.dropbox.com/sh/amzexkpwzmutscn/AADnOWrofgUHCg8gtXeYKYrla?dl=0
+
+

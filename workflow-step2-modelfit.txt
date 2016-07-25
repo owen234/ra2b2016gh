@@ -1,0 +1,107 @@
+
+ -------
+  make_qcdmc_input_files1.c
+      input is outputfiles/hists-v2d-qcd.root
+      output is outputfiles/modelfit-input-qcdmc.root
+                outputfiles/nbsum-input-qcd.txt
+      from the command line
+         .L make_qcdmc_input_files1.c
+         make_qcdmc_input_files1()
+
+ -------
+  modelfit3.c
+      input is outputfiles/modelfit-input-qcdmc.root
+      output is outputfiles/qcdmc-chi2-fit-model-pars.txt
+      from the command line
+         .L modelfit3.c
+         modelfit3()
+
+==============================================================================================
+
+ -------
+  make_data_input_files1.c
+      input is outputfiles/hists-data-v2d.root
+      output is outputfiles/combine-input-data.txt
+                outputfiles/nbsum-input-data.txt
+      from the command line
+         .L make_data_input_files1.c
+         make_data_input_files1()
+
+ -------
+  make_lostlep_input_files1.c, make_hadtau_input_files1.c, make_znunu_input_files1.c
+      input is files from other BG teams in non-qcd-inputs
+      output is outputfiles/nbsum-input-lostlep.txt
+                outputfiles/nbsum-input-hadtau.txt
+                outputfiles/nbsum-input-znunu.txt
+                outputfiles/combine-input-lostlep.txt
+                outputfiles/combine-input-hadtau.txt
+                outputfiles/combine-input-znunu.txt
+                outputfiles/nbsum-stat-syst-lostlep.txt
+                outputfiles/nbsum-stat-syst-hadtau.txt
+                outputfiles/nbsum-stat-syst-znunu.txt
+      from the command line
+         .L make_lostlep_input_files1.c
+         make_lostlep_input_files1()
+         .L make_hadtau_input_files1.c
+         make_hadtau_input_files1()
+         .L make_znunu_input_files1.c
+         make_znunu_input_files1()
+
+ -------
+  gen_modelfit_input1.c
+      input is
+         outputfiles/nbsum-input-data.txt
+         outputfiles/nbsum-input-lostlep.txt
+         outputfiles/nbsum-input-hadtau.txt
+         outputfiles/nbsum-input-znunu.txt
+      output is
+         outputfiles/modelfit-input-all.txt
+         outputfiles/modelfit-input-data.root
+      from the command line
+         .L gen_modelfit_input1.c
+         gen_modelfit_input1()
+
+ -------
+   run_modelfit3_on_data.c  (includes modelfit3.c)
+      input is
+         outputfiles/modelfit-input-data.root
+      output is
+         outputfiles/data-chi2-fit-model-pars.txt
+      from the command line
+         .L run_modelfit3_on_data.c
+         run_modelfit3_on_data()
+
+
+==============================================================================================
+
+  *** Optional.  Not used for AN material ***
+
+ -------
+   calc_mc_hlratios1.c
+      input is
+         iodir: outputfiles/
+         file: hists-v2c-qcd.root
+         file: hists-v2c-lostlep.root
+         file: hists-v2c-hadtau.root
+         file: hists-v2c-znunu.root
+         file: nbsum-stat-syst-lostlep.txt
+         file: nbsum-stat-syst-hadtau.txt
+         file: nbsum-stat-syst-znunu.txt
+      output is
+         in iodir, calc-mc-ratios.root
+      from the command line
+         .L calc_mc_hlratios1.c
+         calc_mc_hlratios1()
+
+ -------
+   run_modelfit3_on_qcdmc_as_on_data.c
+      input is
+         outputfiles/calc-mc-ratios.root
+      output is
+         outputfiles/qcdmc-as-on-data-chi2-fit-model-pars.txt
+      from the command line
+         .L run_modelfit3_on_qcdmc_as_on_data.c
+         run_modelfit3_on_qcdmc_as_on_data()
+
+
+

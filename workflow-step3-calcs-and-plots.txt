@@ -1,0 +1,277 @@
+
+==================================================================
+
+  syst_2015_v2.c
+     input is
+        unslimmed QCD skim files: fnal-prod-v9-skims/tree_LDP/tree_QCD_HT-XtoY.root with X >= 500.
+     output is
+        outputfiles/syst-2015-v2.root
+     from the command line
+        .L syst_2015_v2.c
+        syst_2015_v2 s
+        s.Loop()
+
+
+==================================================================
+
+  The main BG calculation
+
+ -------
+   draw_qcd_ratio_v3.c
+      input is
+         outputfiles/hists-v2d-qcd.root
+      output is
+         outputfiles/qcdmc-ratio-v3.root
+      from the command line
+         .L draw_qcd_ratio_v3.c
+         draw_qcd_ratio_v3()
+
+ -------
+   syst_2015_v2.c
+      input is
+         unslimmed QCD skim files: fnal-prod-v9-skims/tree_LDP/tree_QCD_HT-XtoY.root with X >= 500.
+      output is
+         outputfiles/syst-2015-v2.root
+      from the command line
+         .L syst_2015_v2.c
+         syst_2015_v2 s
+         s.Loop()
+
+ -------
+   draw_badjet_cat_v3.c
+      input is
+         outputfiles/syst-2015-v2.root
+      output is
+         outputfiles/badjet-*.pdf
+         text table printed to the screen at the end
+      from the command line
+         .L draw_badjet_cat_v3.c
+         draw_badjet_cat_v3("hth")
+         draw_badjet_cat_v3("htm")
+         draw_badjet_cat_v3("htl")
+
+ -------
+   Create the model-pars-qcdmc3.txt file by hand.
+      The HT and njet lines are from outputfiles/qcdmc-chi2-fit-model-pars.txt
+      The mht lines are from the text output printed at the end of draw_badjet_cat_v3.c
+      See the file model-pars-qcdmc3-example.txt for an example of the expected format.
+      The first number column is the double ratio and the 3rd is the relative uncertainty.
+
+
+ -------
+   create_model_ratio_hist1.c
+      input is
+         model-pars-qcdmc3.txt
+         outputfiles/qcdmc-ratio-v3.root
+      output is
+         outputfiles/model-ratio-hist1.root
+      from the command line
+         .L create_model_ratio_hist1.c
+         create_model_ratio_hist1()
+
+
+ -------
+   Create the model-pars-data3.txt file by hand.
+      The HT and njet lines are from outputfiles/data-chi2-fit-model-pars.txt
+      The mht lines are from the text output printed at the end of draw_badjet_cat_v3.c
+      and are the same as in model-pars-qcdmc3.txt.
+      See the file model-pars-data3-example.txt for an example of the expected format.
+
+
+ -------
+   gen_combine_input2.c
+      input is
+         model-pars-data3.txt
+         outputfiles/model-ratio-hist1.root  (for the MC-model difference closure hist)
+         outputfiles/combine-input-data.txt
+         outputfiles/combine-input-lostlep.txt
+         outputfiles/combine-input-hadtau.txt
+         outputfiles/combine-input-znunu.txt
+      output is
+         outputfiles/combine-input-all.txt
+         outputfiles/gci-output.root
+      from the command line
+         .L gen_combine_input2.c
+         gen_combine_input2()
+
+
+
+==================================================================
+
+  All the steps to make the closure sum plots.
+
+ -------
+   draw_qcd_ratio_v3.c
+      input is
+         outputfiles/hists-v2d-qcd.root
+      output is
+         outputfiles/qcdmc-ratio-v3.root
+      from the command line
+         .L draw_qcd_ratio_v3.c
+         draw_qcd_ratio_v3()
+
+ -------
+   create_model_ratio_hist1.c
+      input is
+         model-pars-qcdmc3.txt
+         outputfiles/qcdmc-ratio-v3.root
+      output is
+         outputfiles/model-ratio-hist1.root
+      from the command line
+         .L create_model_ratio_hist1.c
+         create_model_ratio_hist1()
+
+ -------
+   dump_qcdmc_vals.c
+      input is
+         outputfiles/hists-v2d-qcd.root
+      output is
+         outputfiles/qcdmc-counts.txt
+      from the command line
+         .L dump_qcdmc_vals.c
+         dump_qcdmc_vals()
+
+ -------
+   closure_sums3.c
+      input is
+         model-pars-qcdmc3.txt
+         outputfiles/model-ratio-hist1.root
+         outputfiles/qcdmc-counts.txt
+      output is
+         outputfiles/closure-sums3.root
+      from the command line
+         .L closure_sums3.c
+         closure_sums3()
+
+ -------
+   draw_closure_sums1.c
+      input is
+         outputfiles/closure-sums3.root
+      output is
+         outputfiles/closure-sum-*.pdf
+      from the command line
+         .L draw_closure_sums1.c
+         draw_closure_sums1("njet")
+         draw_closure_sums1("mht")
+         draw_closure_sums1("ht")
+         draw_closure_sums1("nb")
+         draw_closure_sums1("10boxes")
+
+
+
+==================================================================
+
+  All the steps to make the 160-bin closure plot.
+
+ -------
+   draw_qcd_ratio_v3.c
+      input is
+         outputfiles/hists-v2d-qcd.root
+      output is
+         outputfiles/qcdmc-ratio-v3.root
+      from the command line
+         .L draw_qcd_ratio_v3.c
+         draw_qcd_ratio_v3()
+
+ -------
+   create_model_ratio_hist1.c
+      input is
+         model-pars-qcdmc3.txt
+         outputfiles/qcdmc-ratio-v3.root
+      output is
+         outputfiles/model-ratio-hist1.root
+      from the command line
+         .L create_model_ratio_hist1.c
+         create_model_ratio_hist1()
+
+ -------
+   closure_v4.c
+      input is
+         outputfiles/model-ratio-hist1.root
+      output is
+         outputfiles/closure-all-v4.pdf
+      from the command line
+         .L closure_v4.c
+         closure_v4()
+
+
+
+
+==================================================================
+   Steps to make plots that compare the model prediction for the H/L ratio
+   to the QCD MC in each of the 160 search bins.
+
+ -------
+   draw_qcd_ratio_v3.c
+      input is
+         outputfiles/hists-v2d-qcd.root
+      output is
+         outputfiles/qcdmc-ratio-v3.root
+      from the command line
+         .L draw_qcd_ratio_v3.c
+         draw_qcd_ratio_v3()
+
+ -------
+   draw_model_vs_mc.c
+      input is
+         outputfiles/qcdmc-ratio-v3.root
+         outputfiles/gci-output.root
+      output is
+         outputfiles/model-vs-mc/plot-*.pdf
+
+==================================================================
+
+ -------
+   draw_mcexpect1.c
+      input is
+         outputfiles/calc-mc-ratios.root
+      output is
+         outputfiles/mcexpect-plots/*.pdf
+
+==================================================================
+
+ -------
+   closure_by_ht_v2.c
+      input is
+         outputfiles/qcdmc-chi2-fit-model-pars.txt
+         outputfiles/hists-v2c-qcd.root
+      output is
+         outputfiles/closure-htl-v2.pdf
+         outputfiles/closure-htm-v2.pdf
+         outputfiles/closure-hth-v2.pdf
+
+ -------
+   closure_v2.c
+      input is
+         outputfiles/qcdmc-chi2-fit-model-pars.txt
+         outputfiles/hists-v2c-qcd.root
+      output is
+         outputfiles/closure-all-v2.pdf
+
+
+==================================================================
+
+ -------
+   calc_model_ratios_v4.c
+      input is
+         model-pars-qcdmc3.txt
+      output is
+         outputfiles/calc-model-ratios-v4.root
+
+ -------
+   draw_qcd_ratio_v2b.c
+      input is
+         outputfiles/hists-v2c-qcd.root
+      output is
+         outputfiles/qcd-ratio-nbsum.root
+
+ -------
+   run_draw_ratios_mc_and_model_v1.c  ( calls draw_ratios_mc_and_model_v1.c )
+      input is
+        outputfiles/qcd-ratio-*.root
+        outputfiles/calc-model-ratios-v4.root
+      output is
+        outputfiles/model-mc-comp-v4/plot-ratio-ht*-*.pdf
+        outputfiles/model-mc-comp-v4/plot-dr-ht*-*.pdf
+
+
