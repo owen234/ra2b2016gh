@@ -1,0 +1,29 @@
+
+
+-------------------
+
+   build_2016_ws1.c (uses RooPoissonLogEval.cxx and RooProdPdfLogSum.cxx)
+      input files
+        ../outputfiles/nbsum-input-lostlep.txt
+        ../outputfiles/nbsum-input-hadtau.txt
+        ../outputfiles/nbsum-input-znunu.txt
+        ../outputfiles/nbsum-input-data.txt
+        ../outputfiles/nbsum-input-T1bbbbH.txt
+      output files
+        outputfiles/ws-lhfit-test.root
+      from the command line
+        .L RooPoissonLogEval.cxx+
+        .L RooProdPdfLogSum.cxx+
+        .L build_2016_ws1.c+
+        build_2016_ws1()
+
+
+-------------------
+
+   run_lhfit1.c
+      input files
+         outputfiles/ws-lhfit-test.root
+      output files
+         tons of stuff in outputfiles/lhfit-results-ws-lhfit-test directory
+
+

@@ -1,7 +1,7 @@
 
    TH1* get_hist( TFile* tf, const char* hname ) ;
 
-   void make_hadtau_input_files1( const char* input_root_file  = "non-qcd-inputs-topup2/ARElog58_12.9ifb_UpdatedSysAndMuSys_HadTauEstimation_data_formatted_New.root",
+   void make_hadtau_input_files1( const char* input_root_file  = "non-qcd-inputs-topup2/ARElog60_12.9ifb_HadTauEstimation_data_formatted_New.root",
                                   const char* output_text_file = "outputfiles/combine-input-hadtau.txt",
                                   const char* nbsum_text_file  = "outputfiles/nbsum-input-hadtau.txt"
                                ) {
@@ -105,10 +105,10 @@
          sprintf( systerr_name[si], "MtEffStat" ) ;
          si++ ;
 
-    ///  h_systerr_lowdphi[si]  = get_hist( tf_input, "QCDBin_LowDphi_IsoTrkVetoEffUncertaintySys" ) ;
-    ///  h_systerr_highdphi[si] = get_hist( tf_input, "QCDBin_HiDphi_IsoTrkVetoEffUncertaintySys" ) ;
-    ///  sprintf( systerr_name[si], "IsoTrkVetoSys" ) ;
-    ///  si++ ;
+         h_systerr_lowdphi[si]  = get_hist( tf_input, "QCDBin_LowDphi_IsoTrkVetoEffUncertaintySys" ) ;
+         h_systerr_highdphi[si] = get_hist( tf_input, "QCDBin_HiDphi_IsoTrkVetoEffUncertaintySys" ) ;
+         sprintf( systerr_name[si], "IsoTrkVetoSys" ) ;
+         si++ ;
 
          h_systerr_lowdphi[si]  = get_hist( tf_input, "QCDBin_LowDphi_AccStat" ) ;
          h_systerr_highdphi[si] = get_hist( tf_input, "QCDBin_HiDphi_AccStat" ) ;

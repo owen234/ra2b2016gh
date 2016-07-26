@@ -34,8 +34,8 @@ using namespace std ;
 void fill_data_hists_loop_v2d::Loop( bool verb, int nloop )
 {
 
-   bool blind(true) ;
-   //bool blind(false) ;
+   //bool blind(true) ;
+   bool blind(false) ;
 
    gDirectory -> Delete( "h*" ) ;
 

@@ -6,22 +6,44 @@
 #include "TMatrixD.h"
 #include "TVectorD.h"
 
+#include "histio.c"
+
 #include <fstream>
 
+   int npars(6) ;
+   float par_val[10] ;
+   float par_err[10] ;
+   char par_name[10][100] ;
 
-   void gen_combine_table_from_cov_mat( const char* infile = "outputfiles/lhfit-results-ws-lhfit-test/kqcd-parameter-fit-covmat.tex" ) {
+   int ht_par[10] ;
+   int njet_par[10] ;
+
+   TH1F* h_ratio ;
+
+   TMatrixD reordered_reoriented_eigen_vector_matrix( 6, 6 ) ;
+   TVectorD reordered_eigen_vals( 6 ) ;
+
+  //---------
+
+   TH1F* get_hist( const char* hname ) ;
+   TH2F* make_contour_original_pars( int pix, int piy ) ;
+
+  //---------
+
+   void gen_combine_table_from_cov_mat( const char* infile = "outputfiles/lhfit-results-ws-lhfit-test/kqcd-parameter-fit-covmat.tex",
+                                        const char* datarootfile = "../outputfiles/modelfit-input-data.root" ) {
+
+      gDirectory -> Delete( "h*" ) ;
+
+      loadHist( datarootfile ) ;
+
+      h_ratio = get_hist( "h_ratio" ) ;
+
 
       ifstream ifs ;
       ifs.open( infile ) ;
       if ( !ifs.good() ) { printf("\n\n *** Bad input file: %s\n\n", infile ) ; return ; }
 
-      int npars(6) ;
-      float par_val[10] ;
-      float par_err[10] ;
-      char par_name[10][100] ;
-
-      int ht_par[10] ;
-      int njet_par[10] ;
 
       TString line ;
 
@@ -78,10 +100,17 @@
          printf("\n") ;
       } // ri
       printf("\n\n") ;
+
+
+      TH2F* h_fit_correlation_matrix = new TH2F( "h_fit_correlation_matrix", "Fit correlation matrix", npars, 0.5, npars+0.5,  npars, 0.5, npars+0.5 ) ;
       printf("\n\n   Fit correlation matrix:\n") ;
       for ( int ri=0; ri<npars; ri++ ) {
          for ( int ci=0; ci<npars; ci++ ) {
-            printf("  %12.8f  ", cov_mat[ri][ci] / sqrt( cov_mat[ri][ri] * cov_mat[ci][ci] ) ) ;
+            float rho = cov_mat[ri][ci] / sqrt( cov_mat[ri][ri] * cov_mat[ci][ci] ) ;
+            printf("  %12.8f  ", rho ) ;
+            h_fit_correlation_matrix -> SetBinContent( ci+1, npars-ri, rho ) ;
+            h_fit_correlation_matrix -> GetXaxis() -> SetBinLabel( ci+1, par_name[ci] ) ;
+            h_fit_correlation_matrix -> GetYaxis() -> SetBinLabel( npars-ri, par_name[ri] ) ;
          } // ci
          printf("\n") ;
       } // ri
@@ -171,9 +200,6 @@
 
 
 
-      TMatrixD reordered_reoriented_eigen_vector_matrix( npars, npars ) ;
-      TVectorD reordered_eigen_vals( npars ) ;
-
       for ( int ci=0; ci<npars; ci++ ) {
          int evi = eigen_vector_index[ci] ;
          reordered_eigen_vals[ci] = eigen_vals[evi] ;
@@ -188,11 +214,21 @@
       for ( int i=0; i<npars; i++ ) {
          printf("  %12.8f  ", reordered_eigen_vals(i) ) ;
       }
+
+
+
+      TH2F* h_eigenvec_matrix = new TH2F( "h_eigenvec_matrix", "Eigenvectors (columns)", npars, 0.5, npars+0.5,  npars, 0.5, npars+0.5 ) ;
+
       printf("\n") ;
       printf("\n\n Reordered, reoriented, eigen vector matrix:\n") ;
       for ( int i=0; i<npars; i++ ) {
          for ( int j=0; j<npars; j++ ) {
             printf("  %12.8f  ", reordered_reoriented_eigen_vector_matrix[i][j] ) ;
+            char xlabel[100] ;
+            sprintf( xlabel, "EV-%s", par_name[j] ) ;
+            h_eigenvec_matrix -> SetBinContent( j+1, npars-i, reordered_reoriented_eigen_vector_matrix[i][j] ) ;
+            h_eigenvec_matrix -> GetXaxis() -> SetBinLabel( j+1, xlabel ) ;
+            h_eigenvec_matrix -> GetYaxis() -> SetBinLabel( npars-i, par_name[i] ) ;
          } // j
          printf("\n" ) ;
       } // i
@@ -275,13 +311,14 @@
 
 
 
-      TH2F* h_rel_err_table = new TH2F( "h_rel_err_table", "Relative error table, orthogonal parameters basis", npars+2, 0.5, npars+2+0.5,  9, 0.5, 9+0.5 ) ;
+      TH2F* h_rel_err_table = new TH2F( "h_rel_err_table",
+           "Relative error table, orthogonal parameters basis", npars+2, 0.5, npars+2+0.5,  12, 0.5, 12+0.5 ) ;
 
       printf("\n\n  Calculation of total relative error and individual contributions in rotated basis, using reordered reoriented rotation matrix.\n") ;
       printf("                  HT1        HT2       HT3       Nj2       Nj3       Nj4\n") ;
 
       int rowi(0) ;
-      for ( int nji=2; nji<=4; nji++ ) {
+      for ( int nji=1; nji<=4; nji++ ) {
          for ( int hti=1; hti<=3; hti++ ) {
             rowi++ ;
             char row_label[100] ;
@@ -294,16 +331,21 @@
             float sum_err2(0.) ;
             for ( int fpi=0; fpi<npars; fpi++ ) {
                double eigen_val = reordered_eigen_vals[ fpi ] ;
-               double rot_mat_over_par_val_sum = reordered_reoriented_rotation_matrix( fpi, ht_par[hti] ) / par_ht + reordered_reoriented_rotation_matrix( fpi, njet_par[nji] ) / par_njet ;
+               double rot_mat_over_par_val_sum(0.) ;
+               if ( nji>1 ) {
+                  rot_mat_over_par_val_sum = reordered_reoriented_rotation_matrix( fpi, ht_par[hti] ) / par_ht + reordered_reoriented_rotation_matrix( fpi, njet_par[nji] ) / par_njet ;
+               } else {
+                  rot_mat_over_par_val_sum = reordered_reoriented_rotation_matrix( fpi, ht_par[hti] ) / par_ht  ;
+               }
                double rel_err = sqrt( eigen_val ) * rot_mat_over_par_val_sum ;
                printf( " %7.4f  ", rel_err ) ;
-               h_rel_err_table -> SetBinContent( fpi+1, 10-rowi, rel_err ) ;
-               h_rel_err_table -> GetYaxis() -> SetBinLabel( 10-rowi, row_label ) ;
+               h_rel_err_table -> SetBinContent( fpi+1, 13-rowi, rel_err ) ;
+               h_rel_err_table -> GetYaxis() -> SetBinLabel( 13-rowi, row_label ) ;
                h_rel_err_table -> GetXaxis() -> SetBinLabel( fpi+1, par_name[fpi] ) ;
                sum_err2 += rel_err * rel_err ;
             } // fpi
             printf("     (%7.4f)\n", sqrt( sum_err2 ) ) ;
-            h_rel_err_table -> SetBinContent( npars+2, 10-rowi, sqrt( sum_err2 ) ) ;
+            h_rel_err_table -> SetBinContent( npars+2, 13-rowi, sqrt( sum_err2 ) ) ;
             h_rel_err_table -> GetXaxis() -> SetBinLabel( npars+2, "Total error" ) ;
          } // hti
       } // nji
@@ -313,7 +355,9 @@
 
 
 
-      TH2F* h_rel_err_table_simple_ignore = new TH2F( "h_rel_err_table_simple_ignore", "Relative error table, original parameters basis, ignore off-diagonal cov", npars+2, 0.5, npars+2+0.5,  9, 0.5, 9+0.5 ) ;
+      TH2F* h_rel_err_table_simple_ignore = new TH2F( "h_rel_err_table_simple_ignore",
+              "Relative error table, original parameters basis, ignore off-diagonal cov",
+              npars+2, 0.5, npars+2+0.5,  12, 0.5, 12+0.5 ) ;
 
       printf("\n\n") ;
 
@@ -321,7 +365,7 @@
       printf("                  HT1        HT2       HT3       Nj2       Nj3       Nj4\n") ;
 
       rowi = 0 ;
-      for ( int nji=2; nji<=4; nji++ ) {
+      for ( int nji=1; nji<=4; nji++ ) {
          for ( int hti=1; hti<=3; hti++ ) {
             rowi++ ;
             printf("   Njet%d-HT%d  ", nji, hti ) ;
@@ -332,14 +376,14 @@
                double rel_err(0.) ;
                if ( fpi == ht_par[hti] ) { rel_err = par_err[fpi]/par_val[fpi] ; }
                if ( fpi == njet_par[nji] ) { rel_err = par_err[fpi]/par_val[fpi] ; }
-               h_rel_err_table_simple_ignore -> SetBinContent( fpi+1, 10-rowi, rel_err ) ;
-               h_rel_err_table_simple_ignore -> GetYaxis() -> SetBinLabel( 10-rowi, row_label ) ;
+               h_rel_err_table_simple_ignore -> SetBinContent( fpi+1, 13-rowi, rel_err ) ;
+               h_rel_err_table_simple_ignore -> GetYaxis() -> SetBinLabel( 13-rowi, row_label ) ;
                h_rel_err_table_simple_ignore -> GetXaxis() -> SetBinLabel( fpi+1, par_name[fpi] ) ;
                printf( "  %6.4f  ", rel_err ) ;
                sum_err2 += rel_err * rel_err ;
             } // fpi
             printf("     (%6.4f)\n", sqrt( sum_err2 ) ) ;
-            h_rel_err_table_simple_ignore -> SetBinContent( npars+2, 10-rowi, sqrt( sum_err2 ) ) ;
+            h_rel_err_table_simple_ignore -> SetBinContent( npars+2, 13-rowi, sqrt( sum_err2 ) ) ;
             h_rel_err_table_simple_ignore -> GetXaxis() -> SetBinLabel( npars+2, "Total error" ) ;
          } // hti
       } // nji
@@ -358,19 +402,27 @@
       gStyle -> SetOptStat(0) ;
 
       gStyle->SetPaintTextFormat("7.4f");
+      gStyle -> SetPadLeftMargin( 0.15 ) ;
+      gStyle -> SetPadRightMargin( 0.15 ) ;
+
+      int cx = 50 ;
+      int cy = 50 ;
 
     //---
-      TCanvas* can1 = new TCanvas("can1","",900,800 ) ;
+      TCanvas* can3 = new TCanvas("can3","Fit correlation coefficient matrix",900,800 ) ;
+      can3 -> SetWindowPosition( cx, cy ) ;
 
-      h_rel_err_table -> SetContour(nb) ;
-      h_rel_err_table -> SetMinimum( -0.7 ) ;
-      h_rel_err_table -> SetMaximum(  0.7 ) ;
+      h_fit_correlation_matrix -> SetContour(nb) ;
+      h_fit_correlation_matrix -> SetMinimum( -1.0 ) ;
+      h_fit_correlation_matrix -> SetMaximum(  1.0 ) ;
 
-      h_rel_err_table -> Draw("colz") ;
-      h_rel_err_table -> Draw("text same") ;
+      h_fit_correlation_matrix -> Draw("colz X+") ;
+      h_fit_correlation_matrix -> Draw("text same") ;
 
     //---
-      TCanvas* can2 = new TCanvas("can2","",900,800 ) ;
+      TCanvas* can2 = new TCanvas("can2","Combine table, original parameters, ignoring correlations",900,800 ) ;
+      cx += 50 ; cy += 50 ;
+      can2 -> SetWindowPosition( cx, cy ) ;
 
       h_rel_err_table_simple_ignore -> SetContour(nb) ;
       h_rel_err_table_simple_ignore -> SetMinimum( -0.7 ) ;
@@ -379,7 +431,153 @@
       h_rel_err_table_simple_ignore -> Draw("colz") ;
       h_rel_err_table_simple_ignore -> Draw("text same") ;
 
+    //---
+      TCanvas* can1 = new TCanvas("can1","Combine table, rotated parameters",900,800 ) ;
+      cx += 50 ; cy += 50 ;
+      can1 -> SetWindowPosition( cx, cy ) ;
+
+      h_rel_err_table -> SetContour(nb) ;
+      h_rel_err_table -> SetMinimum( -0.7 ) ;
+      h_rel_err_table -> SetMaximum(  0.7 ) ;
+
+      h_rel_err_table -> Draw("colz") ;
+      h_rel_err_table -> Draw("text same") ;
+
+
+    //---
+      TCanvas* can4 = new TCanvas("can4","Cov mat Eigen vectors",900,800 ) ;
+      cx += 50 ; cy += 50 ;
+      can4 -> SetWindowPosition( cx, cy ) ;
+
+
+      h_eigenvec_matrix -> SetContour(nb) ;
+      h_eigenvec_matrix -> SetMinimum( -0.7 ) ;
+      h_eigenvec_matrix -> SetMaximum(  0.7 ) ;
+
+      h_eigenvec_matrix -> Draw("colz") ;
+      h_eigenvec_matrix -> Draw("text same") ;
+
+
+
+
+
+
+
+
+
+
+      printf("  h_ratio pointer %p\n", h_ratio ) ; fflush(stdout) ;
+      TH2F* h_cont_op_p0_vs_p1 = make_contour_original_pars( 0, 1 ) ;
+      TH2F* h_cont_op_p1_vs_p2 = make_contour_original_pars( 1, 2 ) ;
+      TH2F* h_cont_op_p2_vs_p3 = make_contour_original_pars( 2, 3 ) ;
+      TH2F* h_cont_op_p3_vs_p4 = make_contour_original_pars( 3, 4 ) ;
+
+
+
+
+
    } // gen_combine_table_from_cov_mat
+
+
+//===============================================================================
+
+   TH1F* get_hist( const char* hname ) {
+      TH1F* hp = (TH1F*) gDirectory -> FindObject( hname ) ;
+      if ( hp == 0x0 ) {
+         printf("\n\n *** Missing histogram : %s\n\n", hname ) ;
+         gDirectory -> ls() ;
+         gSystem -> Exit( -1 ) ;
+      }
+      return hp ;
+   } // get_hist
+
+//===============================================================================
+
+   TH2F* make_contour_original_pars( int pix, int piy ) {
+
+      char hname[100] ;
+      char htitle[1000] ;
+
+      sprintf( hname, "h_cont_op_p%d_vs_p%d", piy, pix ) ;
+      sprintf( htitle, "chi2 contour, %s vs %s", par_name[piy], par_name[pix] ) ;
+
+      float xl = par_val[pix] - 2.5*par_err[pix] ;
+      float xh = par_val[pix] + 2.5*par_err[pix] ;
+      float yl = par_val[piy] - 2.5*par_err[piy] ;
+      float yh = par_val[piy] + 2.5*par_err[piy] ;
+      if ( xl < 0 ) xl = 0. ;
+      if ( yl < 0 ) yl = 0. ;
+
+      int ncp(40) ;
+      //int ncp(5) ;
+      printf("\n\n make_contour_original_pars: creating %s , %s\n", hname, htitle ) ;
+      TH2F* hp = new TH2F( hname, htitle, ncp, xl, xh, ncp, yl, yh ) ;
+
+      printf(" Scanning on x axis %s  (%6.4f +/- %6.4f) from %6.4f to %6.4f\n", par_name[pix], par_val[pix], par_err[pix], xl, xh ) ;
+      printf(" Scanning on y axis %s  (%6.4f +/- %6.4f) from %6.4f to %6.4f\n", par_name[piy], par_val[piy], par_err[piy], yl, yh ) ; fflush( stdout ) ;
+
+      for ( int xi=0; xi<ncp; xi++ ) {
+
+         float px = xl + (xh-xl)*(xi+0.5)/ncp ;
+
+         for ( int yi=0; yi<ncp; yi++ ) {
+
+            float py = yl + (yh-yl)*(yi+0.5)/ncp ;
+
+            ////////printf(" grid point %s = %6.4f  %s = %6.4f\n", par_name[pix], px, par_name[piy], py ) ;
+
+            float chi2(0.) ;
+            int ratio_hist_bin(0) ;
+            for ( int hti=1; hti<=3; hti++ ) {
+               for ( int nji=1; nji<=4; nji++ ) {
+
+                  ratio_hist_bin ++ ;
+
+                  if ( hti==1 && nji>2 ) continue ;
+
+                  float ratio_val = h_ratio -> GetBinContent( ratio_hist_bin ) ;
+                  float ratio_err = h_ratio -> GetBinError( ratio_hist_bin ) ;
+
+                  int pi_ht = ht_par[hti] ;
+                  int pi_njet = njet_par[nji] ;
+
+                  float kht   = par_val[pi_ht] ;
+                  float snjet = par_val[pi_njet] ;
+
+                  if ( pix == pi_ht   ) { kht   = px ; }
+                  if ( pix == pi_njet ) { snjet = px ; }
+                  if ( piy == pi_ht   ) { kht   = py ; }
+                  if ( piy == pi_njet ) { snjet = py ; }
+
+                  float model_val = kht * snjet ;
+
+                  ////////printf("   --- pi_ht = %d, pi_njet = %d\n", pi_ht, pi_njet ) ;
+                  //////printf("   --- ht%d njet%d : hist bin %2d (%s) : data = %6.4f +/- %6.4f ,  model = %6.4f * %6.4f = %6.4f,  chi2 contribution %9.4f\n",
+                      //////hti, nji, ratio_hist_bin, h_ratio->GetXaxis()->GetBinLabel( ratio_hist_bin ),
+                      //////ratio_val, ratio_err, kht, snjet, model_val, pow( (ratio_val - model_val)/ratio_err, 2. ) ) ; fflush( stdout ) ;
+
+                  if ( ratio_err > 0 ) {
+                     chi2 += pow( (ratio_val - model_val)/ratio_err, 2. ) ;
+                  }
+
+
+               } // nji
+            } // hti
+
+            //////printf("  %s = %6.4f ,  %s = %6.4f ,  chi2 = %8.4f\n", par_name[pix], px, par_name[piy], py, chi2 ) ;
+
+            hp -> SetBinContent( xi+1, yi+1, chi2 ) ;
+
+         } // yi
+
+      } // xi
+
+      return hp ;
+
+   } // make_contour_original_pars
+
+//===============================================================================
+
 
 
 

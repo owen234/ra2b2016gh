@@ -41,7 +41,7 @@
   //--------
 
    void gen_combine_input2(
-         const char* model_pars_file = "model-pars-data4.txt",
+         const char* model_pars_file = "model-pars-data4b.txt",
          const char* mc_minus_model_hist_file = "outputfiles/model-ratio-hist1.root",
          const char* data_file    = "outputfiles/combine-input-data.txt",
          const char* lostlep_file = "outputfiles/combine-input-lostlep.txt",
