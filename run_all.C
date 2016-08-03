@@ -1,5 +1,8 @@
 #include "slim-code/run_slimskim.c"
+
+#ifndef   data_turnon1_c
 #include "data_turnon1.c"
+#endif
 
 #include "TSystem.h"
 #include "TFile.h"

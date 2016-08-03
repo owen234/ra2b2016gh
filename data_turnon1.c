@@ -1,3 +1,6 @@
+#ifndef data_turnon1_c
+#define data_turnon1_c
+
 #include "TChain.h"
 #include "TStyle.h"
 #include "TPad.h"
@@ -114,4 +117,4 @@
 
  //=========================================================
 
-
+#endif
