@@ -4,14 +4,21 @@
 #include "TSystem.h"
 #include <string>
 
-#include "histio.c"
+#ifndef binning_h
+#include "binning.h"
+#endif
 
+#ifndef histio_c
+#include "histio.c"
+#endif
 
    void add_overflow( TH1F* hp ) ;
 
   //---------
 
-   void data_turnon1( bool include_Njets2 = true ) {
+   void data_turnon1(  ) {
+
+      setup_bins();
 
       TChain ch_ht("tree") ;
       TChain ch_met("tree") ;
@@ -25,19 +32,6 @@
       ch_met.Add("fnal-prod-v9-skims-slimmed/tree_LDP/tree_MET_2016D-slimskim.root") ;
      //-----------
 
-      int bin_edges_nj[100];
-      int bi,nb_nj ;
-
-      bi = 0 ;
-      if ( include_Njets2 == true )
-      {   bin_edges_nj[bi] = 2 ; bi++ ;}
-      bin_edges_nj[bi] = 3 ; bi++ ;
-      bin_edges_nj[bi] = 5 ; bi++ ;
-      bin_edges_nj[bi] = 7 ; bi++ ;
-      bin_edges_nj[bi] = 9 ; bi++ ;
-      bin_edges_nj[bi] = 100 ;
-      nb_nj = bi ;
-
 
       int nbin(10) ;
       double xbins[11] = {0., 200., 220, 240, 260, 280, 300, 340, 400, 500, 700 } ;
@@ -50,8 +44,8 @@
       {
 
          TString nj_str         ; nj_str         .Form("%d",nj+1); 
-         TString nj_cut_low_str ; nj_cut_low_str .Form("%d",bin_edges_nj[nj]);
-         TString nj_cut_high_str; nj_cut_high_str.Form("%d",bin_edges_nj[nj+1];
+         TString nj_cut_low_str ; nj_cut_low_str .Form("%f",bin_edges_nj[nj]);
+         TString nj_cut_high_str; nj_cut_high_str.Form("%f",bin_edges_nj[nj+1]);
 
          denom_h_mht_nj[nj] = new TH1F( "h_mht_nj"+nj_str+"_denom", "MHT, Nj"+nj_str+", HT800" ,  nbin, xbins ) ;
          numer_h_mht_nj[nj] = new TH1F( "h_mht_nj"+nj_str+"_numer", "MHT, Nj"+nj_str+", MET100",  nbin, xbins ) ;
