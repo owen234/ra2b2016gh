@@ -1,6 +1,7 @@
 #ifndef data_turnon1_c
 #define data_turnon1_c
 
+#include "TCanvas.h"
 #include "TChain.h"
 #include "TStyle.h"
 #include "TPad.h"
@@ -19,6 +20,8 @@
 
       TChain ch_ht("tree") ;
       TChain ch_met("tree") ;
+
+      TCanvas* can = new TCanvas( "can_data_turnon1", "Data trigger efficiency", 900, 800 ) ;
 
      //-----------
       ch_ht.Add("fnal-prod-v9-skims-slimmed/tree_LDP/tree_JetHT_2016B-slimskim.root") ;
@@ -49,7 +52,9 @@
          h_eff_nj[nj]       = new TH1F( "h_eff_nj"+nj_str         , "Eff, Nj"+nj_str           , nbin, xbins ) ;
 
          ch_ht.Draw("MHT>>h_mht_nj"+nj_str+"_denom","HBHEIsoNoiseFilter == 1 && HBHENoiseFilter == 1 && eeBadScFilter == 1 && EcalDeadCellTriggerPrimitiveFilter == 1 && NVtx > 0 && JetID &&  HT>900 && (MET>100 && CaloMET>80 && MET/CaloMET<5) && pass_ht800_trig && NJets >= "+ nj_cut_low_str + " && NJets < " + nj_cut_high_str) ;
+         can -> Update() ; can -> Draw() ;
          ch_met.Draw("MHT>>h_mht_nj"+nj_str+"_numer", "HBHEIsoNoiseFilter == 1 && HBHENoiseFilter == 1 && eeBadScFilter == 1 && EcalDeadCellTriggerPrimitiveFilter == 1 && NVtx > 0 && JetID && HT>900 && (MET>100 && CaloMET>80 && MET/CaloMET<5) && pass_ht800_trig && (pass_pfmet100_trig||pass_pfmetnomu100_trig) && NJets >= "+ nj_cut_low_str + " && NJets < " + nj_cut_high_str ) ;
+         can -> Update() ; can -> Draw() ;
 
          add_overflow( denom_h_mht_nj[nj] ) ;
          add_overflow( numer_h_mht_nj[nj] ) ;
@@ -75,7 +80,7 @@
          gStyle -> SetOptStat(0) ;
 
          h_eff_nj[nj] -> SetMaximum( 1.05 ) ;
-         h_eff_nj[nj] -> SetMinimum( 0.5 ) ;
+         h_eff_nj[nj] -> SetMinimum( 0.4 ) ;
 
          h_eff_nj[nj] -> SetMarkerStyle(20+nj) ;
          h_eff_nj[nj] -> SetMarkerColor(2+nj) ;
@@ -84,9 +89,11 @@
       h_eff_nj[0] -> Draw() ;
       gPad -> SetGridx(1) ;
       gPad -> SetGridy(1) ;
-      h_eff_nj[1] -> Draw("same") ;
-      h_eff_nj[2] -> Draw("same") ;
-      h_eff_nj[3] -> Draw("same") ;
+      for ( int nj = 1; nj < nb_nj; nj++) {
+         h_eff_nj[nj] -> Draw("same") ;
+      }
+      can -> Update() ; can -> Draw() ;
+      can -> SaveAs( "outputfiles/data-turnon1.pdf" ) ;
 
 
       gSystem -> Exec( "mkdir -p outputfiles" ) ;

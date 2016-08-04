@@ -1,3 +1,5 @@
+#ifndef histio_c
+#define histio_c
 
 #include "TClass.h"
 #include "TList.h"
@@ -133,3 +135,4 @@ void loadHist(const char* filename="in.root", const char* pfx=0, const char* pat
   inf.Close() ;
   delete iter ;
 }
+#endif
