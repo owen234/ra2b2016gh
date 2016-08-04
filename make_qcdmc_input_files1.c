@@ -1,19 +1,27 @@
+#include "TFile.h"
+#include "TDirectory.h"
+#include "TH1F.h"
+#include "TPad.h"
+#include "TStyle.h"
+#include "TString.h"
 
+#include "binning.h"
 
    void make_qcdmc_input_files1( const char* input_root_file = "outputfiles/hists-v2d-qcd.root",
                                  const char* nbsum_text_file = "outputfiles/nbsum-input-qcd.txt",
                                  const char* output_hist_file = "outputfiles/modelfit-input-qcdmc.root"
                                ) {
 
+      setup_bins();
       gDirectory -> Delete( "h*" ) ;
 
       TFile* tf = new TFile( input_root_file, "read" ) ;
       if ( tf == 0x0 ) { printf("\n\n *** Bad input file: %s\n\n", input_root_file ) ; return ; }
       if ( !(tf -> IsOpen() ) ) { printf("\n\n *** Bad input file: %s\n\n", input_root_file ) ; return ; }
 
-      printf("\n") ;
-      tf -> ls() ;
-      printf("\n") ;
+//      printf("\n") ;
+//      tf -> ls() ;
+//      printf("\n") ;
 
       FILE* ofp_nbsum ;
       if ( (ofp_nbsum = fopen( nbsum_text_file, "w" ))==NULL ) {
@@ -27,10 +35,9 @@
       TH1F* h_hdp = (TH1F*) tf -> Get( "h_hdp" ) ;
       if ( h_hdp == 0x0 ) { printf("\n\n *** Missing h_hdp\n\n") ; return ; }
 
-      int nb_nj(4) ;
-      int nb_nb(4) ;
-      int nb_htmht(13) ;
-      int nb_ht(3) ;
+//      int nb_nj(5) ;
+//      int nb_nb(4) ;
+//      int nb_htmht(13) ;
 
       int bi_hist(0) ;
 
@@ -38,8 +45,8 @@
 
       int bi_ratio_hist(0) ;
 
-      for ( int bi_ht=1; bi_ht<=nb_ht; bi_ht++ ) {
-         for ( int bi_nj=1; bi_nj<=nb_nj; bi_nj++ ) {
+      for ( bi_ht=1; bi_ht<=3; bi_ht++ ) {
+         for ( bi_nj=1; bi_nj<=nb_nj; bi_nj++ ) {
 
             double ldp_nbsum_val(0.) ;
             double ldp_nbsum_err2(0.) ;
@@ -47,7 +54,7 @@
             double hdp_nbsum_val(0.) ;
             double hdp_nbsum_err2(0.) ;
 
-            for ( int bi_nb=1; bi_nb<=nb_nb; bi_nb++ ) {
+            for ( bi_nb=1; bi_nb<=nb_nb; bi_nb++ ) {
 
                bi_hist = (bi_nj-1)*(nb_nb)*(nb_htmht) + (bi_nb-1)*(nb_htmht) + bi_ht ;
 
