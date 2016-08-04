@@ -22,27 +22,6 @@ class fill_data_hists_loop_v2d {
 public :
 
    //----------
-   float bin_edges_nj[100]  ;
-   float bin_edges_nb[100]  ;
-   float bin_edges_mht[100]  ;
-   float bin_edges_ht[100][100]  ;
-   int   nb_nj ;
-   int   nb_nb ;
-   int   nb_ht[100] ;
-   int   nb_mht ;
-   int   bi_nj ;
-   int   bi_nb ;
-   int   bi_ht ;
-   int   bi_mht ;
-
-   int   nb_htmht ;
-   int   bi_htmht ;
-
-   int   nb_global ;
-   int   bi_global ;
-   int   bi_nbsum_global ;
-
-   void setup_bins() ;
    void set_bi() ;
 
    void translate_global_bin( int gbi, int& tbi_nj, int& tbi_nb, int& tbi_htmht, int& tbi_ht, int& tbi_mht ) ;
@@ -204,12 +183,12 @@ fill_data_hists_loop_v2d::fill_data_hists_loop_v2d(TTree *tree, const char* samp
    // chain->Add("fnal-prod-v9-skims-slimmed/tree_signal/tree_MET_2016B-slimskim.root/tree");
    // chain->Add("fnal-prod-v9-skims-slimmed/tree_signal/tree_MET_2016C-slimskim.root/tree");
      //----------
-      chain->Add("fnal-prod-v9-skims-slimmed/tree_LDP_july21a/tree_MET_2016B-slimskim.root/tree");
-      chain->Add("fnal-prod-v9-skims-slimmed/tree_LDP_july21a/tree_MET_2016C-slimskim.root/tree");
-      chain->Add("fnal-prod-v9-skims-slimmed/tree_LDP_july21a/tree_MET_2016D-slimskim.root/tree");
-      chain->Add("fnal-prod-v9-skims-slimmed/tree_signal_july21a/tree_MET_2016B-slimskim.root/tree");
-      chain->Add("fnal-prod-v9-skims-slimmed/tree_signal_july21a/tree_MET_2016C-slimskim.root/tree");
-      chain->Add("fnal-prod-v9-skims-slimmed/tree_signal_july21a/tree_MET_2016D-slimskim.root/tree");
+      chain->Add("fnal-prod-v9-skims-slimmed/tree_LDP/tree_MET_2016B-slimskim.root/tree");
+      chain->Add("fnal-prod-v9-skims-slimmed/tree_LDP/tree_MET_2016C-slimskim.root/tree");
+      chain->Add("fnal-prod-v9-skims-slimmed/tree_LDP/tree_MET_2016D-slimskim.root/tree");
+      chain->Add("fnal-prod-v9-skims-slimmed/tree_signal/tree_MET_2016B-slimskim.root/tree");
+      chain->Add("fnal-prod-v9-skims-slimmed/tree_signal/tree_MET_2016C-slimskim.root/tree");
+      chain->Add("fnal-prod-v9-skims-slimmed/tree_signal/tree_MET_2016D-slimskim.root/tree");
      //----------
       tree = chain;
 #endif // SINGLE_TREE

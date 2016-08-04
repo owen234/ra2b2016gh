@@ -302,7 +302,7 @@ using std::vector ;
 
          if ( doSkim ) {
 
-            if ( NJets < 3 ) continue ;
+            if ( NJets < 2 ) continue ;  //** changed from 2 to 3
             if ( MHT < 200. ) continue ; //*** changed from 250 to 200.
             if ( HT < 300. ) continue ;
 
