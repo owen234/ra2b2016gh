@@ -1,3 +1,6 @@
+#ifndef make_qcdmc_input_files1_c
+#define make_qcdmc_input_files1_c
+
 #include "TFile.h"
 #include "TDirectory.h"
 #include "TH1F.h"
@@ -141,4 +144,4 @@
    } // make_qcdmc_input_files1
 
 
-
+#endif

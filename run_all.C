@@ -3,6 +3,7 @@
 #include "data_turnon1.c"
 #include "fill_hists_loop_v2d.c"
 #include "fill_data_hists_loop_v2d.c"
+#include "make_qcdmc_input_files1.c"
 
 #include "TSystem.h"
 #include "TFile.h"
@@ -40,5 +41,5 @@ void run_all (bool do_skim_slim = false )
    fill_data_hists_loop_v2d f2;
    f2.Loop();
 
-
+   make_qcdmc_input_files1();
 }
