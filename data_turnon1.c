@@ -6,14 +6,8 @@
 #include "TPad.h"
 #include "TSystem.h"
 #include <string>
-
-#ifndef binning_h
 #include "binning.h"
-#endif
-
-#ifndef histio_c
 #include "histio.c"
-#endif
 
    void add_overflow( TH1F* hp ) ;
 

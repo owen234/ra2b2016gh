@@ -1,3 +1,5 @@
+#ifndef fill_hists_loop_v2d_c
+#define fill_hists_loop_v2d_c
 
 //
 //  Organizing principles of binning.
@@ -26,14 +28,22 @@
 #include "TSystem.h"
 #include "TStopwatch.h"
 #include "TMath.h"
-#include "histio.c"
 #include <iostream>
 #include <vector>
+
+#include "binning.h"
+#include "histio.c"
+
 using namespace std ;
+
+
 
 
 void fill_hists_loop_v2d::Loop( bool verb, int nloop )
 {
+
+   setup_bins() ;
+
 
    //double lumi = 2300. ;
    //double lumi = 815. ;
@@ -63,35 +73,46 @@ void fill_hists_loop_v2d::Loop( bool verb, int nloop )
 
    if ( isqcd ) loadHist( "outputfiles/data-turnon.root" ) ;
 
-   TH1F* h_turnon[5] ;
+   TH1F* h_turnon[10] ;
    if ( isqcd ) {
-      h_turnon[1] = (TH1F*) gDirectory -> FindObject( "h_eff_nj1" ) ;
-      h_turnon[2] = (TH1F*) gDirectory -> FindObject( "h_eff_nj2" ) ;
-      h_turnon[3] = (TH1F*) gDirectory -> FindObject( "h_eff_nj3" ) ;
-      h_turnon[4] = (TH1F*) gDirectory -> FindObject( "h_eff_nj4" ) ;
-      if ( h_turnon[1] == 0x0 ) { printf("\n\n *** missing nj1 turnon.\n\n") ; return ; }
-      if ( h_turnon[2] == 0x0 ) { printf("\n\n *** missing nj2 turnon.\n\n") ; return ; }
-      if ( h_turnon[3] == 0x0 ) { printf("\n\n *** missing nj3 turnon.\n\n") ; return ; }
-      if ( h_turnon[4] == 0x0 ) { printf("\n\n *** missing nj4 turnon.\n\n") ; return ; }
+
+      for ( int nj = 1; nj <= nb_nj; nj++)
+      {
+
+         TString nj_str         ; nj_str         .Form("%d",nj);
+
+         h_turnon[nj] = (TH1F*) gDirectory -> FindObject( "h_eff_nj"+nj_str ) ;
+         if ( h_turnon[nj] == 0x0 ) { printf("\n\n *** missing nj%d turnon.\n\n", nj) ; return ; }
+
+      }
+
    }
 
-   setup_bins() ;
+
 
    if (fChain == 0) return;
+
+   TH1F* h_hdp_nb[10], *h_ldp_nb[10];
+
+   for ( int nb = 0; nb < nb_nb; nb++)
+   {
+
+      TString nb_str         ; nb_str         .Form("%d",nb);
+      h_hdp_nb[nb] = new TH1F( "h_hdp_nb"+nb_str, "HDP events, Nb="+nb_str, nb_global/nb_nb, 0.5, nb_global/nb_nb + 0.5 ) ; h_hdp_nb[nb] -> Sumw2() ;
+      set_bin_labels( h_hdp_nb[nb] ) ;
+
+      h_ldp_nb[nb] = new TH1F( "h_ldp_nb"+nb_str, "ldp events, Nb="+nb_str, nb_global/nb_nb, 0.5, nb_global/nb_nb + 0.5 ) ; h_ldp_nb[nb] -> Sumw2() ;
+      set_bin_labels( h_ldp_nb[nb] ) ;
+
+
+   }
 
 
    TH1F* h_hdp = new TH1F( "h_hdp", "HDP events", nb_global, 0.5, nb_global + 0.5 ) ; h_hdp -> Sumw2() ;
    set_bin_labels_div_by_nb( h_hdp ) ;
    TH1F* h_nbsum_hdp = new TH1F( "h_nbsum_hdp", "HDP events", nb_global/nb_nb, 0.5, nb_global/nb_nb + 0.5 ) ; h_nbsum_hdp -> Sumw2() ;
    set_bin_labels( h_nbsum_hdp ) ;
-   TH1F* h_nb0_hdp = new TH1F( "h_nb0_hdp", "HDP events, Nb=0", nb_global/nb_nb, 0.5, nb_global/nb_nb + 0.5 ) ; h_nb0_hdp -> Sumw2() ;
-   set_bin_labels( h_nb0_hdp ) ;
-   TH1F* h_nb1_hdp = new TH1F( "h_nb1_hdp", "HDP events, Nb=1", nb_global/nb_nb, 0.5, nb_global/nb_nb + 0.5 ) ; h_nb1_hdp -> Sumw2() ;
-   set_bin_labels( h_nb1_hdp ) ;
-   TH1F* h_nb2_hdp = new TH1F( "h_nb2_hdp", "HDP events, Nb=2", nb_global/nb_nb, 0.5, nb_global/nb_nb + 0.5 ) ; h_nb2_hdp -> Sumw2() ;
-   set_bin_labels( h_nb2_hdp ) ;
-   TH1F* h_nb3_hdp = new TH1F( "h_nb3_hdp", "HDP events, Nb=3", nb_global/nb_nb, 0.5, nb_global/nb_nb + 0.5 ) ; h_nb3_hdp -> Sumw2() ;
-   set_bin_labels( h_nb3_hdp ) ;
+
    TH1F* h_mhtc_hdp = new TH1F( "h_mhtc_hdp", "HDP events, MHTC", nb_nj*nb_nb*nb_ht[1], 0.5, nb_nj*nb_nb*nb_ht[1]+0.5 ) ; h_mhtc_hdp -> Sumw2() ;
    set_bin_labels_mhtc_plot( h_mhtc_hdp ) ;
    TH1F* h_mhtc_nbsum_hdp = new TH1F( "h_mhtc_nbsum_hdp", "HDP events, MHTC, Nbsum", nb_nj*nb_ht[1], 0.5, nb_nj*nb_ht[1]+0.5 ) ; h_mhtc_nbsum_hdp -> Sumw2() ;
@@ -101,14 +122,6 @@ void fill_hists_loop_v2d::Loop( bool verb, int nloop )
    set_bin_labels_div_by_nb( h_ldp ) ;
    TH1F* h_nbsum_ldp = new TH1F( "h_nbsum_ldp", "LDP events", nb_global/nb_nb, 0.5, nb_global/nb_nb + 0.5 ) ; h_nbsum_ldp -> Sumw2() ;
    set_bin_labels( h_nbsum_ldp ) ;
-   TH1F* h_nb0_ldp = new TH1F( "h_nb0_ldp", "ldp events, Nb=0", nb_global/nb_nb, 0.5, nb_global/nb_nb + 0.5 ) ; h_nb0_ldp -> Sumw2() ;
-   set_bin_labels( h_nb0_ldp ) ;
-   TH1F* h_nb1_ldp = new TH1F( "h_nb1_ldp", "ldp events, Nb=1", nb_global/nb_nb, 0.5, nb_global/nb_nb + 0.5 ) ; h_nb1_ldp -> Sumw2() ;
-   set_bin_labels( h_nb1_ldp ) ;
-   TH1F* h_nb2_ldp = new TH1F( "h_nb2_ldp", "ldp events, Nb=2", nb_global/nb_nb, 0.5, nb_global/nb_nb + 0.5 ) ; h_nb2_ldp -> Sumw2() ;
-   set_bin_labels( h_nb2_ldp ) ;
-   TH1F* h_nb3_ldp = new TH1F( "h_nb3_ldp", "ldp events, Nb=3", nb_global/nb_nb, 0.5, nb_global/nb_nb + 0.5 ) ; h_nb3_ldp -> Sumw2() ;
-   set_bin_labels( h_nb3_ldp ) ;
    TH1F* h_mhtc_ldp = new TH1F( "h_mhtc_ldp", "ldp events, MHTC", nb_nj*nb_nb*nb_ht[1], 0.5, nb_nj*nb_nb*nb_ht[1]+0.5 ) ; h_mhtc_ldp -> Sumw2() ;
    set_bin_labels_mhtc_plot( h_mhtc_ldp ) ;
    TH1F* h_mhtc_nbsum_ldp = new TH1F( "h_mhtc_nbsum_ldp", "ldp events, MHTC, Nbsum", nb_nj*nb_ht[1], 0.5, nb_nj*nb_ht[1]+0.5 ) ; h_mhtc_nbsum_ldp -> Sumw2() ;
@@ -145,8 +158,8 @@ void fill_hists_loop_v2d::Loop( bool verb, int nloop )
 
    TH1F* h_ht_after_cleaning = new TH1F( "h_ht_after_cleaning", "HT, after all QCD junk cleaning", 50, 0., 5000. ) ;
 
-   TH1F* h_ldp_weight[209] ;
-   for ( int sbi=1; sbi<=208; sbi++ ) {
+   TH1F* h_ldp_weight[1000] ;
+   for ( int sbi=1; sbi<=nb_global; sbi++ ) {
       char hname[100] ;
       sprintf( hname, "h_ldp_weight_bin%03d", sbi ) ;
       h_ldp_weight[sbi] = new TH1F( hname, hname, 100, 0., 2. ) ;
@@ -285,8 +298,8 @@ void fill_hists_loop_v2d::Loop( bool verb, int nloop )
       if ( isjunk ) continue ;
 
     //-- new baseline
-      if ( NJets < 3 ) continue ;
-      if ( HT < 300 ) continue ;
+      if ( NJets < bin_edges_nj[0] ) continue ;
+      if ( HT < bin_edges_ht[1][0] ) continue ;
       ////////if ( bi_mht <= 0 ) continue ;
 
 
@@ -295,7 +308,7 @@ void fill_hists_loop_v2d::Loop( bool verb, int nloop )
       if ( isqcd ) {
          int turnon_bin(0) ;
          float trig_eff(1.) ;
-         if ( bi_nj>=1 && bi_nj<=4 ) {
+         if ( bi_nj>=1 && bi_nj<= nb_nj ) {
             if ( MHT < (h_turnon[bi_nj] -> GetXaxis() -> GetXmax()) ) {
                turnon_bin = h_turnon[bi_nj] -> GetXaxis() -> FindBin( MHT ) ;
             } else {
@@ -351,20 +364,20 @@ void fill_hists_loop_v2d::Loop( bool verb, int nloop )
       if ( !in_ldp ) {
          h_hdp -> Fill( bi_global, hw ) ;
          h_nbsum_hdp -> Fill( bi_nbsum_global, hw ) ;
-         if ( BTags == 0 ) h_nb0_hdp -> Fill( bi_nbsum_global, hw ) ;
-         if ( BTags == 1 ) h_nb1_hdp -> Fill( bi_nbsum_global, hw ) ;
-         if ( BTags == 2 ) h_nb2_hdp -> Fill( bi_nbsum_global, hw ) ;
-         if ( BTags >= 3 ) h_nb3_hdp -> Fill( bi_nbsum_global, hw ) ;
+
+         for ( int nb = 0; nb < nb_nb; nb++)
+            if ( BTags > bin_edges_nb[nb] && BTags < bin_edges_nb[nb+1] ) h_hdp_nb[nb] -> Fill( bi_nbsum_global, hw ) ;
+
          if ( bi_mht == 1 ) h_mhtc_hdp -> Fill( bi_mhtc_plot , hw ) ;
          if ( bi_mht == 1 ) h_mhtc_nbsum_hdp -> Fill( bi_mhtc_nbsum_plot , hw ) ;
       } else {
          h_ldp -> Fill( bi_global, hw ) ;
-         if ( bi_global > 0 && bi_global < 208 ) h_ldp_weight[bi_global] -> Fill( hw ) ;
+         if ( bi_global > 0 && bi_global < nb_global ) h_ldp_weight[bi_global] -> Fill( hw ) ;
          h_nbsum_ldp -> Fill( bi_nbsum_global, hw ) ;
-         if ( BTags == 0 ) h_nb0_ldp -> Fill( bi_nbsum_global, hw ) ;
-         if ( BTags == 1 ) h_nb1_ldp -> Fill( bi_nbsum_global, hw ) ;
-         if ( BTags == 2 ) h_nb2_ldp -> Fill( bi_nbsum_global, hw ) ;
-         if ( BTags >= 3 ) h_nb3_ldp -> Fill( bi_nbsum_global, hw ) ;
+
+         for ( int nb = 0; nb < nb_nb; nb++)
+            if ( BTags > bin_edges_nb[nb] && BTags < bin_edges_nb[nb+1] ) h_ldp_nb[nb] -> Fill( bi_nbsum_global, hw ) ;
+
          if ( bi_mht == 1 ) h_mhtc_ldp -> Fill( bi_mhtc_plot , hw ) ;
          if ( bi_mht == 1 ) h_mhtc_nbsum_ldp -> Fill( bi_mhtc_nbsum_plot , hw ) ;
       }
@@ -388,9 +401,9 @@ void fill_hists_loop_v2d::Loop( bool verb, int nloop )
    } // jentry
 
 
-   TH1F* h_max_ldp_weight = new TH1F( "h_max_ldp_weight", "Max ldp weight", 208, 0.5, 208.5 ) ;
+   TH1F* h_max_ldp_weight = new TH1F( "h_max_ldp_weight", "Max ldp weight", nb_global, 0.5, nb_global + 0.5 ) ;
 
-   for ( int sbi=1; sbi<=208; sbi++ ) {
+   for ( int sbi=1; sbi<=nb_global; sbi++ ) {
       float max_weight(0.) ;
       for ( int hbi=1; hbi<=h_ldp_weight[sbi]->GetNbinsX(); hbi++ ) {
          float c = h_ldp_weight[sbi] -> GetBinContent( hbi ) ;
@@ -418,133 +431,6 @@ void fill_hists_loop_v2d::Loop( bool verb, int nloop )
    saveHist( histfile, "h*" ) ;
 
 } // Loop
-
-//=====================================================================================================
-
-   void fill_hists_loop_v2d::setup_bins() {
-
-      int bi ;
-
-      bi = 0 ;
-      bin_edges_nj[bi] = 2.5 ; bi++ ;
-      bin_edges_nj[bi] = 4.5 ; bi++ ;
-      bin_edges_nj[bi] = 6.5 ; bi++ ;
-      bin_edges_nj[bi] = 8.5 ; bi++ ;
-      bin_edges_nj[bi] = 99.5 ;
-      nb_nj = bi ;
-
-      bi = 0 ;
-      bin_edges_nb[bi] = -0.5 ; bi++ ;
-      bin_edges_nb[bi] =  0.5 ; bi++ ;
-      bin_edges_nb[bi] =  1.5 ; bi++ ;
-      bin_edges_nb[bi] =  2.5 ; bi++ ;
-      bin_edges_nb[bi] =  99.5 ;
-      nb_nb = bi ;
-
-      bi = 0 ;
-      bin_edges_mht[bi] =   250. ; bi++ ;
-      ////////////////////////bin_edges_mht[bi] =   200. ; bi++ ;
-      bin_edges_mht[bi] =   300. ; bi++ ;
-      bin_edges_mht[bi] =   350. ; bi++ ;
-      bin_edges_mht[bi] =   500. ; bi++ ;
-      bin_edges_mht[bi] =   750. ; bi++ ;
-      bin_edges_mht[bi] = 20000. ;
-      nb_mht = bi ;
-
-      int mbi(1) ;
-      nb_htmht = 0 ;
-      //--- MHT bin 0
-      bi = 0 ;
-      bin_edges_ht[mbi][bi] =   300. ; bi++ ;
-      bin_edges_ht[mbi][bi] =   500. ; bi++ ;
-      bin_edges_ht[mbi][bi] =  1000. ; bi++ ;
-      bin_edges_ht[mbi][bi] = 20000. ;
-      nb_ht[mbi] = bi ;
-      nb_htmht += bi ;
-      mbi++ ;
-      //--- MHT bin 1
-      bi = 0 ;
-      bin_edges_ht[mbi][bi] =   300. ; bi++ ;
-      bin_edges_ht[mbi][bi] =   500. ; bi++ ;
-      bin_edges_ht[mbi][bi] =  1000. ; bi++ ;
-      bin_edges_ht[mbi][bi] = 20000. ;
-      nb_ht[mbi] = bi ;
-      nb_htmht += bi ;
-      mbi++ ;
-      //--- MHT bin 2
-      bi = 0 ;
-      bin_edges_ht[mbi][bi] =   350. ; bi++ ;
-      bin_edges_ht[mbi][bi] =   500. ; bi++ ;
-      bin_edges_ht[mbi][bi] =  1000. ; bi++ ;
-      bin_edges_ht[mbi][bi] = 20000. ;
-      nb_ht[mbi] = bi ;
-      nb_htmht += bi ;
-      mbi++ ;
-      //--- MHT bin 3
-      bi = 0 ;
-      bin_edges_ht[mbi][bi] =   500. ; bi++ ;
-      bin_edges_ht[mbi][bi] =  1000. ; bi++ ;
-      bin_edges_ht[mbi][bi] = 20000. ;
-      nb_ht[mbi] = bi ;
-      nb_htmht += bi ;
-      mbi++ ;
-      //--- MHT bin 4
-      bi = 0 ;
-      bin_edges_ht[mbi][bi] =   750. ; bi++ ;
-      bin_edges_ht[mbi][bi] =  1500. ; bi++ ;
-      bin_edges_ht[mbi][bi] = 20000. ;
-      nb_ht[mbi] = bi ;
-      nb_htmht += bi ;
-
-
-
-      nb_global = nb_htmht * nb_nb * nb_nj ;
-
-      printf("\n\n") ;
-      printf("  nj bins : %d\n", nb_nj ) ; for ( int i=1; i<=nb_nj; i++ ) { printf("    nj bin %2d : [%.1f,%.1f]\n", i, bin_edges_nj[i-1], bin_edges_nj[i] ) ; }
-      printf("  nb bins : %d\n", nb_nb ) ; for ( int i=1; i<=nb_nb; i++ ) { printf("    nb bin %2d : [%.1f,%.1f]\n", i, bin_edges_nb[i-1], bin_edges_nb[i] ) ; }
-      printf("  mht bins : %d\n", nb_mht ) ; for ( int i=1; i<=nb_mht; i++ ) { printf("    mht bin %2d : [%.1f,%.1f]\n", i, bin_edges_mht[i-1], bin_edges_mht[i] ) ; }
-      for ( int mbi=1; mbi<=nb_mht; mbi++ ) {
-         printf("  ht bins, mht%d : %d\n", mbi, nb_ht[mbi] ) ; for ( int i=1; i<=nb_ht[mbi]; i++ ) { printf("    ht bin %2d : [%.1f,%.1f]\n", i, bin_edges_ht[mbi][i-1], bin_edges_ht[mbi][i] ) ; }
-      }
-      printf("\n\n") ;
-
-      TH1F* h_nj_bin_index = new TH1F( "h_nj_bin_index", "Njet bin index", nb_global, 0.5, nb_global+0.5 ) ;
-      TH1F* h_nb_bin_index = new TH1F( "h_nb_bin_index", "Nb bin index", nb_global, 0.5, nb_global+0.5 ) ;
-      TH1F* h_htmht_bin_index = new TH1F( "h_htmht_bin_index", "HTMHT bin index", nb_global, 0.5, nb_global+0.5 ) ;
-      TH1F* h_ht_bin_index = new TH1F( "h_ht_bin_index", "HT bin index", nb_global, 0.5, nb_global+0.5 ) ;
-      TH1F* h_mht_bin_index = new TH1F( "h_mht_bin_index", "MHT bin index", nb_global, 0.5, nb_global+0.5 ) ;
-
-      printf("\n\n") ;
-      for ( int bi=1; bi<=nb_global; bi++ ) {
-         int tbi_nj; int tbi_nb; int tbi_htmht; int tbi_ht; int tbi_mht ;
-         translate_global_bin( bi, tbi_nj, tbi_nb, tbi_htmht, tbi_ht, tbi_mht ) ;
-         h_nj_bin_index -> SetBinContent( bi, tbi_nj ) ;
-         h_nb_bin_index -> SetBinContent( bi, tbi_nb ) ;
-         h_htmht_bin_index -> SetBinContent( bi, tbi_htmht ) ;
-         h_ht_bin_index -> SetBinContent( bi, tbi_ht ) ;
-         h_mht_bin_index -> SetBinContent( bi, tbi_mht ) ;
-      } // bi
-
-
-      TH1F* h_nbsum_nj_bin_index = new TH1F( "h_nbsum_nj_bin_index", "Njet bin index", nb_global/nb_nb, 0.5, nb_global/nb_nb+0.5 ) ;
-      TH1F* h_nbsum_htmht_bin_index = new TH1F( "h_nbsum_htmht_bin_index", "HTMHT bin index", nb_global/nb_nb, 0.5, nb_global/nb_nb+0.5 ) ;
-      TH1F* h_nbsum_ht_bin_index = new TH1F( "h_nbsum_ht_bin_index", "HT bin index", nb_global/nb_nb, 0.5, nb_global/nb_nb+0.5 ) ;
-      TH1F* h_nbsum_mht_bin_index = new TH1F( "h_nbsum_mht_bin_index", "MHT bin index", nb_global/nb_nb, 0.5, nb_global/nb_nb+0.5 ) ;
-
-      printf("\n\n") ;
-      for ( int bi=1; bi<=nb_global/nb_nb; bi++ ) {
-         int tbi_nj; int tbi_htmht; int tbi_ht; int tbi_mht ;
-         translate_global_bin_nbsum( bi, tbi_nj, tbi_htmht, tbi_ht, tbi_mht ) ;
-         h_nbsum_nj_bin_index -> SetBinContent( bi, tbi_nj ) ;
-         h_nbsum_htmht_bin_index -> SetBinContent( bi, tbi_htmht ) ;
-         h_nbsum_ht_bin_index -> SetBinContent( bi, tbi_ht ) ;
-         h_nbsum_mht_bin_index -> SetBinContent( bi, tbi_mht ) ;
-      } // bi
-
-      printf("\n\n") ;
-
-   } // setup_bins
 
 //=====================================================================================================
 
@@ -773,4 +659,4 @@ void fill_hists_loop_v2d::Loop( bool verb, int nloop )
 
    //===================================
 
-
+#endif
