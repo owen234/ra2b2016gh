@@ -5,6 +5,17 @@
 #include "TMatrixT.h"
 #include "TMatrixD.h"
 #include "TVectorD.h"
+#include "RooWorkspace.h"
+#include "RooDataSet.h"
+#include "RooProdPdf.h"
+#include "RooArgSet.h"
+#include "RooRealVar.h"
+#include "RooStats/ModelConfig.h"
+#include "RooFitResult.h"
+#include "RooAbsPdf.h"
+
+   using namespace RooFit;
+   using namespace RooStats;
 
 #include "histio.c"
 
@@ -20,18 +31,25 @@
 
    TH1F* h_ratio ;
 
+   RooWorkspace* the_ws ;
+   RooAbsPdf* likelihood ;
+   RooDataSet* rds ;
+
    TMatrixD reordered_reoriented_eigen_vector_matrix( 6, 6 ) ;
    TVectorD reordered_eigen_vals( 6 ) ;
 
   //---------
 
    TH1F* get_hist( const char* hname ) ;
-   TH2F* make_contour_original_pars( int pix, int piy ) ;
+   TH2F* make_contour_original_pars_from_chi2( int pix, int piy ) ;
+   TH2F* make_contour_original_pars_from_lh( int pix, int piy, bool fix_all_model_pars=true ) ;
+   TH2F* make_contour_rotated_pars_from_lh( int pix, int piy ) ;
 
   //---------
 
    void gen_combine_table_from_cov_mat( const char* infile = "outputfiles/lhfit-results-ws-lhfit-test/kqcd-parameter-fit-covmat.tex",
-                                        const char* datarootfile = "../outputfiles/modelfit-input-data.root" ) {
+                                        const char* datarootfile = "../outputfiles/modelfit-input-data.root",
+                                        const char* wsfile = "outputfiles/ws-lhfit-test.root" ) {
 
       gDirectory -> Delete( "h*" ) ;
 
@@ -465,15 +483,128 @@
 
 
 
+     //+++++++++++
 
       printf("  h_ratio pointer %p\n", h_ratio ) ; fflush(stdout) ;
-      TH2F* h_cont_op_p0_vs_p1 = make_contour_original_pars( 0, 1 ) ;
-      TH2F* h_cont_op_p1_vs_p2 = make_contour_original_pars( 1, 2 ) ;
-      TH2F* h_cont_op_p2_vs_p3 = make_contour_original_pars( 2, 3 ) ;
-      TH2F* h_cont_op_p3_vs_p4 = make_contour_original_pars( 3, 4 ) ;
+      TH2F* h_cont_op_p0_vs_p1_from_chi2 = make_contour_original_pars_from_chi2( 0, 1 ) ;
+      TH2F* h_cont_op_p1_vs_p2_from_chi2 = make_contour_original_pars_from_chi2( 1, 2 ) ;
+      TH2F* h_cont_op_p2_vs_p3_from_chi2 = make_contour_original_pars_from_chi2( 2, 3 ) ;
+      TH2F* h_cont_op_p3_vs_p4_from_chi2 = make_contour_original_pars_from_chi2( 3, 4 ) ;
+
+
+     //+++++++++++
+
+      TFile* wstf = new TFile( wsfile ) ;
+      the_ws = dynamic_cast<RooWorkspace*>( wstf->Get("ws") );
+
+      rds = (RooDataSet*) the_ws->obj( "observed_rds" ) ;
+      cout << "\n\n\n  ===== RooDataSet ====================\n\n" << endl ;
+      rds->Print() ;
+      rds->printMultiline(cout, 1, kTRUE, "") ;
+
+      likelihood = the_ws->pdf("likelihood") ;
+      if ( likelihood == 0x0 ) { printf("\n\n *** can't find likelihood in workspace.\n\n" ) ; return ; }
+      printf("\n\n Likelihood:\n") ;
+      likelihood -> Print() ;
+
+      RooFitResult* fitResult = likelihood->fitTo( *rds, Save(true), Optimize(0), PrintLevel(0), Hesse(true), Strategy(1) ) ;
+      double minNllFloat = fitResult->minNll() ;
+
+
+      RooMsgService::instance().getStream(1).removeTopic(Minimization) ;
+      RooMsgService::instance().getStream(1).removeTopic(Fitting) ;
 
 
 
+     //-------
+
+///// TH2F* h_cont_op_p0_vs_p1_from_lh = make_contour_original_pars_from_lh( 0, 1, false ) ;
+///// h_cont_op_p0_vs_p1_from_lh -> SetContour(nb) ;
+///// h_cont_op_p0_vs_p1_from_lh -> Draw("colz") ;
+
+
+///// TH2F* h_cont_op_p0_vs_p1_from_lh_fixallmp = make_contour_original_pars_from_lh( 0, 1, true ) ;
+///// h_cont_op_p0_vs_p1_from_lh_fixallmp -> SetContour(nb) ;
+///// h_cont_op_p0_vs_p1_from_lh_fixallmp -> Draw("colz") ;
+
+
+///// TH2F* h_cont_rp_p0_vs_p1_from_lh = make_contour_rotated_pars_from_lh( 0, 1 ) ;
+///// h_cont_rp_p0_vs_p1_from_lh -> SetContour(nb) ;
+///// h_cont_rp_p0_vs_p1_from_lh -> Draw("colz") ;
+
+
+     //-------
+
+
+////  TH2F* h_cont_op_p1_vs_p2_from_lh = make_contour_original_pars_from_lh( 1, 2, false ) ;
+////  h_cont_op_p1_vs_p2_from_lh -> SetContour(nb) ;
+////  h_cont_op_p1_vs_p2_from_lh -> Draw("colz") ;
+
+
+////  TH2F* h_cont_op_p1_vs_p2_from_lh_fixallmp = make_contour_original_pars_from_lh( 1, 2, true ) ;
+////  h_cont_op_p1_vs_p2_from_lh_fixallmp -> SetContour(nb) ;
+////  h_cont_op_p1_vs_p2_from_lh_fixallmp -> Draw("colz") ;
+
+
+////  TH2F* h_cont_rp_p1_vs_p2_from_lh = make_contour_rotated_pars_from_lh( 1, 2 ) ;
+////  h_cont_rp_p1_vs_p2_from_lh -> SetContour(nb) ;
+////  h_cont_rp_p1_vs_p2_from_lh -> Draw("colz") ;
+
+     //-------
+
+
+////  TH2F* h_cont_op_p2_vs_p3_from_lh = make_contour_original_pars_from_lh( 2, 3, false ) ;
+////  h_cont_op_p2_vs_p3_from_lh -> SetContour(nb) ;
+////  h_cont_op_p2_vs_p3_from_lh -> Draw("colz") ;
+
+
+////  TH2F* h_cont_op_p2_vs_p3_from_lh_fixallmp = make_contour_original_pars_from_lh( 2, 3, true ) ;
+////  h_cont_op_p2_vs_p3_from_lh_fixallmp -> SetContour(nb) ;
+////  h_cont_op_p2_vs_p3_from_lh_fixallmp -> Draw("colz") ;
+
+
+////  TH2F* h_cont_rp_p2_vs_p3_from_lh = make_contour_rotated_pars_from_lh( 2, 3 ) ;
+////  h_cont_rp_p2_vs_p3_from_lh -> SetContour(nb) ;
+////  h_cont_rp_p2_vs_p3_from_lh -> Draw("colz") ;
+
+     //-------
+
+
+////  TH2F* h_cont_op_p3_vs_p4_from_lh = make_contour_original_pars_from_lh( 3, 4, false ) ;
+////  h_cont_op_p3_vs_p4_from_lh -> SetContour(nb) ;
+////  h_cont_op_p3_vs_p4_from_lh -> Draw("colz") ;
+
+
+////  TH2F* h_cont_op_p3_vs_p4_from_lh_fixallmp = make_contour_original_pars_from_lh( 3, 4, true ) ;
+////  h_cont_op_p3_vs_p4_from_lh_fixallmp -> SetContour(nb) ;
+////  h_cont_op_p3_vs_p4_from_lh_fixallmp -> Draw("colz") ;
+
+
+////  TH2F* h_cont_rp_p3_vs_p4_from_lh = make_contour_rotated_pars_from_lh( 3, 4 ) ;
+////  h_cont_rp_p3_vs_p4_from_lh -> SetContour(nb) ;
+////  h_cont_rp_p3_vs_p4_from_lh -> Draw("colz") ;
+
+     //-------
+
+
+      TH2F* h_cont_op_p4_vs_p2_from_lh = make_contour_original_pars_from_lh( 2, 4, false ) ;
+      h_cont_op_p4_vs_p2_from_lh -> SetContour(nb) ;
+      h_cont_op_p4_vs_p2_from_lh -> Draw("colz") ;
+
+
+      TH2F* h_cont_op_p4_vs_p2_from_lh_fixallmp = make_contour_original_pars_from_lh( 2, 4, true ) ;
+      h_cont_op_p4_vs_p2_from_lh_fixallmp -> SetContour(nb) ;
+      h_cont_op_p4_vs_p2_from_lh_fixallmp -> Draw("colz") ;
+
+
+      TH2F* h_cont_rp_p4_vs_p2_from_lh = make_contour_rotated_pars_from_lh( 2, 4 ) ;
+      h_cont_rp_p4_vs_p2_from_lh -> SetContour(nb) ;
+      h_cont_rp_p4_vs_p2_from_lh -> Draw("colz") ;
+
+     //-------
+
+
+      saveHist("outputfiles/plots.root","h*") ;
 
 
    } // gen_combine_table_from_cov_mat
@@ -493,12 +624,12 @@
 
 //===============================================================================
 
-   TH2F* make_contour_original_pars( int pix, int piy ) {
+   TH2F* make_contour_original_pars_from_chi2( int pix, int piy ) {
 
       char hname[100] ;
       char htitle[1000] ;
 
-      sprintf( hname, "h_cont_op_p%d_vs_p%d", piy, pix ) ;
+      sprintf( hname, "h_cont_op_p%d_vs_p%d_from_chi2", piy, pix ) ;
       sprintf( htitle, "chi2 contour, %s vs %s", par_name[piy], par_name[pix] ) ;
 
       float xl = par_val[pix] - 2.5*par_err[pix] ;
@@ -510,7 +641,7 @@
 
       int ncp(40) ;
       //int ncp(5) ;
-      printf("\n\n make_contour_original_pars: creating %s , %s\n", hname, htitle ) ;
+      printf("\n\n make_contour_original_pars_from_chi2: creating %s , %s\n", hname, htitle ) ;
       TH2F* hp = new TH2F( hname, htitle, ncp, xl, xh, ncp, yl, yh ) ;
 
       printf(" Scanning on x axis %s  (%6.4f +/- %6.4f) from %6.4f to %6.4f\n", par_name[pix], par_val[pix], par_err[pix], xl, xh ) ;
@@ -574,9 +705,214 @@
 
       return hp ;
 
-   } // make_contour_original_pars
+   } // make_contour_original_pars_from_chi2
 
 //===============================================================================
+
+   TH2F* make_contour_original_pars_from_lh( int pix, int piy, bool fix_all_model_pars ) {
+
+      char hname[100] ;
+      char htitle[1000] ;
+
+      if ( fix_all_model_pars ) {
+         sprintf( hname, "h_cont_op_p%d_vs_p%d_from_lh_fixallmp", piy, pix ) ;
+         sprintf( htitle, "nll contour, %s vs %s, all model pars fixed", par_name[piy], par_name[pix] ) ;
+      } else {
+         sprintf( hname, "h_cont_op_p%d_vs_p%d_from_lh", piy, pix ) ;
+         sprintf( htitle, "nll contour, %s vs %s", par_name[piy], par_name[pix] ) ;
+      }
+
+      float xl = par_val[pix] - 2.5*par_err[pix] ;
+      float xh = par_val[pix] + 2.5*par_err[pix] ;
+      float yl = par_val[piy] - 2.5*par_err[piy] ;
+      float yh = par_val[piy] + 2.5*par_err[piy] ;
+      if ( xl < 0 ) xl = 0. ;
+      if ( yl < 0 ) yl = 0. ;
+
+      //int ncp(40) ;
+      //int ncp(5) ;
+      //int ncp(10) ;
+      int ncp(20) ;
+      printf("\n\n make_contour_original_pars_from_lh: creating %s , %s\n", hname, htitle ) ;
+      TH2F* hp = new TH2F( hname, htitle, ncp, xl, xh, ncp, yl, yh ) ;
+
+      printf(" Scanning on x axis %s  (%6.4f +/- %6.4f) from %6.4f to %6.4f\n", par_name[pix], par_val[pix], par_err[pix], xl, xh ) ;
+      printf(" Scanning on y axis %s  (%6.4f +/- %6.4f) from %6.4f to %6.4f\n", par_name[piy], par_val[piy], par_err[piy], yl, yh ) ; fflush( stdout ) ;
+
+      RooRealVar* rv_par[10] ;
+      for ( int pi=0; pi<6; pi++ ) {
+         rv_par[pi] = the_ws -> var( par_name[pi] ) ;
+         if ( rv_par[pi] == 0x0 ) { printf("\n\n *** can't find %s in ws.\n\n", par_name[pi] ) ; gSystem->Exit(-1) ; }
+      }
+
+      double min_nll(0.) ;
+      {
+         RooFitResult* rfr = likelihood -> fitTo( *rds, Save(true), Optimize(0), Hesse(false), Strategy(1), PrintLevel(0) ) ;
+         min_nll = rfr->minNll() ;
+         delete rfr ;
+      }
+
+      float par_startvals[10] ;
+      printf("\n\n Starting values at best fit:\n") ;
+      for ( int pi=0; pi<6; pi++ ) {
+         par_startvals[pi] = rv_par[pi] -> getVal() ;
+         printf("  %12s : %9.4f\n", par_name[pi], par_startvals[pi] ) ;
+      } // pi
+      printf("\n\n") ;
+
+
+      for ( int xi=0; xi<ncp; xi++ ) {
+
+         float px = xl + (xh-xl)*(xi+0.5)/ncp ;
+
+         for ( int yi=0; yi<ncp; yi++ ) {
+
+            float py = yl + (yh-yl)*(yi+0.5)/ncp ;
+
+            printf(" grid point %s = %6.4f  %s = %6.4f\n", par_name[pix], px, par_name[piy], py ) ;
+
+
+            rv_par[pix] -> setVal( px ) ;
+            rv_par[piy] -> setVal( py ) ;
+
+           //-------
+      //    double nll = likelihood -> getLogVal() ;
+           //-------
+            if ( fix_all_model_pars ) {
+               for ( int pi=0; pi<6; pi++ ) {
+                  RooRealVar* rrv = the_ws -> var( par_name[pi] ) ;
+                  rrv -> setConstant( kTRUE ) ;
+               } // pi
+            } else {
+               rv_par[pix] -> setConstant( kTRUE ) ;
+               rv_par[piy] -> setConstant( kTRUE ) ;
+            }
+            RooFitResult* rfr = likelihood -> fitTo( *rds, Save(true), Optimize(0), Hesse(false), Strategy(1), PrintLevel(0) ) ;
+            double nll = rfr->minNll() ;
+            delete rfr ;
+           //-------
+
+
+            //printf("  %s = %6.4f ,  %s = %6.4f ,  chi2 = %f\n", par_name[pix], px, par_name[piy], py, nll ) ;
+
+            hp -> SetBinContent( xi+1, yi+1, 2.*(nll-min_nll) ) ;
+
+         } // yi
+
+      } // xi
+
+      for ( int pi=0; pi<6; pi++ ) {
+         rv_par[pi] -> setVal( par_startvals[pi] ) ;
+         rv_par[pi] -> setConstant( kFALSE ) ;
+      } // pi
+
+      return hp ;
+
+
+   } // make_contour_original_pars_from_lh
+
+//===============================================================================
+
+   TH2F* make_contour_rotated_pars_from_lh( int pix, int piy ) {
+
+      char hname[100] ;
+      char htitle[1000] ;
+
+      sprintf( hname, "h_cont_rp_p%d_vs_p%d_from_lh", piy, pix ) ;
+      sprintf( htitle, "nll contour, rotated %s vs %s", par_name[piy], par_name[pix] ) ;
+
+      float xprime_err = sqrt(reordered_eigen_vals[pix]) ;
+      float yprime_err = sqrt(reordered_eigen_vals[piy]) ;
+
+      float xl = - 2.5*xprime_err ;
+      float xh = + 2.5*xprime_err ;
+      float yl = - 2.5*yprime_err ;
+      float yh = + 2.5*yprime_err ;
+
+
+      //int ncp(40) ;
+      //int ncp(5) ;
+      //int ncp(10) ;
+      int ncp(20) ;
+      printf("\n\n make_contour_rotated_pars_from_lh: creating %s , %s\n", hname, htitle ) ;
+      TH2F* hp = new TH2F( hname, htitle, ncp, xl, xh, ncp, yl, yh ) ;
+
+      printf(" Scanning on x' axis %s  (+/- %6.4f)\n", par_name[pix], sqrt(reordered_eigen_vals[pix]) ) ;
+      printf(" Scanning on y' axis %s  (+/- %6.4f)\n", par_name[piy], sqrt(reordered_eigen_vals[piy]) ) ; fflush( stdout ) ;
+
+      RooRealVar* rv_par[10] ;
+      for ( int pi=0; pi<6; pi++ ) {
+         rv_par[pi] = the_ws -> var( par_name[pi] ) ;
+         if ( rv_par[pi] == 0x0 ) { printf("\n\n *** can't find %s in ws.\n\n", par_name[pi] ) ; gSystem->Exit(-1) ; }
+      }
+
+      double min_nll(0.) ;
+      {
+         RooFitResult* rfr = likelihood -> fitTo( *rds, Save(true), Optimize(0), Hesse(false), Strategy(1), PrintLevel(0) ) ;
+         min_nll = rfr->minNll() ;
+         delete rfr ;
+      }
+
+      float par_startvals[10] ;
+      printf("\n\n Starting values at best fit:\n") ;
+      for ( int pi=0; pi<6; pi++ ) {
+         par_startvals[pi] = rv_par[pi] -> getVal() ;
+         printf("  %12s : %9.4f\n", par_name[pi], par_startvals[pi] ) ;
+      } // pi
+      printf("\n\n") ;
+
+
+      for ( int xi=0; xi<ncp; xi++ ) {
+
+         float dxprime = xl + (xh-xl)*(xi+0.5)/ncp ;
+
+         for ( int yi=0; yi<ncp; yi++ ) {
+
+            float dyprime = yl + (yh-yl)*(yi+0.5)/ncp ;
+            printf("   dxprime = %6.4f,  dyprime = %6.4f\n", dxprime, dyprime ) ;
+      ///   printf("      Unrotated par deltas:  " ) ;
+      ///   for ( int pi=0; pi<6; pi++ ) {
+      ///      float new_val = dxprime * reordered_reoriented_eigen_vector_matrix[pi][pix] + dyprime * reordered_reoriented_eigen_vector_matrix[pi][piy] ;
+      ///      printf("  %9.5f  ", new_val ) ;
+      ///   }
+            printf("      Unrotated pars:  " ) ;
+            for ( int pi=0; pi<6; pi++ ) {
+               float new_val = par_val[pi] + dxprime * reordered_reoriented_eigen_vector_matrix[pi][pix] + dyprime * reordered_reoriented_eigen_vector_matrix[pi][piy] ;
+               printf("  %9.5f  ", new_val ) ;
+               if ( new_val < 0 ) new_val = 0. ;
+               rv_par[pi] -> setVal( new_val ) ;
+               rv_par[pi] -> setConstant( kTRUE ) ;
+            }
+            printf("\n") ;
+
+           //-------
+      //    double nll = likelihood -> getLogVal() ;
+           //-------
+            RooFitResult* rfr = likelihood -> fitTo( *rds, Save(true), Optimize(0), Hesse(false), Strategy(1), PrintLevel(0) ) ;
+            double nll = rfr->minNll() ;
+            delete rfr ;
+           //-------
+
+            hp -> SetBinContent( xi+1, yi+1, 2.*(nll-min_nll) ) ;
+
+         } // yi
+
+      } // xi
+
+      for ( int pi=0; pi<6; pi++ ) {
+         rv_par[pi] -> setVal( par_startvals[pi] ) ;
+         rv_par[pi] -> setConstant( kFALSE ) ;
+      } // pi
+
+      return hp ;
+
+
+   } // make_contour_rotated_pars_from_lh
+
+//===============================================================================
+
+
+
 
 
 

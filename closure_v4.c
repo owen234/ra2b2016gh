@@ -24,12 +24,18 @@
 
       int nbins = h_ldp_160bins_qcdmc->GetNbinsX() ;
 
-      TH1F* h_hdp_evts = h_hdp_160bins_qcdmc ;
+      //////TH1F* h_hdp_evts = h_hdp_160bins_qcdmc ;
+      TH1F* h_hdp_evts_orig = h_hdp_160bins_qcdmc ;
       TH1F* h_hdp_model = new TH1F( "h_hdp_model", "HDP, QCD model", nbins, 0.5, nbins+0.5 ) ;
       TH1F* h_hdp_evts_over_model = new TH1F( "h_hdp_evts_over_model", "HDP, QCD MC events / model", nbins, 0.5, nbins+0.5 ) ;
       TH1F* h_hdp_model_over_model = new TH1F( "h_hdp_model_over_model", "HDP, QCD model / model", nbins, 0.5, nbins+0.5 ) ;
 
+      TH1F* h_hdp_evts = new TH1F( "h_hdp_evts","", 160, 0.5, 160.5 ) ;
+
       for ( int bi=1; bi<=nbins; bi++ ) {
+
+         h_hdp_evts -> SetBinContent( bi, h_hdp_evts_orig -> GetBinContent( bi ) ) ;
+         h_hdp_evts -> SetBinError( bi, h_hdp_evts_orig -> GetBinError( bi ) ) ;
 
          char label[100] ;
          sprintf( label, "%s", h_ldp_160bins_qcdmc -> GetXaxis() -> GetBinLabel( bi ) ) ;
@@ -69,7 +75,7 @@
          }
          h_hdp_model -> SetBinContent( bi, hdp_pred_val ) ;
          h_hdp_model -> SetBinError( bi, hdp_pred_err ) ;
-         h_hdp_model -> GetXaxis() -> SetBinLabel( bi, label ) ;
+         ///h_hdp_model -> GetXaxis() -> SetBinLabel( bi, label ) ;
 
          if ( hdp_pred_val > 0 ) {
             h_hdp_evts_over_model -> SetBinContent( bi, (hdp_val/hdp_pred_val) ) ;
@@ -78,6 +84,7 @@
             h_hdp_model_over_model -> SetBinError( bi, (hdp_pred_err/hdp_pred_val) ) ;
          }
          if ( do_text_binlabels ) {
+            h_hdp_model -> GetXaxis() -> SetBinLabel( bi, label ) ;
             h_hdp_model_over_model -> GetXaxis() -> SetBinLabel( bi, label ) ;
             h_hdp_evts_over_model -> GetXaxis() -> SetBinLabel( bi, label ) ;
          }
@@ -115,6 +122,7 @@
       TPad* pad_top = new TPad( "pad_top", "", 0., 0.35, 1., 1. ) ;
       pad_top -> SetTopMargin(0.15) ;
       pad_top -> SetBottomMargin( 0.0 ) ;
+      pad_top -> SetRightMargin(0.03) ;
       pad_top -> Draw() ;
       pad_top -> cd() ;
 
@@ -125,22 +133,29 @@
       h_hdp_model -> SetFillColor( kRed-10 ) ;
 
       //double ymax(3900.) ;
-      double ymax(890.) ;
-      double ymin(0.005) ;
+      ///////////double ymax(890.) ;
+      double ymax(3100.) ;
+      double ymin(0.002) ;
       h_hdp_evts -> SetMaximum(ymax) ;
       h_hdp_evts -> SetMinimum(ymin) ;
-      h_hdp_evts -> SetTitleSize( 0.06, "y" ) ;
+      //h_hdp_evts -> SetTitleSize( 0.075, "y" ) ;
+      h_hdp_evts -> SetTitleSize( 0.085, "y" ) ;
       h_hdp_evts -> SetTitleOffset( 0.45, "y" ) ;
       h_hdp_evts -> SetYTitle( "Events" ) ;
+      h_hdp_evts -> SetLabelSize( 0.06, "y" ) ;
+      h_hdp_evts -> SetMarkerSize( 1.2 ) ;
       h_hdp_evts -> GetYaxis() -> SetTickLength( 0.015 ) ;
+      h_hdp_evts -> GetXaxis() -> SetTickLength( 0.015 ) ;
       h_hdp_model_copy1 -> GetYaxis() -> SetTickLength( 0.015 ) ;
 
       h_hdp_evts -> Draw() ;
       h_hdp_model -> Draw( "E2 same" ) ;
       h_hdp_evts -> Draw( "same" ) ;
       h_hdp_model_copy1 -> Draw( "e same" ) ;
-      h_hdp_model_copy1 -> Draw( "e same axig" ) ;
-      h_hdp_model_copy1 -> Draw( "e same axis" ) ;
+      ///////////h_hdp_model_copy1 -> Draw( "e same axig" ) ;
+      ///////////h_hdp_model_copy1 -> Draw( "e same axis" ) ;
+      h_hdp_model -> Draw( "same axig" ) ;
+      h_hdp_model -> Draw( "same axis" ) ;
       gPad -> SetLogy() ;
 
       TLine* linenj = new TLine() ;
@@ -186,6 +201,7 @@
       TPad* pad_bot = new TPad( "pad_bot", "", 0., 0., 1., 0.35 ) ;
       pad_bot -> SetTopMargin( 0.02 ) ;
       pad_bot -> SetBottomMargin( 0.40 ) ;
+      pad_bot -> SetRightMargin(0.03) ;
       pad_bot -> Draw() ;
       pad_bot -> cd() ;
 
@@ -195,12 +211,18 @@
       h_hdp_evts_over_model -> SetMaximum( ymax ) ;
       h_hdp_evts_over_model -> SetMinimum( ymin ) ;
       h_hdp_evts_over_model -> SetMarkerStyle( 20 ) ;
-      h_hdp_evts_over_model -> SetLabelSize( 0.07, "y" ) ;
-      if ( !do_text_binlabels ) h_hdp_evts_over_model -> SetLabelSize( 0.10, "x" ) ;
+      h_hdp_evts_over_model -> SetMarkerSize( 1.2 ) ;
+      h_hdp_evts_over_model -> SetLabelSize( 0.14, "y" ) ;
+      if ( !do_text_binlabels ) h_hdp_evts_over_model -> SetLabelSize( 0.12, "x" ) ;
       h_hdp_evts_over_model -> GetYaxis() -> SetNdivisions( 504 ) ;
 
-      h_hdp_evts_over_model -> SetYTitle( "Direct/Pred." ) ;
-      h_hdp_evts_over_model -> SetTitleSize( 0.1, "y" ) ;
+      //h_hdp_evts_over_model -> SetYTitle( "Direct/Pred." ) ;
+      h_hdp_evts_over_model -> SetYTitle( "#frac{Direct}{Prediction}" ) ;
+      //h_hdp_evts_over_model -> SetTitleSize( 0.1, "y" ) ;
+      h_hdp_evts_over_model -> SetTitleSize( 0.13, "y" ) ;
+      h_hdp_evts_over_model -> SetXTitle( "Search region bin number") ;
+      h_hdp_evts_over_model -> SetTitleSize( 0.165, "x" ) ;
+      h_hdp_evts_over_model -> GetXaxis() -> SetTickLength( 0.065 ) ;
       h_hdp_evts_over_model -> SetTitleOffset( 0.25, "y" ) ;
 
       h_hdp_model_over_model -> SetFillColor( kRed-10 ) ;
@@ -227,7 +249,7 @@
          }
       }
 
-      TString lumiline( "7.6 fb^{-1} (13 TeV)" ) ;
+      TString lumiline( "12.9 fb^{-1} (13 TeV)" ) ;
       lumi_sqrtS = lumiline ;
 
       writeExtraText = true;

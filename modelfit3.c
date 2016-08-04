@@ -269,7 +269,7 @@
       can1 -> Update() ; can1 -> Draw() ;
 
       sprintf( fname, "%s-modelfit.pdf", outfilebase ) ;
-      //can1 -> SaveAs( fname ) ;
+      can1 -> SaveAs( fname ) ;
 
 
 

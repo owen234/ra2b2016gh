@@ -293,6 +293,7 @@ void fill_hists_loop_v2d::Loop( bool verb, int nloop )
 
      //--- if this is QCD, correct for the trigger turnon
       if ( isqcd ) {
+
          int turnon_bin(0) ;
          float trig_eff(1.) ;
          if ( bi_nj>=1 && bi_nj<=4 ) {
@@ -304,6 +305,9 @@ void fill_hists_loop_v2d::Loop( bool verb, int nloop )
          }
          trig_eff = h_turnon[bi_nj] -> GetBinContent( turnon_bin ) ;
          hw = hw * trig_eff ;
+
+         /////////////////if ( ! (pass_pfmet100_trig || pass_pfmetnomu100_trig) ) continue ;
+
       }
 
 

@@ -97,6 +97,7 @@
       create_model_ratio_hist1.c
       dump_qcdmc_ldp_vals.c
       closure_sums3.c
+      draw_closure_sums1.c
 
 ==========================================================================
 
