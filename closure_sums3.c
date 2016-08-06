@@ -77,7 +77,7 @@
    void closure_sums3(
           bool verb = false,
           bool arg_include_qcdmc_correction = false,
-          const char* model_pars_file = "model-pars-qcdmc3.txt",
+          const char* model_pars_file = "model-pars-qcdmc4c.txt",
           const char* model_ratio_hist_file = "outputfiles/model-ratio-hist1.root",
           const char* qcd_file  = "outputfiles/qcdmc-counts.txt"
        ) {

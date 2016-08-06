@@ -41,7 +41,7 @@
   //--------
 
    void gen_combine_input2(
-         const char* model_pars_file = "model-pars-data4b.txt",
+         const char* model_pars_file = "model-pars-data4d.txt",
          const char* mc_minus_model_hist_file = "outputfiles/model-ratio-hist1.root",
          const char* data_file    = "outputfiles/combine-input-data.txt",
          const char* lostlep_file = "outputfiles/combine-input-lostlep.txt",
@@ -57,8 +57,8 @@
       gStyle -> SetOptStat(0) ;
       gStyle -> SetPadGridY(1) ;
 
-      //bool print_dashes( true ) ;
-      bool print_dashes( false ) ;
+      bool print_dashes( true ) ;
+      //bool print_dashes( false ) ;
 
       TString line ;
 
@@ -626,6 +626,11 @@
                   fprintf( ofp_combine, " %6.4f +/- %6.4f , ", Rqcd_val, Rqcd_err ) ;
                   fprintf( ofp_combine, " %7.2f +/- %5.2f   ", nqcd_hdp_val, nqcd_hdp_err ) ;
 
+                  float overall_rel_err(0.) ;
+                  if ( nqcd_hdp_val > 0. ) {
+                     overall_rel_err = nqcd_hdp_err/nqcd_hdp_val ;
+                  }
+                  fprintf( ofp_combine, " ( %5.0f%%) ", 100. * overall_rel_err ) ;
 
 
 

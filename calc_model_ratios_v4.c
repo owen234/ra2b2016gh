@@ -37,7 +37,7 @@
   //--------
 
    void calc_model_ratios_v4(
-              const char* model_pars_file = "model-pars-qcdmc3.txt"
+              const char* model_pars_file = "model-pars-qcdmc4c.txt"
            ) {
 
       read_pars( model_pars_file ) ;
