@@ -14,10 +14,8 @@ void run_all (bool do_skim_slim = false )
 {
 
    //Adding necessary dictionaries
-#ifdef __MAKECINT__
-#pragma link C++ class vector<TLorentzVector>+;
-#pragma link C++ class std::vector<bool>+;
-#endif
+
+   gROOT.ProcessLine(".L loader.C+"); 
 
    //Run the slim code
    if ( do_skim_slim == true )
