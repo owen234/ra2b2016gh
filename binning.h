@@ -32,6 +32,7 @@ using namespace std ;
 
    int   nb_htmht ;
    int   bi_htmht ;
+   int   nBinsHT = 3; 
 
    int   nb_global ;
    int   bi_global ;

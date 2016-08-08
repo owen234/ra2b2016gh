@@ -38,6 +38,8 @@
 
    bool only_fit_mht1 ;
 
+   int njet_bin_to_fix = 1;
+
    double calc_fit_error( TMinuit* tm, int hbi, int nji, double& simple_model_err ) ;
    void  draw_boundaries( float hmin, float hmax ) ;
 
@@ -63,7 +65,7 @@
          parind ++ ;
       } // hbi.
       for ( int nji=0; nji<nb_nj; nji++ ) {
-         if ( nji == 0 ) {
+         if ( nji == njet_bin_to_fix ) {
             fit_SFqcd_njet[nji] = 1.0 ;
          } else {
             fit_SFqcd_njet[nji] = par[parind] ;
@@ -171,38 +173,19 @@
       for ( int hbi=0; hbi<nBinsHT; hbi++ ) {
          char pname[1000] ;
          sprintf( pname, "Rqcd_HT%d", hbi+1 ) ;
-         myMinuit->mnparm( parind, pname, data_Rqcd[hbi][0], 0.003, 0., 2., ierflg ) ;
+         myMinuit->mnparm( parind, pname, data_Rqcd[hbi][0], 0.03, 0., 2., ierflg ) ;
          parind++ ;
       } // hbi.
-      for ( int nji=1; nji<nb_nj; nji++ ) {
+      for ( int nji=0; nji<nb_nj; nji++ ) {
+         if (nji == njet_bin_to_fix ) continue;
          char pname[1000] ;
          sprintf( pname, "SFqcd_njet%d", nji+1 ) ;
-         ///myMinuit->mnparm( parind, pname, 1.0, 0.10, 0., 20., ierflg ) ;
-         myMinuit->mnparm( parind, pname, 1.0, 0.010, 0., 90., ierflg ) ;
+         myMinuit->mnparm( parind, pname, 1.0, 0.10, 0., 90., ierflg ) ;
          parind++ ;
       } // nji.
 
       myMinuit->Migrad() ;
       myMinuit->mncomd("hesse",ierflg) ;
-
-
-
-
-
-
-
-//            //   Double_t cov_mat[n_minuit_pars][n_minuit_pars] ;
-//            //   myMinuit -> mnemat( &cov_mat[0][0], n_minuit_pars ) ;
-//            //   printf("\n\n  ===== Covariance matrix:\n") ;
-//            //   for ( int i=0; i<10; i++ ) {
-//            //      printf( "  %2d : ", i+1 ) ;
-//            //      for ( int j=0; j<10; j++ ) {
-//            //         printf( "  %10.7f  ", cov_mat[i][j] ) ;
-//            //      }
-//            //      printf("\n") ;
-//            //   }
-//            //   printf("\n\n") ;
-
 
 
       TH1F* h_model  = new TH1F( "h_model", "Model result", nBinsHT * nb_nj, 0.5, nBinsHT * nb_nj + 0.5 ) ;
@@ -249,9 +232,6 @@
       h_model2 -> SetMinimum( plot_min ) ;
       h_model2 -> SetMaximum( plot_max ) ;
 
-      //h_model2 -> SetMinimum(-0.03) ;
-      //h_model2 -> SetMaximum(0.3) ;
-
       h_model2 -> SetYTitle("R^{QCD}") ;
       h_model2 -> SetTitleSize( 0.055, "y" ) ;
       h_model2 -> GetXaxis() -> SetLabelSize( 0.05 ) ;
@@ -297,7 +277,8 @@
       } // hbi.
 
 
-      for ( int nji=1; nji<nb_nj; nji++ ) {
+      for ( int nji=0; nji<nb_nj; nji++ ) {
+         if ( nji == njet_bin_to_fix ) continue;
          char pname[1000] ;
          double val, err ;
          sprintf( pname, "Sqcd_njet%d", nji+1 ) ;
@@ -315,130 +296,6 @@
       printf("Saved model pars in %s\n\n", fname ) ;
 
       return ; //*************
-
-//    h_fitpars -> GetXaxis() -> SetRange( 1, parind ) ;
-
-
-
-//    TH1F* h_closure_rpoints = (TH1F*) h_ratio -> Clone( "h_closure_rpoints" ) ;
-//    TH1F* h_closure_modelerr = (TH1F*) h_model2 -> Clone( "h_closure_modelerr" ) ;
-
-//    for ( int bi=1; bi<=55; bi++ ) {
-//       float ratio_val = h_ratio -> GetBinContent( bi ) ;
-//       float ratio_err = h_ratio -> GetBinError( bi ) ;
-//       float model_val = h_model2 -> GetBinContent( bi ) ;
-//       float model_err = h_model2 -> GetBinError( bi ) ;
-//       float ratio_over_model_val = -99. ;
-//       float ratio_over_model_err = 0. ;
-//       float model_over_model_val = 1. ;
-//       float model_over_model_err = 1. ;
-//       if ( model_val > 0 ) {
-//          ratio_over_model_val = ratio_val / model_val ;
-//          ratio_over_model_err = ratio_err / model_val ;
-//          model_over_model_err = model_err / model_val ;
-//       }
-//       h_closure_rpoints -> SetBinContent( bi, ratio_over_model_val ) ;
-//       h_closure_rpoints -> SetBinError( bi, ratio_over_model_err ) ;
-//       h_closure_modelerr -> SetBinContent( bi, model_over_model_val ) ;
-//       h_closure_modelerr -> SetBinError( bi,  model_over_model_err ) ;
-//    } // bi
-
-
-
-// //-----------------
-//    gStyle -> SetOptStat(0) ;
-//    gStyle -> SetPadTopMargin(0.03) ;
-//    gStyle -> SetPadBottomMargin(0.40) ;
-//    gStyle -> SetOptTitle(0) ;
-//    gStyle -> SetPadLeftMargin( 0.12 ) ;
-
-//    gDirectory -> cd("Rint:/") ;
-//    TCanvas* can2 = (TCanvas*) gDirectory -> FindObject( "can2_modelfit2" ) ;
-//    if ( can2 == 0x0 ) {
-//       can2 = new TCanvas( "can2_modelfit2", "modelfit2", 1100, 800 ) ;
-//    }
-//    can2 -> Clear() ;
-//    can2 -> cd() ;
-
-//    h_closure_rpoints -> SetMaximum( 3.0 ) ;
-//    h_closure_rpoints -> SetMinimum( 0.0 ) ;
-//    h_closure_rpoints -> SetMarkerStyle(20) ;
-//    h_closure_rpoints -> SetMarkerColor(1) ;
-//    h_closure_rpoints -> SetYTitle( "QCD MC / QCD Model" ) ;
-
-//    h_closure_rpoints -> Draw() ;
-//    h_closure_modelerr -> Draw("e2 same") ;
-//    h_closure_rpoints -> Draw("same") ;
-//    h_closure_rpoints -> Draw("axis same") ;
-//    h_closure_rpoints -> Draw("axig same") ;
-
-//    float hmin = h_closure_rpoints -> GetMinimum() ;
-//    float hmax = h_closure_rpoints -> GetMaximum() ;
-
-//    draw_boundaries( hmin, hmax ) ;
-
-//    gPad -> SetGridy(1) ;
-
-//    char outfile[10000] ;
-//    sprintf( outfile, "%s-chi2-closure.pdf", outfilebase ) ;
-//    can2 -> SaveAs( outfile ) ;
-
-
-
-
-// //-----------------
-//    gStyle -> SetOptStat(0) ;
-//    gStyle -> SetPadBottomMargin(0.40) ;
-
-//    gDirectory -> cd("Rint:/") ;
-//    TCanvas* can = (TCanvas*) gDirectory -> FindObject( "can_modelfit2" ) ;
-//    if ( can == 0x0 ) {
-//       can = new TCanvas( "can_modelfit2", "modelfit2", 1100, 800 ) ;
-//    }
-//    can -> Clear() ;
-//    can -> cd() ;
-
-//    h_ratio -> SetMaximum(0.35) ;
-//    h_ratio -> SetMinimum(-0.03) ;
-//    h_ratio -> SetMarkerStyle(20) ;
-//    h_ratio -> SetMarkerColor(1) ;
-//    h_ratio -> SetYTitle( "QCD high / low Ratio" ) ;
-
-//    h_ratio -> Draw() ;
-//    h_model2 -> Draw("e2 same") ;
-//    h_model -> Draw("hist same" ) ;
-//    h_ratio -> Draw("same") ;
-//    h_ratio -> Draw("axis same") ;
-
-//    hmin = h_ratio -> GetMinimum() ;
-//    hmax = h_ratio -> GetMaximum() ;
-
-//    draw_boundaries( hmin, hmax ) ;
-
-//    gPad -> SetGridy(1) ;
-
-//    sprintf( outfile, "%s-chi2-fit.pdf", outfilebase ) ;
-//    can -> SaveAs( outfile ) ;
-
-
-//    char out_rootfile[10000] ;
-//    sprintf( out_rootfile, "%s-%s", outfilebase, infile_nopath.Data() ) ;
-//    TFile* tf_output = new TFile( out_rootfile, "RECREATE" ) ;
-
-//    printf("\n\n Saving results in %s\n\n", out_rootfile ) ;
-
-//    h_ratio -> Write() ;
-//    h_model -> Write() ;
-//    h_model2 -> Write() ;
-
-//    h_fitpars -> Write() ;
-
-//    tf_output -> Close() ;
-
-
-
-//    return ; //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 
 
    } // modelfit2d
