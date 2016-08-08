@@ -8,29 +8,28 @@
 #include "TSystem.h"
 #include "TFile.h"
 #include "TROOT.h"
+#include "modelfit3.c"
 
-void run_all (bool do_skim_slim = false )
+void run_all ( TString skim_slim_input_dir = "" )
 
 {
 
    //Adding necessary dictionaries
-#ifdef __MAKECINT__
-#pragma link C++ class vector<TLorentzVector>+;
-#pragma link C++ class std::vector<bool>+;
-#endif
+
+   gROOT->ProcessLine(".L loader.C+"); 
 
    //Run the slim code
-   if ( do_skim_slim == true )
+   if ( skim_slim_input_dir != "" )
    {
 
-      run_slimskim("./fnal-prod-v9-skims/tree_signal");
-      run_slimskim("./fnal-prod-v9-skims/tree_LDP");
+      run_slimskim(skim_slim_input_dir + "/tree_signal");
+      run_slimskim(skim_slim_input_dir+ "/tree_LDP");
 
       gSystem -> Exec("mkdir -p ./fnal-prod-v9-skims-slimmed/tree_signal");
       gSystem -> Exec("mkdir -p ./fnal-prod-v9-skims-slimmed/tree_LDP");
 
-      gSystem -> Exec("mv ./fnal-prod-v9-skims/tree_signal/slim/* ./fnal-prod-v9-skims-slimmed/tree_signal");
-      gSystem -> Exec("mv ./fnal-prod-v9-skims/tree_LDP/slim/* ./fnal-prod-v9-skims-slimmed/tree_LDP");
+      gSystem -> Exec("mv " + skim_slim_input_dir + "/tree_signal/slim/* ./fnal-prod-v9-skims-slimmed/tree_signal");
+      gSystem -> Exec("mv " + skim_slim_input_dir + "/tree_LDP/slim/* ./fnal-prod-v9-skims-slimmed/tree_LDP");
 
    }
    data_turnon1();
@@ -42,4 +41,5 @@ void run_all (bool do_skim_slim = false )
    f2.Loop();
 
    make_qcdmc_input_files1();
+   modelfit3();
 }

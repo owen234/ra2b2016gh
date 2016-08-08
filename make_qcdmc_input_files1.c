@@ -44,7 +44,7 @@
 
       int bi_hist(0) ;
 
-      TH1F* h_ratio = new TH1F( "h_ratio", "H/L ratio", 12, 0.5, 12.5 ) ;
+      TH1F* h_ratio = new TH1F( "h_ratio", "H/L ratio", nBinsHT*nb_nj, 0.5, nBinsHT*nb_nj + 0.5 ) ;
 
       int bi_ratio_hist(0) ;
 
@@ -108,7 +108,7 @@
             sprintf( label, "Nj%d-HT%d", bi_nj, bi_ht ) ;
 
             bi_ratio_hist ++ ;
-            if ( !(bi_ht==1 && bi_nj>2) ) {
+            if ( !(bi_ht==1 && bi_nj>nb_nj-2) ) {
                h_ratio -> SetBinContent( bi_ratio_hist, ratio_val ) ;
                h_ratio -> SetBinError( bi_ratio_hist, ratio_err ) ;
             } else {

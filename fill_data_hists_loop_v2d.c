@@ -362,8 +362,8 @@ void fill_data_hists_loop_v2d::Loop( bool verb, int nloop )
       tbi_ht = ht_bi_from_htmht( tbi_htmht ) ;
       tbi_mht = mht_bi_from_htmht( tbi_htmht ) ;
 
-      printf("  global bin %3d :  bi_nj = %2d ,  bi_nb = %2d ,  bi_htmht = %2d ,  bi_ht = %2d ,  bi_mht = %d\n",
-          gbi, tbi_nj, tbi_nb, tbi_htmht, tbi_ht, tbi_mht ) ;
+//      printf("  global bin %3d :  bi_nj = %2d ,  bi_nb = %2d ,  bi_htmht = %2d ,  bi_ht = %2d ,  bi_mht = %d\n",
+//          gbi, tbi_nj, tbi_nb, tbi_htmht, tbi_ht, tbi_mht ) ;
 
    } // translate_global_bin
 
@@ -381,8 +381,8 @@ void fill_data_hists_loop_v2d::Loop( bool verb, int nloop )
       tbi_ht = ht_bi_from_htmht( tbi_htmht ) ;
       tbi_mht = mht_bi_from_htmht( tbi_htmht ) ;
 
-      printf("  qcd nbsum global bin %3d :  bi_nj = %2d ,  bi_htmht = %2d ,  bi_ht = %2d ,  bi_mht = %d\n",
-          gbi_nbsum, tbi_nj, tbi_htmht, tbi_ht, tbi_mht ) ;
+//      printf("  qcd nbsum global bin %3d :  bi_nj = %2d ,  bi_htmht = %2d ,  bi_ht = %2d ,  bi_mht = %d\n",
+//          gbi_nbsum, tbi_nj, tbi_htmht, tbi_ht, tbi_mht ) ;
 
    } // translate_global_bin_nbsum
 
