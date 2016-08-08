@@ -1,5 +1,5 @@
-
-
+#ifndef modelfit3_c
+#define modelfit3_c
 
 #include "TROOT.h"
 
@@ -21,6 +21,7 @@
 #include "TMatrixT.h"
 
 #include "histio.c"
+#include "binning.h"
 
 #include <iostream>
 #include <fstream>
@@ -29,14 +30,11 @@
   using std::endl ;
 
 
-   double data_Rqcd[5][5] ;
-   double data_Rqcd_err[5][5] ;
+   double data_Rqcd[10][10] ;
+   double data_Rqcd_err[10][10] ;
 
-   double fit_Rqcd_HT[5] ;
-   double fit_SFqcd_njet[5] ;
-
-   const int nBinsHT(3) ;
-   const int nBinsNjets(4) ;
+   double fit_Rqcd_HT[10] ;
+   double fit_SFqcd_njet[10] ;
 
    bool only_fit_mht1 ;
 
@@ -64,7 +62,7 @@
          if ( first_time ) { printf( " minuit_fcn : hbi=%d, parind=%d, par value = %g\n", hbi, parind, par[parind] ) ; }
          parind ++ ;
       } // hbi.
-      for ( int nji=0; nji<nBinsNjets; nji++ ) {
+      for ( int nji=0; nji<nb_nj; nji++ ) {
          if ( nji == 0 ) {
             fit_SFqcd_njet[nji] = 1.0 ;
          } else {
@@ -76,8 +74,8 @@
 
       if ( first_time ) { printf("\n\n minuit_fcn : first time\n") ; }
          for ( int hbi=0; hbi<nBinsHT; hbi++ ) {
-               for ( int nji=0; nji<nBinsNjets; nji++ ) {
-                  if ( hbi==0 && nji>1 ) continue ;  // skip top two njets bins for lowest HT.
+               for ( int nji=0; nji<nb_nj; nji++ ) {
+                  if ( hbi==0 && nji>nb_nj - 2 ) continue ;  // skip top two njets bins for lowest HT.
                   if ( !( data_Rqcd_err[hbi][nji] > 0. ) ) { continue ; }
                   double delta = data_Rqcd[hbi][nji] - fit_Rqcd_HT[hbi] * fit_SFqcd_njet[nji] ;
                   f += delta*delta / (data_Rqcd_err[hbi][nji] * data_Rqcd_err[hbi][nji] ) ;
@@ -107,14 +105,14 @@
                     float plot_min = -0.05,
                     float plot_max = 0.3
                     ) {
-
+      setup_bins();
       char fname[1000] ;
 
       char command[10000] ;
       sprintf( command, "basename %s", infile ) ;
       TString infile_nopath = gSystem -> GetFromPipe( command ) ;
 
-      for ( int i=0; i<5; i++ ) {
+      for ( int i=0; i<10; i++ ) {
          fit_Rqcd_HT[i] = 0. ;
          fit_SFqcd_njet[i] = 0. ;
       }
@@ -138,9 +136,9 @@
       int bbi = 0 ;
       int histbin(0) ;
       for ( int hbi=0; hbi<nBinsHT; hbi++ ) {
-         for ( int nji=0; nji<nBinsNjets; nji++ ) {
+         for ( int nji=0; nji<nb_nj; nji++ ) {
             histbin ++ ;
-            if ( hbi==0 && nji>1 ) continue ; // skip top two njets bins for lowest HT bin.
+            if ( hbi==0 && nji>nb_nj-2 ) continue ; // skip top two njets bins for lowest HT bin.
                char binlabel[100] ;
                sprintf( binlabel, "%s", h_ratio -> GetXaxis() -> GetBinLabel( histbin ) ) ;
                printf( " check %s is nji=%d, hbi=%d\n", binlabel, nji+1, hbi+1 ) ;
@@ -151,12 +149,12 @@
 
 
 
-      TH1F* h_ratio_nb_njet[4][4] ;
+      TH1F* h_ratio_nb_njet[10][10] ;
 
 
 
       int n_minuit_pars(0) ;
-      n_minuit_pars = nBinsHT + nBinsNjets-1 ;
+      n_minuit_pars = nBinsHT + nb_nj-1 ;
 
       TMinuit *myMinuit = new TMinuit( n_minuit_pars ) ; // arg is # of parameters
 
@@ -173,14 +171,14 @@
       for ( int hbi=0; hbi<nBinsHT; hbi++ ) {
          char pname[1000] ;
          sprintf( pname, "Rqcd_HT%d", hbi+1 ) ;
-         myMinuit->mnparm( parind, pname, data_Rqcd[hbi][0], 0.03, 0., 2., ierflg ) ;
+         myMinuit->mnparm( parind, pname, data_Rqcd[hbi][0], 0.003, 0., 2., ierflg ) ;
          parind++ ;
       } // hbi.
-      for ( int nji=1; nji<nBinsNjets; nji++ ) {
+      for ( int nji=1; nji<nb_nj; nji++ ) {
          char pname[1000] ;
          sprintf( pname, "SFqcd_njet%d", nji+1 ) ;
          ///myMinuit->mnparm( parind, pname, 1.0, 0.10, 0., 20., ierflg ) ;
-         myMinuit->mnparm( parind, pname, 1.0, 0.10, 0., 90., ierflg ) ;
+         myMinuit->mnparm( parind, pname, 1.0, 0.010, 0., 90., ierflg ) ;
          parind++ ;
       } // nji.
 
@@ -207,17 +205,17 @@
 
 
 
-      TH1F* h_model  = new TH1F( "h_model", "Model result", 12, 0.5, 12.5 ) ;
-      TH1F* h_model2 = new TH1F( "h_model2", "Model result", 12, 0.5, 12.5 ) ;
+      TH1F* h_model  = new TH1F( "h_model", "Model result", nBinsHT * nb_nj, 0.5, nBinsHT * nb_nj + 0.5 ) ;
+      TH1F* h_model2 = new TH1F( "h_model2", "Model result", nBinsHT * nb_nj, 0.5, nBinsHT * nb_nj + 0.5 ) ;
       h_model -> SetLineWidth(2) ;
       h_model -> SetLineColor(kRed+1) ;
       h_model2 -> SetFillColor(kRed-10) ;
 
       histbin = 0 ;
       for ( int hbi=0; hbi<nBinsHT; hbi++ ) {
-         for ( int nji=0; nji<nBinsNjets; nji++ ) {
+         for ( int nji=0; nji<nb_nj; nji++ ) {
                histbin ++ ;
-               if ( hbi==0 && nji>1 ) continue ; // skip top two njets bins for lowest HT bin.
+               if ( hbi==0 && nji>nb_nj-2 ) continue ; // skip top two njets bins for lowest HT bin.
                char binlabel[100] ;
                sprintf( binlabel, "%s", h_ratio -> GetXaxis() -> GetBinLabel( histbin ) ) ;
                double model_val = fit_Rqcd_HT[hbi] * fit_SFqcd_njet[nji] ;
@@ -299,7 +297,7 @@
       } // hbi.
 
 
-      for ( int nji=1; nji<nBinsNjets; nji++ ) {
+      for ( int nji=1; nji<nb_nj; nji++ ) {
          char pname[1000] ;
          double val, err ;
          sprintf( pname, "Sqcd_njet%d", nji+1 ) ;
@@ -590,5 +588,4 @@
 
 
 
-
-
+#endif
