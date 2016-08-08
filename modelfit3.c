@@ -141,7 +141,7 @@
       for ( int hbi=0; hbi<nBinsHT; hbi++ ) {
          for ( int nji=0; nji<nb_nj; nji++ ) {
             histbin ++ ;
-            if ( hbi==0 && nji>nb_nj-2 ) continue ; // skip top two njets bins for lowest HT bin.
+            if ( hbi==0 && nji>=(nb_nj-2) ) continue ; // skip top two njets bins for lowest HT bin.
                char binlabel[100] ;
                sprintf( binlabel, "%s", h_ratio -> GetXaxis() -> GetBinLabel( histbin ) ) ;
                printf( " check %s is nji=%d, hbi=%d\n", binlabel, nji+1, hbi+1 ) ;
