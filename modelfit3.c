@@ -39,6 +39,7 @@
    bool only_fit_mht1 ;
 
    int njet_bin_to_fix = 1;
+   //int njet_bin_to_fix = 0;
 
    double calc_fit_error( TMinuit* tm, int hbi, int nji, double& simple_model_err ) ;
    void  draw_boundaries( float hmin, float hmax ) ;
@@ -77,7 +78,7 @@
       if ( first_time ) { printf("\n\n minuit_fcn : first time\n") ; }
          for ( int hbi=0; hbi<nBinsHT; hbi++ ) {
                for ( int nji=0; nji<nb_nj; nji++ ) {
-                  if ( hbi==0 && nji>nb_nj - 2 ) continue ;  // skip top two njets bins for lowest HT.
+                  if ( hbi==0 && nji>=(nb_nj - 2) ) continue ;  // skip top two njets bins for lowest HT.
                   if ( !( data_Rqcd_err[hbi][nji] > 0. ) ) { continue ; }
                   double delta = data_Rqcd[hbi][nji] - fit_Rqcd_HT[hbi] * fit_SFqcd_njet[nji] ;
                   f += delta*delta / (data_Rqcd_err[hbi][nji] * data_Rqcd_err[hbi][nji] ) ;
@@ -198,7 +199,7 @@
       for ( int hbi=0; hbi<nBinsHT; hbi++ ) {
          for ( int nji=0; nji<nb_nj; nji++ ) {
                histbin ++ ;
-               if ( hbi==0 && nji>nb_nj-2 ) continue ; // skip top two njets bins for lowest HT bin.
+               if ( hbi==0 && nji>=(nb_nj-2) ) continue ; // skip top two njets bins for lowest HT bin.
                char binlabel[100] ;
                sprintf( binlabel, "%s", h_ratio -> GetXaxis() -> GetBinLabel( histbin ) ) ;
                double model_val = fit_Rqcd_HT[hbi] * fit_SFqcd_njet[nji] ;
