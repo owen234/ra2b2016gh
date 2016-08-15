@@ -51,15 +51,18 @@ void fill_data_hists_loop_v2d::Loop( bool verb, int nloop )
 
    TH1F * h_hdp_nb[10], *h_ldp_nb[10];
 
+   TH1::SetDefaultSumw2(); // to make sure all TH1 histograms have Sumw2 enabled
+
+
       for ( int nb = 0; nb < nb_nb; nb++)
       {
 
          TString nb_str         ; nb_str         .Form("%d",nb);
 
-         h_hdp_nb[nb] = new TH1F( "h_hdp_nb"+nb_str, "HDP events, Nb="+nb_str, nb_global/nb_nb, 0.5, nb_global/nb_nb + 0.5 ) ; h_hdp_nb[nb] -> Sumw2() ;
+         h_hdp_nb[nb] = new TH1F( "h_hdp_nb"+nb_str, "HDP events, Nb="+nb_str, nb_global/nb_nb, 0.5, nb_global/nb_nb + 0.5 ) ;
          set_bin_labels( h_hdp_nb[nb] ) ;
 
-         h_ldp_nb[nb] = new TH1F( "h_ldp_nb"+nb_str, "ldp events, Nb="+nb_str, nb_global/nb_nb, 0.5, nb_global/nb_nb + 0.5 ) ; h_ldp_nb[nb] -> Sumw2() ;
+         h_ldp_nb[nb] = new TH1F( "h_ldp_nb"+nb_str, "ldp events, Nb="+nb_str, nb_global/nb_nb, 0.5, nb_global/nb_nb + 0.5 ) ;
          set_bin_labels( h_ldp_nb[nb] ) ;
 
 
@@ -67,26 +70,26 @@ void fill_data_hists_loop_v2d::Loop( bool verb, int nloop )
 
 
 
-   TH1F* h_hdp = new TH1F( "h_hdp", "HDP events", nb_global, 0.5, nb_global + 0.5 ) ; h_hdp -> Sumw2() ;
+   TH1F* h_hdp = new TH1F( "h_hdp", "HDP events", nb_global, 0.5, nb_global + 0.5 ) ;
    set_bin_labels_div_by_nb( h_hdp ) ;
-   TH1F* h_nbsum_hdp = new TH1F( "h_nbsum_hdp", "HDP events", nb_global/nb_nb, 0.5, nb_global/nb_nb + 0.5 ) ; h_nbsum_hdp -> Sumw2() ;
+   TH1F* h_nbsum_hdp = new TH1F( "h_nbsum_hdp", "HDP events", nb_global/nb_nb, 0.5, nb_global/nb_nb + 0.5 ) ;
    set_bin_labels( h_nbsum_hdp ) ;
-   TH1F* h_mhtc_hdp = new TH1F( "h_mhtc_hdp", "HDP events, MHTC", nb_nj*nb_nb*nb_ht[1], 0.5, nb_nj*nb_nb*nb_ht[1]+0.5 ) ; h_mhtc_hdp -> Sumw2() ;
+   TH1F* h_mhtc_hdp = new TH1F( "h_mhtc_hdp", "HDP events, MHTC", nb_nj*nb_nb*nb_ht[1], 0.5, nb_nj*nb_nb*nb_ht[1]+0.5 ) ;
    set_bin_labels_mhtc_plot( h_mhtc_hdp ) ;
 
-   TH1F* h_ldp = new TH1F( "h_ldp", "ldp events", nb_global, 0.5, nb_global + 0.5 ) ; h_ldp -> Sumw2() ;
+   TH1F* h_ldp = new TH1F( "h_ldp", "ldp events", nb_global, 0.5, nb_global + 0.5 ) ;
    set_bin_labels_div_by_nb( h_ldp ) ;
-   TH1F* h_nbsum_ldp = new TH1F( "h_nbsum_ldp", "LDP events", nb_global/nb_nb, 0.5, nb_global/nb_nb + 0.5 ) ; h_nbsum_ldp -> Sumw2() ;
+   TH1F* h_nbsum_ldp = new TH1F( "h_nbsum_ldp", "LDP events", nb_global/nb_nb, 0.5, nb_global/nb_nb + 0.5 ) ;
    set_bin_labels( h_nbsum_ldp ) ;
-   TH1F* h_mhtc_ldp = new TH1F( "h_mhtc_ldp", "ldp events, MHTC", nb_nj*nb_nb*nb_ht[1], 0.5, nb_nj*nb_nb*nb_ht[1]+0.5 ) ; h_mhtc_ldp -> Sumw2() ;
+   TH1F* h_mhtc_ldp = new TH1F( "h_mhtc_ldp", "ldp events, MHTC", nb_nj*nb_nb*nb_ht[1], 0.5, nb_nj*nb_nb*nb_ht[1]+0.5 ) ;
    set_bin_labels_mhtc_plot( h_mhtc_ldp ) ;
 
-   TH1F* h_mht_all = new TH1F( "h_mht_all", "MHT, all events", 100, 0., 1000. ) ; h_mht_all -> Sumw2() ;
-   TH1F* h_mht_badmu = new TH1F( "h_mht_badmu", "MHT, badmu", 100, 0., 1000. ) ; h_mht_badmu -> Sumw2() ;
-   TH1F* h_mht_allrejected = new TH1F( "h_mht_allrejected", "MHT, all rejected", 100, 0., 1000. ) ; h_mht_allrejected -> Sumw2() ;
-   TH1F* h_met_over_calomet_all = new TH1F( "h_met_over_calomet_all", "MET/CaloMET, all events", 100., 0., 10. ) ; h_met_over_calomet_all -> Sumw2() ;
-   TH1F* h_met_over_calomet_badmu = new TH1F( "h_met_over_calomet_badmu", "MET/CaloMET, badmu", 100., 0., 10. ) ; h_met_over_calomet_badmu -> Sumw2() ;
-   TH1F* h_met_over_calomet_allrejected = new TH1F( "h_met_over_calomet_allrejected", "MET/CaloMET, all rejected", 100., 0., 10. ) ; h_met_over_calomet_badmu -> Sumw2() ;
+   TH1F* h_mht_all = new TH1F( "h_mht_all", "MHT, all events", 100, 0., 1000. ) ;
+   TH1F* h_mht_badmu = new TH1F( "h_mht_badmu", "MHT, badmu", 100, 0., 1000. ) ;
+   TH1F* h_mht_allrejected = new TH1F( "h_mht_allrejected", "MHT, all rejected", 100, 0., 1000. ) ;
+   TH1F* h_met_over_calomet_all = new TH1F( "h_met_over_calomet_all", "MET/CaloMET, all events", 100., 0., 10. ) ;
+   TH1F* h_met_over_calomet_badmu = new TH1F( "h_met_over_calomet_badmu", "MET/CaloMET, badmu", 100., 0., 10. ) ;
+   TH1F* h_met_over_calomet_allrejected = new TH1F( "h_met_over_calomet_allrejected", "MET/CaloMET, all rejected", 100., 0., 10. ) ;
 
    TH1F* h_mdp_all = new TH1F( "h_mdp_all", "Min Delta phi, 4 leading jets", 64, 0., 3.2 ) ;
 
