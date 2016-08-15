@@ -38,9 +38,6 @@
 
    bool only_fit_mht1 ;
 
-   int njet_bin_to_fix = 1;
-   //int njet_bin_to_fix = 0;
-
    double calc_fit_error( TMinuit* tm, int hbi, int nji, double& simple_model_err ) ;
    void  draw_boundaries( float hmin, float hmax ) ;
 
@@ -66,7 +63,7 @@
          parind ++ ;
       } // hbi.
       for ( int nji=0; nji<nb_nj; nji++ ) {
-         if ( nji == njet_bin_to_fix ) {
+         if ( nji == njet_bin_to_fix_in_qcd_model_fit ) {
             fit_SFqcd_njet[nji] = 1.0 ;
          } else {
             fit_SFqcd_njet[nji] = par[parind] ;
@@ -178,7 +175,7 @@
          parind++ ;
       } // hbi.
       for ( int nji=0; nji<nb_nj; nji++ ) {
-         if (nji == njet_bin_to_fix ) continue;
+         if (nji == njet_bin_to_fix_in_qcd_model_fit ) continue;
          char pname[1000] ;
          sprintf( pname, "SFqcd_njet%d", nji+1 ) ;
          myMinuit->mnparm( parind, pname, 1.0, 0.10, 0., 90., ierflg ) ;
@@ -279,7 +276,7 @@
 
 
       for ( int nji=0; nji<nb_nj; nji++ ) {
-         if ( nji == njet_bin_to_fix ) continue;
+         if ( nji == njet_bin_to_fix_in_qcd_model_fit ) continue;
          char pname[1000] ;
          double val, err ;
          sprintf( pname, "Sqcd_njet%d", nji+1 ) ;

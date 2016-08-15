@@ -1,5 +1,13 @@
+#ifndef make_lostlep_input_files1_c 
+#define make_lostlep_input_files1_c
 
-   TH1* get_hist( TFile* tf, const char* hname ) ;
+#include "TH1.h"
+#include "TString.h"
+#include "TFile.h"
+#include "TSystem.h"
+#include "binning.h"
+#include "get_hist.h"
+
 
    void make_lostlep_input_files1(
                                  const char* ldp_input_root_file = "non-qcd-inputs-topup2/LLPrediction_QCD_LDP_Jul26_newSF.root",
@@ -7,6 +15,8 @@
                                  const char* output_text_file = "outputfiles/combine-input-lostlep.txt",
                                  const char* nbsum_text_file = "outputfiles/nbsum-input-lostlep.txt"
                                ) {
+
+      setup_bins();
 
       bool verb(false) ;
 
@@ -222,11 +232,6 @@
 
 
 
-      int nb_nj(4) ;
-      int nb_nb(4) ;
-      int nb_htmht(13) ;
-      int nb_ht(3) ;
-
       int bi_hist(0) ;
       int bi_control(0) ;
       int bi_search(0) ;
@@ -286,7 +291,7 @@
 
                TString hist_bin_label( h_ldp -> GetXaxis() -> GetBinLabel( bi_hist ) ) ;
 
-               int bi_ht, bi_mht ;
+               int bi_ht = 0, bi_mht = 0;
 
                if ( bi_htmht == 1 ) { bi_ht = 1; bi_mht = 1; }
                if ( bi_htmht == 2 ) { bi_ht = 2; bi_mht = 1; }
@@ -372,7 +377,7 @@
 
      //---------
 
-      for ( int bi_ht=1; bi_ht<=nb_ht; bi_ht++ ) {
+      for ( int bi_ht=1; bi_ht<=nBinsHT; bi_ht++ ) {
          for ( int bi_nj=1; bi_nj<=nb_nj; bi_nj++ ) {
 
             float nbsum_lowdphi_val(0.) ;
@@ -484,18 +489,5 @@
 
    } // make_lostlep_input_files1
 
-  //========================================================================================================
 
-   TH1* get_hist( TFile* tf, const char* hname ) {
-      TH1* hp   = (TH1*) tf -> Get( hname ) ;
-      if ( hp == 0x0 ) {
-         printf("\n\n *** Can't find hist %s.\n\n", hname ) ;
-         gSystem -> Exit(-1) ;
-      }
-      return hp ;
-   } // get_hist
-
-  //========================================================================================================
-
-
-
+#endif

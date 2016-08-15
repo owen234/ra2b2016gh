@@ -1,11 +1,19 @@
+#ifndef make_znunu_input_files1_c
+#define make_znunu_input_files1_c
 
-   TH1F* get_hist( TFile* tf, const char* hname ) ;
+#include "TH1.h"
+#include "TFile.h"
+#include "TString.h"
+#include "get_hist.h"
+#include "binning.h"
 
    void make_znunu_input_files1( const char* ldp_input_root_file = "non-qcd-inputs-topup2/ZinvHistos_ldp.root",
                                  const char* hdp_input_root_file = "non-qcd-inputs-topup2/ZinvHistos_hdp.root",
                                  const char* output_text_file = "outputfiles/combine-input-znunu.txt",
                                  const char* nbsum_text_file  = "outputfiles/nbsum-input-znunu.txt"
                                ) {
+      setup_bins();
+
 
       gDirectory -> Delete( "h*" ) ;
 
@@ -114,10 +122,6 @@
 
 
 
-      int nb_nj(4) ;
-      int nb_nb(4) ;
-      int nb_htmht(13) ;
-      int nb_ht(3) ;
 
       int bi_hist(0) ;
       int bi_control(0) ;
@@ -253,7 +257,7 @@
 
      //-----
 
-      for ( int bi_ht=1; bi_ht<=nb_ht; bi_ht++ ) {
+      for ( int bi_ht=1; bi_ht<=nBinsHT; bi_ht++ ) {
          for ( int bi_nj=1; bi_nj<=nb_nj; bi_nj++ ) {
 
             float nbsum_lowdphi_val(0.) ;
@@ -352,18 +356,4 @@
 
    } // make_znunu_input_files1
 
-
-  //========================================================================================================
-
-   TH1F* get_hist( TFile* tf, const char* hname ) {
-      TH1F* hp   = (TH1F*) tf -> Get( hname ) ;
-      if ( hp == 0x0 ) {
-         printf("\n\n *** Can't find hist %s.\n\n", hname ) ;
-         gSystem -> Exit(-1) ;
-      }
-      return hp ;
-   } // get_hist
-
-  //========================================================================================================
-
-
+#endif

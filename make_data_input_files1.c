@@ -1,9 +1,17 @@
+#ifndef make_data_input_files1_c
+#define make_data_input_files1_c
 
+#include "TH1.h"
+#include "TDirectory.h"
+#include "TFile.h"
+#include "binning.h"
 
    void make_data_input_files1( const char* input_root_file = "outputfiles/hists-data-v2d.root",
                                  const char* output_text_file = "outputfiles/combine-input-data.txt",
                                  const char* nbsum_text_file = "outputfiles/nbsum-input-data.txt"
                                ) {
+
+      setup_bins(); 
 
       gDirectory -> Delete( "h*" ) ;
 
@@ -34,11 +42,6 @@
       TH1F* h_hdp = (TH1F*) tf -> Get( "h_hdp" ) ;
       if ( h_hdp == 0x0 ) { printf("\n\n *** Missing h_hdp\n\n") ; return ; }
 
-      int nb_nj(4) ;
-      int nb_nb(4) ;
-      int nb_htmht(13) ;
-      int nb_ht(3) ;
-
       int bi_hist(0) ;
       int bi_control(0) ;
       int bi_search(0) ;
@@ -56,7 +59,7 @@
 
                TString hist_bin_label( h_ldp -> GetXaxis() -> GetBinLabel( bi_hist ) ) ;
 
-               int bi_ht, bi_mht ;
+               int bi_ht = 0, bi_mht = 0;
 
                if ( bi_htmht == 1 ) { bi_ht = 1; bi_mht = 1; }
                if ( bi_htmht == 2 ) { bi_ht = 2; bi_mht = 1; }
@@ -112,7 +115,7 @@
 
      //--------
 
-      for ( int bi_ht=1; bi_ht<=nb_ht; bi_ht++ ) {
+      for ( int bi_ht=1; bi_ht<=nBinsHT; bi_ht++ ) {
          for ( int bi_nj=1; bi_nj<=nb_nj; bi_nj++ ) {
 
             float ldp_nbsum_val(0.) ;
@@ -155,4 +158,4 @@
    } // make_data_input_files1
 
 
-
+#endif
