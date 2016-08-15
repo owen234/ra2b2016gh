@@ -9,6 +9,11 @@
 #include "TFile.h"
 #include "TROOT.h"
 #include "modelfit3.c"
+#include "make_data_input_files1.c"
+#include "make_lostlep_input_files1.c"
+#include "make_hadtau_input_files1.c"
+#include "make_znunu_input_files1.c"
+
 
 void run_all ( TString skim_slim_input_dir = "" )
 
@@ -42,4 +47,10 @@ void run_all ( TString skim_slim_input_dir = "" )
 
    make_qcdmc_input_files1();
    modelfit3();
+
+   make_data_input_files1();
+   make_lostlep_input_files1();
+   make_hadtau_input_files1();
+   make_znunu_input_files1();
+
 }
