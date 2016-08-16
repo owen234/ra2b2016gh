@@ -1,3 +1,4 @@
+#ifndef syst_2015_v2_cxx
 #define syst_2015_v2_cxx
 #include "syst_2015_v2.h"
 #include <TH2.h>
@@ -11,10 +12,11 @@
 
 double calc_dphi( double phi1, double phi2 ) ;
 
+   double lumi_ = 12903. ;
+
+
 void syst_2015_v2::Loop( int max_dump, bool verb )
 {
-   /////double lumi = 2300 ;
-   double lumi = 12903. ;
 
    setup_bins() ;
 
@@ -49,7 +51,7 @@ void syst_2015_v2::Loop( int max_dump, bool verb )
    TH1F* h_dphiregion_badj_not_in_dphi_all = new TH1F( "h_dphiregion_badj_not_in_dphi_all", "Dphi region (0=LDP, 1=HDP), bad jet not in Dphi", 2, -0.5, 1.5 ) ;
    TH1F* h_dphiregion_badj_not_in_dphi_mht[10];
 
-   for ( int mht_count = 0; mht_count <= 4; mht_count++)
+   for ( int mht_count = 0; mht_count < nb_mht; mht_count++)
    {
 
    TString mht_str; 
@@ -113,7 +115,7 @@ void syst_2015_v2::Loop( int max_dump, bool verb )
 
    h_dphiregion_ht_badj_not_in_dphi_all[ht_count] = new TH1F( "h_dphiregion_ht"+ht_str_short+"_badj_not_in_dphi_all", "Dphi region (0=LDP, 1=HDP), bad jet not in Dphi, "+ht_str_long, 2, -0.5, 1.5 ) ;
 
-   for ( int mht_count = 0; mht_count <= 4; mht_count++)
+   for ( int mht_count = 0; mht_count <= nb_mht; mht_count++)
    {
    TString mht_str; 
    if ( mht_count == 0 ) mht_str = "C"; 
@@ -147,7 +149,7 @@ void syst_2015_v2::Loop( int max_dump, bool verb )
 
    TH1F* h_hdp_nb[10], *h_ldp_nb[10];
 
-   for ( int nb_count = 0; nb_count <= 3; nb_count++)
+   for ( int nb_count = 0; nb_count < nb_nb; nb_count++)
    {
 
    TString nb_str; nb_str.Form("%d",nb_count);
@@ -206,13 +208,13 @@ void syst_2015_v2::Loop( int max_dump, bool verb )
       if (ientry < 0) break;
       nb = fChain->GetEntry(jentry);   nbytes += nb;
 
-      double hw = Weight * lumi ;
+      double hw = Weight * lumi_ ;
 
 
      //--- apply new baseline.
-      if ( NJets < 3 ) continue ;
-      if ( MHT < 250. ) continue ;
-      if ( HT < 300. ) continue ;
+      if ( NJets < bin_edges_nj[0] ) continue ;
+      if ( MHT < bin_edges_mht[0] ) continue ;
+      if ( HT < bin_edges_ht[1][0] ) continue ;
 
 
      //-- take out the trash
@@ -583,13 +585,11 @@ void syst_2015_v2::Loop( int max_dump, bool verb )
       if ( !recalc_in_ldp ) {
          h_hdp -> Fill( bi_global, hw ) ;
          h_hdp_nbsum -> Fill( bi_nbsum_global, hw ) ;
-         if ( BTags < 3  ) h_hdp_nb[BTags] -> Fill( bi_nbsum_global, hw ) ;
-         if ( BTags >= 3 ) h_hdp_nb[3] -> Fill( bi_nbsum_global, hw ) ;
+         h_hdp_nb[bi_nb-1] -> Fill( bi_nbsum_global, hw ) ;
       } else {
          h_ldp -> Fill( bi_global, hw ) ;
          h_ldp_nbsum -> Fill( bi_nbsum_global, hw ) ;
-         if ( BTags < 3  ) h_ldp_nb[BTags] -> Fill( bi_nbsum_global, hw ) ;
-         if ( BTags >= 3 ) h_ldp_nb[3] -> Fill( bi_nbsum_global, hw ) ;
+         h_ldp_nb[bi_nb-1] -> Fill( bi_nbsum_global, hw ) ;
       }
 
 
@@ -797,4 +797,4 @@ double syst_2015_v2::dr_match_rec_to_genjet( int rji, int& match_gji ) {
 
 
 
-
+#endif
