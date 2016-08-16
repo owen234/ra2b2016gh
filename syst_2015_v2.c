@@ -7,6 +7,7 @@
 #include "TSystem.h"
 
 #include "histio.c"
+#include "binning.h"
 
 double calc_dphi( double phi1, double phi2 ) ;
 
@@ -17,232 +18,151 @@ void syst_2015_v2::Loop( int max_dump, bool verb )
 
    setup_bins() ;
 
+   TH1::SetDefaultSumw2(); // to make sure all TH1 histograms have Sumw2 enabled
+
+
    printf("\n\n") ;
 
    TH1F* h_dpt        = new TH1F( "h_dpt", "Pt(rec)-Pt(gen) for worst jet", 60, 0., 600. ) ;
    TH1F* h_dpt_withnu = new TH1F( "h_dpt_withnu", "Pt(rec)-Pt(gen) for worst jet, neutrinos added in to Pt(gen)", 60, 0., 600. ) ;
-   h_dpt -> Sumw2() ;
-   h_dpt_withnu -> Sumw2() ;
 
    TH1F* h_worst_ptrec_over_ptgen_all = new TH1F( "h_worst_ptrec_over_ptgen_all", "Pt(rec)/Pt(gen) for worst jet (largest DPt), all", 50, 0., 2.5 ) ;
    TH1F* h_worst_ptrec_over_ptgen_genmet_lt_60 = new TH1F( "h_worst_ptrec_over_ptgen_genmet_lt_60", "Pt(rec)/Pt(gen) for worst jet (largest DPt), GenMET<60", 50, 0., 2.5 ) ;
    TH1F* h_worst_ptrec_over_ptgen_genmet_gt_60 = new TH1F( "h_worst_ptrec_over_ptgen_genmet_gt_60", "Pt(rec)/Pt(gen) for worst jet (largest DPt), GenMET>60", 50, 0., 2.5 ) ;
-   h_worst_ptrec_over_ptgen_all -> Sumw2() ;
-   h_worst_ptrec_over_ptgen_genmet_lt_60 -> Sumw2() ;
-   h_worst_ptrec_over_ptgen_genmet_gt_60 -> Sumw2() ;
+
+  //-----
+   TH1F* h_mdp_all = new TH1F( "h_mdp_all", "Min Delta Phi, all baseline", 68, 0., 3.4 ) ;
+   TH1F* h_mdp_mht[10];
+
+   TH1F* h_mdp_badj_in_dphi_all = new TH1F( "h_mdp_badj_in_dphi_all", "Min Delta Phi, all baseline, bad jet in Dphi", 68, 0., 3.4 ) ;
+   TH1F* h_mdp_badj_in_dphi_mht[10];
+
+   TH1F* h_mdp_badj_not_in_dphi_all = new TH1F( "h_mdp_badj_not_in_dphi_all", "Min Delta Phi, all baseline, bad jet not in Dphi", 68, 0., 3.4 ) ;
+   TH1F* h_mdp_badj_not_in_dphi_mht[10];	
+
+   TH1F* h_dphiregion_all = new TH1F( "h_dphiregion_all", "Dphi region (0=LDP, 1=HDP)", 2, -0.5, 1.5 ) ;
+   TH1F* h_dphiregion_mht[10];
+
+   TH1F* h_dphiregion_badj_in_dphi_all = new TH1F( "h_dphiregion_badj_in_dphi_all", "Dphi region (0=LDP, 1=HDP), bad jet in Dphi", 2, -0.5, 1.5 ) ;
+   TH1F* h_dphiregion_badj_in_dphi_mht[10];
+
+   TH1F* h_dphiregion_badj_not_in_dphi_all = new TH1F( "h_dphiregion_badj_not_in_dphi_all", "Dphi region (0=LDP, 1=HDP), bad jet not in Dphi", 2, -0.5, 1.5 ) ;
+   TH1F* h_dphiregion_badj_not_in_dphi_mht[10];
+
+   for ( int mht_count = 0; mht_count <= 4; mht_count++)
+   {
+
+   TString mht_str; 
+   if ( mht_count == 0 ) mht_str = "C";
+   else                  mht_str.Form("%d",mht_count);
+
+   h_mdp_mht                        [mht_count]  = new TH1F( "h_mdp_mht"+mht_str, "Min Delta Phi, MHT"+mht_str, 68, 0., 3.4 ) ;
+
+   h_mdp_badj_in_dphi_mht           [mht_count] = new TH1F( "h_mdp_badj_in_dphi_mht"+mht_str, "Min Delta Phi, MHT"+mht_str+", bad jet in Dphi", 68, 0., 3.4 ) ;
+
+   h_mdp_badj_not_in_dphi_mht       [mht_count] = new TH1F( "h_mdp_badj_not_in_dphi_mht"+mht_str, "Min Delta Phi, MHT"+mht_str+", bad jet not in Dphi", 68, 0., 3.4  );
+
+
+   h_dphiregion_mht                 [mht_count] = new TH1F( "h_dphiregion_mht"+mht_str, "Dphi region (0=LDP, 1=HDP), MHT"+mht_str, 2, -0.5, 1.5 ) ;
+
+   h_dphiregion_badj_in_dphi_mht    [mht_count] = new TH1F( "h_dphiregion_badj_in_dphi_mht"+mht_str, "Dphi region (0=LDP, 1=HDP), MHT"+mht_str+", bad jet in Dphi", 2, -0.5, 1.5 ) ;
+
+   h_dphiregion_badj_not_in_dphi_mht[mht_count] = new TH1F( "h_dphiregion_badj_not_in_dphi_mht"+mht_str, "Dphi region (0=LDP, 1=HDP), MHT"+mht_str+", bad jet not in Dphi", 2, -0.5, 1.5 ) ;
+
+   }//mht_count
 
   //-----
 
-   TH1F* h_mdp_all = new TH1F( "h_mdp_all", "Min Delta Phi, all baseline", 68, 0., 3.4 ) ; h_mdp_all -> Sumw2() ;
-   TH1F* h_mdp_mhtc = new TH1F( "h_mdp_mhtc", "Min Delta Phi, MHTC", 68, 0., 3.4 ) ;       h_mdp_mhtc -> Sumw2() ;
-   TH1F* h_mdp_mht1 = new TH1F( "h_mdp_mht1", "Min Delta Phi, MHT1", 68, 0., 3.4 ) ;       h_mdp_mht1 -> Sumw2() ;
-   TH1F* h_mdp_mht2 = new TH1F( "h_mdp_mht2", "Min Delta Phi, MHT2", 68, 0., 3.4 ) ;       h_mdp_mht2 -> Sumw2() ;
-   TH1F* h_mdp_mht3 = new TH1F( "h_mdp_mht3", "Min Delta Phi, MHT3", 68, 0., 3.4 ) ;       h_mdp_mht3 -> Sumw2() ;
-   TH1F* h_mdp_mht4 = new TH1F( "h_mdp_mht4", "Min Delta Phi, MHT4", 68, 0., 3.4 ) ;       h_mdp_mht4 -> Sumw2() ;
+   TH1F* h_mdp_ht_all[10];
+   TH1F* h_mdp_ht_mht[10][10];
 
-   TH1F* h_mdp_all_badj_in_dphi = new TH1F( "h_mdp_all_badj_in_dphi", "Min Delta Phi, all baseline, bad jet in Dphi", 68, 0., 3.4 ) ; h_mdp_all_badj_in_dphi -> Sumw2() ;
-   TH1F* h_mdp_mhtc_badj_in_dphi = new TH1F( "h_mdp_mhtc_badj_in_dphi", "Min Delta Phi, MHTC, bad jet in Dphi", 68, 0., 3.4 ) ;       h_mdp_mhtc_badj_in_dphi -> Sumw2() ;
-   TH1F* h_mdp_mht1_badj_in_dphi = new TH1F( "h_mdp_mht1_badj_in_dphi", "Min Delta Phi, MHT1, bad jet in Dphi", 68, 0., 3.4 ) ;       h_mdp_mht1_badj_in_dphi -> Sumw2() ;
-   TH1F* h_mdp_mht2_badj_in_dphi = new TH1F( "h_mdp_mht2_badj_in_dphi", "Min Delta Phi, MHT2, bad jet in Dphi", 68, 0., 3.4 ) ;       h_mdp_mht2_badj_in_dphi -> Sumw2() ;
-   TH1F* h_mdp_mht3_badj_in_dphi = new TH1F( "h_mdp_mht3_badj_in_dphi", "Min Delta Phi, MHT3, bad jet in Dphi", 68, 0., 3.4 ) ;       h_mdp_mht3_badj_in_dphi -> Sumw2() ;
-   TH1F* h_mdp_mht4_badj_in_dphi = new TH1F( "h_mdp_mht4_badj_in_dphi", "Min Delta Phi, MHT4, bad jet in Dphi", 68, 0., 3.4 ) ;       h_mdp_mht4_badj_in_dphi -> Sumw2() ;
+   TH1F* h_mdp_ht_badj_in_dphi_all[10];
+   TH1F* h_mdp_ht_badj_in_dphi_mht[10][10];
 
-   TH1F* h_mdp_all_badj_not_in_dphi = new TH1F( "h_mdp_all_badj_not_in_dphi", "Min Delta Phi, all baseline, bad jet not in Dphi", 68, 0., 3.4 ) ; h_mdp_all_badj_not_in_dphi -> Sumw2() ;
-   TH1F* h_mdp_mhtc_badj_not_in_dphi = new TH1F( "h_mdp_mhtc_badj_not_in_dphi", "Min Delta Phi, MHTC, bad jet not in Dphi", 68, 0., 3.4 ) ;       h_mdp_mhtc_badj_not_in_dphi -> Sumw2() ;
-   TH1F* h_mdp_mht1_badj_not_in_dphi = new TH1F( "h_mdp_mht1_badj_not_in_dphi", "Min Delta Phi, MHT1, bad jet not in Dphi", 68, 0., 3.4 ) ;       h_mdp_mht1_badj_not_in_dphi -> Sumw2() ;
-   TH1F* h_mdp_mht2_badj_not_in_dphi = new TH1F( "h_mdp_mht2_badj_not_in_dphi", "Min Delta Phi, MHT2, bad jet not in Dphi", 68, 0., 3.4 ) ;       h_mdp_mht2_badj_not_in_dphi -> Sumw2() ;
-   TH1F* h_mdp_mht3_badj_not_in_dphi = new TH1F( "h_mdp_mht3_badj_not_in_dphi", "Min Delta Phi, MHT3, bad jet not in Dphi", 68, 0., 3.4 ) ;       h_mdp_mht3_badj_not_in_dphi -> Sumw2() ;
-   TH1F* h_mdp_mht4_badj_not_in_dphi = new TH1F( "h_mdp_mht4_badj_not_in_dphi", "Min Delta Phi, MHT4, bad jet not in Dphi", 68, 0., 3.4 ) ;       h_mdp_mht4_badj_not_in_dphi -> Sumw2() ;
+   TH1F* h_mdp_ht_badj_not_in_dphi_all[10];
+   TH1F* h_mdp_ht_badj_not_in_dphi_mht[10][10];
 
-   TH1F* h_dphiregion_all = new TH1F( "h_dphiregion_all", "Dphi region (0=LDP, 1=HDP)", 2, -0.5, 1.5 ) ;            h_dphiregion_all -> Sumw2() ;
-   TH1F* h_dphiregion_mhtc = new TH1F( "h_dphiregion_mhtc", "Dphi region (0=LDP, 1=HDP), MHTC", 2, -0.5, 1.5 ) ;    h_dphiregion_mhtc -> Sumw2() ;
-   TH1F* h_dphiregion_mht1 = new TH1F( "h_dphiregion_mht1", "Dphi region (0=LDP, 1=HDP), MHT1", 2, -0.5, 1.5 ) ;    h_dphiregion_mht1 -> Sumw2() ;
-   TH1F* h_dphiregion_mht2 = new TH1F( "h_dphiregion_mht2", "Dphi region (0=LDP, 1=HDP), MHT2", 2, -0.5, 1.5 ) ;    h_dphiregion_mht2 -> Sumw2() ;
-   TH1F* h_dphiregion_mht3 = new TH1F( "h_dphiregion_mht3", "Dphi region (0=LDP, 1=HDP), MHT3", 2, -0.5, 1.5 ) ;    h_dphiregion_mht3 -> Sumw2() ;
-   TH1F* h_dphiregion_mht4 = new TH1F( "h_dphiregion_mht4", "Dphi region (0=LDP, 1=HDP), MHT4", 2, -0.5, 1.5 ) ;    h_dphiregion_mht4 -> Sumw2() ;
+   TH1F* h_dphiregion_ht_all[10];
+   TH1F* h_dphiregion_ht_mht[10][10];
 
-   TH1F* h_dphiregion_all_badj_in_dphi = new TH1F( "h_dphiregion_all_badj_in_dphi", "Dphi region (0=LDP, 1=HDP), bad jet in Dphi", 2, -0.5, 1.5 ) ;          h_dphiregion_all_badj_in_dphi -> Sumw2() ;
-   TH1F* h_dphiregion_mhtc_badj_in_dphi = new TH1F( "h_dphiregion_mhtc_badj_in_dphi", "Dphi region (0=LDP, 1=HDP), MHTC, bad jet in Dphi", 2, -0.5, 1.5 ) ;  h_dphiregion_mhtc_badj_in_dphi -> Sumw2() ;
-   TH1F* h_dphiregion_mht1_badj_in_dphi = new TH1F( "h_dphiregion_mht1_badj_in_dphi", "Dphi region (0=LDP, 1=HDP), MHT1, bad jet in Dphi", 2, -0.5, 1.5 ) ;  h_dphiregion_mht1_badj_in_dphi -> Sumw2() ;
-   TH1F* h_dphiregion_mht2_badj_in_dphi = new TH1F( "h_dphiregion_mht2_badj_in_dphi", "Dphi region (0=LDP, 1=HDP), MHT2, bad jet in Dphi", 2, -0.5, 1.5 ) ;  h_dphiregion_mht2_badj_in_dphi -> Sumw2() ;
-   TH1F* h_dphiregion_mht3_badj_in_dphi = new TH1F( "h_dphiregion_mht3_badj_in_dphi", "Dphi region (0=LDP, 1=HDP), MHT3, bad jet in Dphi", 2, -0.5, 1.5 ) ;  h_dphiregion_mht3_badj_in_dphi -> Sumw2() ;
-   TH1F* h_dphiregion_mht4_badj_in_dphi = new TH1F( "h_dphiregion_mht4_badj_in_dphi", "Dphi region (0=LDP, 1=HDP), MHT4, bad jet in Dphi", 2, -0.5, 1.5 ) ;  h_dphiregion_mht4_badj_in_dphi -> Sumw2() ;
+   TH1F* h_dphiregion_ht_badj_in_dphi_all[10];
+   TH1F* h_dphiregion_ht_badj_in_dphi_mht[10][10];
 
-   TH1F* h_dphiregion_all_badj_not_in_dphi = new TH1F( "h_dphiregion_all_badj_not_in_dphi", "Dphi region (0=LDP, 1=HDP), bad jet not in Dphi", 2, -0.5, 1.5 ) ;          h_dphiregion_all_badj_not_in_dphi -> Sumw2() ;
-   TH1F* h_dphiregion_mhtc_badj_not_in_dphi = new TH1F( "h_dphiregion_mhtc_badj_not_in_dphi", "Dphi region (0=LDP, 1=HDP), MHTC, bad jet not in Dphi", 2, -0.5, 1.5 ) ;  h_dphiregion_mhtc_badj_not_in_dphi -> Sumw2() ;
-   TH1F* h_dphiregion_mht1_badj_not_in_dphi = new TH1F( "h_dphiregion_mht1_badj_not_in_dphi", "Dphi region (0=LDP, 1=HDP), MHT1, bad jet not in Dphi", 2, -0.5, 1.5 ) ;  h_dphiregion_mht1_badj_not_in_dphi -> Sumw2() ;
-   TH1F* h_dphiregion_mht2_badj_not_in_dphi = new TH1F( "h_dphiregion_mht2_badj_not_in_dphi", "Dphi region (0=LDP, 1=HDP), MHT2, bad jet not in Dphi", 2, -0.5, 1.5 ) ;  h_dphiregion_mht2_badj_not_in_dphi -> Sumw2() ;
-   TH1F* h_dphiregion_mht3_badj_not_in_dphi = new TH1F( "h_dphiregion_mht3_badj_not_in_dphi", "Dphi region (0=LDP, 1=HDP), MHT3, bad jet not in Dphi", 2, -0.5, 1.5 ) ;  h_dphiregion_mht3_badj_not_in_dphi -> Sumw2() ;
-   TH1F* h_dphiregion_mht4_badj_not_in_dphi = new TH1F( "h_dphiregion_mht4_badj_not_in_dphi", "Dphi region (0=LDP, 1=HDP), MHT4, bad jet not in Dphi", 2, -0.5, 1.5 ) ;  h_dphiregion_mht4_badj_not_in_dphi -> Sumw2() ;
+   TH1F* h_dphiregion_ht_badj_not_in_dphi_all[10];
+   TH1F* h_dphiregion_ht_badj_not_in_dphi_mht[10][10];
+
+   for ( int ht_count = 0; ht_count < 3; ht_count++)
+   {
+
+   TString ht_str_short, ht_str_long;
+
+   if ( ht_count == 0 ) { ht_str_short = "l"; ht_str_long = "low HT";   }
+   if ( ht_count == 1 ) { ht_str_short = "m"; ht_str_long = "medium HT";}
+   if ( ht_count == 2 ) { ht_str_short = "h"; ht_str_long = "high HT";  }
 
 
-  //-----
+   h_mdp_ht_all[ht_count] = new TH1F( "h_mdp_ht"+ht_str_short+"_all", "Min Delta Phi, all baseline, "+ht_str_long, 68, 0., 3.4 ) ;
 
-   TH1F* h_mdp_hth_all = new TH1F( "h_mdp_hth_all", "Min Delta Phi, all baseline, high HT", 68, 0., 3.4 ) ; h_mdp_hth_all -> Sumw2() ;
-   TH1F* h_mdp_hth_mhtc = new TH1F( "h_mdp_hth_mhtc", "Min Delta Phi, MHTC, high HT", 68, 0., 3.4 ) ;       h_mdp_hth_mhtc -> Sumw2() ;
-   TH1F* h_mdp_hth_mht1 = new TH1F( "h_mdp_hth_mht1", "Min Delta Phi, MHT1, high HT", 68, 0., 3.4 ) ;       h_mdp_hth_mht1 -> Sumw2() ;
-   TH1F* h_mdp_hth_mht2 = new TH1F( "h_mdp_hth_mht2", "Min Delta Phi, MHT2, high HT", 68, 0., 3.4 ) ;       h_mdp_hth_mht2 -> Sumw2() ;
-   TH1F* h_mdp_hth_mht3 = new TH1F( "h_mdp_hth_mht3", "Min Delta Phi, MHT3, high HT", 68, 0., 3.4 ) ;       h_mdp_hth_mht3 -> Sumw2() ;
-   TH1F* h_mdp_hth_mht4 = new TH1F( "h_mdp_hth_mht4", "Min Delta Phi, MHT4, high HT", 68, 0., 3.4 ) ;       h_mdp_hth_mht4 -> Sumw2() ;
+   h_mdp_ht_badj_in_dphi_all[ht_count] = new TH1F( "h_mdp_ht"+ht_str_short+"_badj_in_dphi_all", "Min Delta Phi, all baseline, bad jet in Dphi, "+ht_str_long, 68, 0., 3.4 ) ;
 
-   TH1F* h_mdp_hth_all_badj_in_dphi = new TH1F( "h_mdp_hth_all_badj_in_dphi", "Min Delta Phi, all baseline, bad jet in Dphi, high HT", 68, 0., 3.4 ) ; h_mdp_hth_all_badj_in_dphi -> Sumw2() ;
-   TH1F* h_mdp_hth_mhtc_badj_in_dphi = new TH1F( "h_mdp_hth_mhtc_badj_in_dphi", "Min Delta Phi, MHTC, bad jet in Dphi, high HT", 68, 0., 3.4 ) ;       h_mdp_hth_mhtc_badj_in_dphi -> Sumw2() ;
-   TH1F* h_mdp_hth_mht1_badj_in_dphi = new TH1F( "h_mdp_hth_mht1_badj_in_dphi", "Min Delta Phi, MHT1, bad jet in Dphi, high HT", 68, 0., 3.4 ) ;       h_mdp_hth_mht1_badj_in_dphi -> Sumw2() ;
-   TH1F* h_mdp_hth_mht2_badj_in_dphi = new TH1F( "h_mdp_hth_mht2_badj_in_dphi", "Min Delta Phi, MHT2, bad jet in Dphi, high HT", 68, 0., 3.4 ) ;       h_mdp_hth_mht2_badj_in_dphi -> Sumw2() ;
-   TH1F* h_mdp_hth_mht3_badj_in_dphi = new TH1F( "h_mdp_hth_mht3_badj_in_dphi", "Min Delta Phi, MHT3, bad jet in Dphi, high HT", 68, 0., 3.4 ) ;       h_mdp_hth_mht3_badj_in_dphi -> Sumw2() ;
-   TH1F* h_mdp_hth_mht4_badj_in_dphi = new TH1F( "h_mdp_hth_mht4_badj_in_dphi", "Min Delta Phi, MHT4, bad jet in Dphi, high HT", 68, 0., 3.4 ) ;       h_mdp_hth_mht4_badj_in_dphi -> Sumw2() ;
+   h_mdp_ht_badj_not_in_dphi_all[ht_count] = new TH1F( "h_mdp_ht"+ht_str_short+"_badj_not_in_dphi_all", "Min Delta Phi, all baseline, bad jet not in Dphi, "+ht_str_long, 68, 0., 3.4 ) ;
 
-   TH1F* h_mdp_hth_all_badj_not_in_dphi = new TH1F( "h_mdp_hth_all_badj_not_in_dphi", "Min Delta Phi, all baseline, bad jet not in Dphi, high HT", 68, 0., 3.4 ) ; h_mdp_hth_all_badj_not_in_dphi -> Sumw2() ;
-   TH1F* h_mdp_hth_mhtc_badj_not_in_dphi = new TH1F( "h_mdp_hth_mhtc_badj_not_in_dphi", "Min Delta Phi, MHTC, bad jet not in Dphi, high HT", 68, 0., 3.4 ) ;       h_mdp_hth_mhtc_badj_not_in_dphi -> Sumw2() ;
-   TH1F* h_mdp_hth_mht1_badj_not_in_dphi = new TH1F( "h_mdp_hth_mht1_badj_not_in_dphi", "Min Delta Phi, MHT1, bad jet not in Dphi, high HT", 68, 0., 3.4 ) ;       h_mdp_hth_mht1_badj_not_in_dphi -> Sumw2() ;
-   TH1F* h_mdp_hth_mht2_badj_not_in_dphi = new TH1F( "h_mdp_hth_mht2_badj_not_in_dphi", "Min Delta Phi, MHT2, bad jet not in Dphi, high HT", 68, 0., 3.4 ) ;       h_mdp_hth_mht2_badj_not_in_dphi -> Sumw2() ;
-   TH1F* h_mdp_hth_mht3_badj_not_in_dphi = new TH1F( "h_mdp_hth_mht3_badj_not_in_dphi", "Min Delta Phi, MHT3, bad jet not in Dphi, high HT", 68, 0., 3.4 ) ;       h_mdp_hth_mht3_badj_not_in_dphi -> Sumw2() ;
-   TH1F* h_mdp_hth_mht4_badj_not_in_dphi = new TH1F( "h_mdp_hth_mht4_badj_not_in_dphi", "Min Delta Phi, MHT4, bad jet not in Dphi, high HT", 68, 0., 3.4 ) ;       h_mdp_hth_mht4_badj_not_in_dphi -> Sumw2() ;
+   h_dphiregion_ht_all[ht_count] = new TH1F( "h_dphiregion_ht"+ht_str_short+"_all", "Dphi region (0=LDP, 1=HDP), "+ht_str_long, 2, -0.5, 1.5 ) ;
 
-   TH1F* h_dphiregion_hth_all = new TH1F( "h_dphiregion_hth_all", "Dphi region (0=LDP, 1=HDP), high HT", 2, -0.5, 1.5 ) ;            h_dphiregion_hth_all -> Sumw2() ;
-   TH1F* h_dphiregion_hth_mhtc = new TH1F( "h_dphiregion_hth_mhtc", "Dphi region (0=LDP, 1=HDP), MHTC, high HT", 2, -0.5, 1.5 ) ;    h_dphiregion_hth_mhtc -> Sumw2() ;
-   TH1F* h_dphiregion_hth_mht1 = new TH1F( "h_dphiregion_hth_mht1", "Dphi region (0=LDP, 1=HDP), MHT1, high HT", 2, -0.5, 1.5 ) ;    h_dphiregion_hth_mht1 -> Sumw2() ;
-   TH1F* h_dphiregion_hth_mht2 = new TH1F( "h_dphiregion_hth_mht2", "Dphi region (0=LDP, 1=HDP), MHT2, high HT", 2, -0.5, 1.5 ) ;    h_dphiregion_hth_mht2 -> Sumw2() ;
-   TH1F* h_dphiregion_hth_mht3 = new TH1F( "h_dphiregion_hth_mht3", "Dphi region (0=LDP, 1=HDP), MHT3, high HT", 2, -0.5, 1.5 ) ;    h_dphiregion_hth_mht3 -> Sumw2() ;
-   TH1F* h_dphiregion_hth_mht4 = new TH1F( "h_dphiregion_hth_mht4", "Dphi region (0=LDP, 1=HDP), MHT4, high HT", 2, -0.5, 1.5 ) ;    h_dphiregion_hth_mht4 -> Sumw2() ;
+   h_dphiregion_ht_badj_in_dphi_all[ht_count] = new TH1F( "h_dphiregion_ht"+ht_str_short+"_badj_in_dphi_all", "Dphi region (0=LDP, 1=HDP), bad jet in Dphi, "+ht_str_long, 2, -0.5, 1.5 ) ;
 
-   TH1F* h_dphiregion_hth_all_badj_in_dphi = new TH1F( "h_dphiregion_hth_all_badj_in_dphi", "Dphi region (0=LDP, 1=HDP), bad jet in Dphi, high HT", 2, -0.5, 1.5 ) ;          h_dphiregion_hth_all_badj_in_dphi -> Sumw2() ;
-   TH1F* h_dphiregion_hth_mhtc_badj_in_dphi = new TH1F( "h_dphiregion_hth_mhtc_badj_in_dphi", "Dphi region (0=LDP, 1=HDP), MHTC, bad jet in Dphi, high HT", 2, -0.5, 1.5 ) ;  h_dphiregion_hth_mhtc_badj_in_dphi -> Sumw2() ;
-   TH1F* h_dphiregion_hth_mht1_badj_in_dphi = new TH1F( "h_dphiregion_hth_mht1_badj_in_dphi", "Dphi region (0=LDP, 1=HDP), MHT1, bad jet in Dphi, high HT", 2, -0.5, 1.5 ) ;  h_dphiregion_hth_mht1_badj_in_dphi -> Sumw2() ;
-   TH1F* h_dphiregion_hth_mht2_badj_in_dphi = new TH1F( "h_dphiregion_hth_mht2_badj_in_dphi", "Dphi region (0=LDP, 1=HDP), MHT2, bad jet in Dphi, high HT", 2, -0.5, 1.5 ) ;  h_dphiregion_hth_mht2_badj_in_dphi -> Sumw2() ;
-   TH1F* h_dphiregion_hth_mht3_badj_in_dphi = new TH1F( "h_dphiregion_hth_mht3_badj_in_dphi", "Dphi region (0=LDP, 1=HDP), MHT3, bad jet in Dphi, high HT", 2, -0.5, 1.5 ) ;  h_dphiregion_hth_mht3_badj_in_dphi -> Sumw2() ;
-   TH1F* h_dphiregion_hth_mht4_badj_in_dphi = new TH1F( "h_dphiregion_hth_mht4_badj_in_dphi", "Dphi region (0=LDP, 1=HDP), MHT4, bad jet in Dphi, high HT", 2, -0.5, 1.5 ) ;  h_dphiregion_hth_mht4_badj_in_dphi -> Sumw2() ;
+   h_dphiregion_ht_badj_not_in_dphi_all[ht_count] = new TH1F( "h_dphiregion_ht"+ht_str_short+"_badj_not_in_dphi_all", "Dphi region (0=LDP, 1=HDP), bad jet not in Dphi, "+ht_str_long, 2, -0.5, 1.5 ) ;
 
-   TH1F* h_dphiregion_hth_all_badj_not_in_dphi = new TH1F( "h_dphiregion_hth_all_badj_not_in_dphi", "Dphi region (0=LDP, 1=HDP), bad jet not in Dphi, high HT", 2, -0.5, 1.5 ) ;          h_dphiregion_hth_all_badj_not_in_dphi -> Sumw2() ;
-   TH1F* h_dphiregion_hth_mhtc_badj_not_in_dphi = new TH1F( "h_dphiregion_hth_mhtc_badj_not_in_dphi", "Dphi region (0=LDP, 1=HDP), MHTC, bad jet not in Dphi, high HT", 2, -0.5, 1.5 ) ;  h_dphiregion_hth_mhtc_badj_not_in_dphi -> Sumw2() ;
-   TH1F* h_dphiregion_hth_mht1_badj_not_in_dphi = new TH1F( "h_dphiregion_hth_mht1_badj_not_in_dphi", "Dphi region (0=LDP, 1=HDP), MHT1, bad jet not in Dphi, high HT", 2, -0.5, 1.5 ) ;  h_dphiregion_hth_mht1_badj_not_in_dphi -> Sumw2() ;
-   TH1F* h_dphiregion_hth_mht2_badj_not_in_dphi = new TH1F( "h_dphiregion_hth_mht2_badj_not_in_dphi", "Dphi region (0=LDP, 1=HDP), MHT2, bad jet not in Dphi, high HT", 2, -0.5, 1.5 ) ;  h_dphiregion_hth_mht2_badj_not_in_dphi -> Sumw2() ;
-   TH1F* h_dphiregion_hth_mht3_badj_not_in_dphi = new TH1F( "h_dphiregion_hth_mht3_badj_not_in_dphi", "Dphi region (0=LDP, 1=HDP), MHT3, bad jet not in Dphi, high HT", 2, -0.5, 1.5 ) ;  h_dphiregion_hth_mht3_badj_not_in_dphi -> Sumw2() ;
-   TH1F* h_dphiregion_hth_mht4_badj_not_in_dphi = new TH1F( "h_dphiregion_hth_mht4_badj_not_in_dphi", "Dphi region (0=LDP, 1=HDP), MHT4, bad jet not in Dphi, high HT", 2, -0.5, 1.5 ) ;  h_dphiregion_hth_mht4_badj_not_in_dphi -> Sumw2() ;
+   for ( int mht_count = 0; mht_count <= 4; mht_count++)
+   {
+   TString mht_str; 
+   if ( mht_count == 0 ) mht_str = "C"; 
+   else                  mht_str.Form("%d",mht_count);
 
 
+   h_mdp_ht_mht[ht_count][mht_count] = new TH1F( "h_mdp_ht"+ht_str_short+"_mht"+mht_str, "Min Delta Phi, MHT"+mht_str+", "+ht_str_long, 68, 0., 3.4 ) ;
 
-  //-----
+   h_mdp_ht_badj_in_dphi_mht[ht_count][mht_count] = new TH1F( "h_mdp_ht"+ht_str_short+"_badj_in_dphi_mht"+mht_str, "Min Delta Phi, MHT"+mht_str+", bad jet in Dphi, "+ht_str_long, 68, 0., 3.4 ) ;
 
-   TH1F* h_mdp_htm_all = new TH1F( "h_mdp_htm_all", "Min Delta Phi, all baseline, medium HT", 68, 0., 3.4 ) ; h_mdp_htm_all -> Sumw2() ;
-   TH1F* h_mdp_htm_mhtc = new TH1F( "h_mdp_htm_mhtc", "Min Delta Phi, MHTC, medium HT", 68, 0., 3.4 ) ;       h_mdp_htm_mhtc -> Sumw2() ;
-   TH1F* h_mdp_htm_mht1 = new TH1F( "h_mdp_htm_mht1", "Min Delta Phi, MHT1, medium HT", 68, 0., 3.4 ) ;       h_mdp_htm_mht1 -> Sumw2() ;
-   TH1F* h_mdp_htm_mht2 = new TH1F( "h_mdp_htm_mht2", "Min Delta Phi, MHT2, medium HT", 68, 0., 3.4 ) ;       h_mdp_htm_mht2 -> Sumw2() ;
-   TH1F* h_mdp_htm_mht3 = new TH1F( "h_mdp_htm_mht3", "Min Delta Phi, MHT3, medium HT", 68, 0., 3.4 ) ;       h_mdp_htm_mht3 -> Sumw2() ;
-   TH1F* h_mdp_htm_mht4 = new TH1F( "h_mdp_htm_mht4", "Min Delta Phi, MHT4, medium HT", 68, 0., 3.4 ) ;       h_mdp_htm_mht4 -> Sumw2() ;
+   h_mdp_ht_badj_not_in_dphi_mht[ht_count][mht_count] = new TH1F( "h_mdp_ht"+ht_str_short+"_badj_not_in_dphi_mht"+mht_str, "Min Delta Phi, MHT"+mht_str+", bad jet not in Dphi, "+ht_str_long, 68, 0., 3.4 ) ;
 
-   TH1F* h_mdp_htm_all_badj_in_dphi = new TH1F( "h_mdp_htm_all_badj_in_dphi", "Min Delta Phi, all baseline, bad jet in Dphi, medium HT", 68, 0., 3.4 ) ; h_mdp_htm_all_badj_in_dphi -> Sumw2() ;
-   TH1F* h_mdp_htm_mhtc_badj_in_dphi = new TH1F( "h_mdp_htm_mhtc_badj_in_dphi", "Min Delta Phi, MHTC, bad jet in Dphi, medium HT", 68, 0., 3.4 ) ;       h_mdp_htm_mhtc_badj_in_dphi -> Sumw2() ;
-   TH1F* h_mdp_htm_mht1_badj_in_dphi = new TH1F( "h_mdp_htm_mht1_badj_in_dphi", "Min Delta Phi, MHT1, bad jet in Dphi, medium HT", 68, 0., 3.4 ) ;       h_mdp_htm_mht1_badj_in_dphi -> Sumw2() ;
-   TH1F* h_mdp_htm_mht2_badj_in_dphi = new TH1F( "h_mdp_htm_mht2_badj_in_dphi", "Min Delta Phi, MHT2, bad jet in Dphi, medium HT", 68, 0., 3.4 ) ;       h_mdp_htm_mht2_badj_in_dphi -> Sumw2() ;
-   TH1F* h_mdp_htm_mht3_badj_in_dphi = new TH1F( "h_mdp_htm_mht3_badj_in_dphi", "Min Delta Phi, MHT3, bad jet in Dphi, medium HT", 68, 0., 3.4 ) ;       h_mdp_htm_mht3_badj_in_dphi -> Sumw2() ;
-   TH1F* h_mdp_htm_mht4_badj_in_dphi = new TH1F( "h_mdp_htm_mht4_badj_in_dphi", "Min Delta Phi, MHT4, bad jet in Dphi, medium HT", 68, 0., 3.4 ) ;       h_mdp_htm_mht4_badj_in_dphi -> Sumw2() ;
+   h_dphiregion_ht_mht[ht_count][mht_count] = new TH1F( "h_dphiregion_ht"+ht_str_short+"_mht"+mht_str, "Dphi region (0=LDP, 1=HDP), MHT"+mht_str+", "+ht_str_long, 2, -0.5, 1.5 ) ;
 
-   TH1F* h_mdp_htm_all_badj_not_in_dphi = new TH1F( "h_mdp_htm_all_badj_not_in_dphi", "Min Delta Phi, all baseline, bad jet not in Dphi, medium HT", 68, 0., 3.4 ) ; h_mdp_htm_all_badj_not_in_dphi -> Sumw2() ;
-   TH1F* h_mdp_htm_mhtc_badj_not_in_dphi = new TH1F( "h_mdp_htm_mhtc_badj_not_in_dphi", "Min Delta Phi, MHTC, bad jet not in Dphi, medium HT", 68, 0., 3.4 ) ;       h_mdp_htm_mhtc_badj_not_in_dphi -> Sumw2() ;
-   TH1F* h_mdp_htm_mht1_badj_not_in_dphi = new TH1F( "h_mdp_htm_mht1_badj_not_in_dphi", "Min Delta Phi, MHT1, bad jet not in Dphi, medium HT", 68, 0., 3.4 ) ;       h_mdp_htm_mht1_badj_not_in_dphi -> Sumw2() ;
-   TH1F* h_mdp_htm_mht2_badj_not_in_dphi = new TH1F( "h_mdp_htm_mht2_badj_not_in_dphi", "Min Delta Phi, MHT2, bad jet not in Dphi, medium HT", 68, 0., 3.4 ) ;       h_mdp_htm_mht2_badj_not_in_dphi -> Sumw2() ;
-   TH1F* h_mdp_htm_mht3_badj_not_in_dphi = new TH1F( "h_mdp_htm_mht3_badj_not_in_dphi", "Min Delta Phi, MHT3, bad jet not in Dphi, medium HT", 68, 0., 3.4 ) ;       h_mdp_htm_mht3_badj_not_in_dphi -> Sumw2() ;
-   TH1F* h_mdp_htm_mht4_badj_not_in_dphi = new TH1F( "h_mdp_htm_mht4_badj_not_in_dphi", "Min Delta Phi, MHT4, bad jet not in Dphi, medium HT", 68, 0., 3.4 ) ;       h_mdp_htm_mht4_badj_not_in_dphi -> Sumw2() ;
+   h_dphiregion_ht_badj_in_dphi_mht[ht_count][mht_count] = new TH1F( "h_dphiregion_ht"+ht_str_short+"_badj_in_dphi_mht"+mht_str, "Dphi region (0=LDP, 1=HDP), MHT"+mht_str+", bad jet in Dphi, "+ht_str_long, 2, -0.5, 1.5 ) ;
 
-   TH1F* h_dphiregion_htm_all = new TH1F( "h_dphiregion_htm_all", "Dphi region (0=LDP, 1=HDP), medium HT", 2, -0.5, 1.5 ) ;            h_dphiregion_htm_all -> Sumw2() ;
-   TH1F* h_dphiregion_htm_mhtc = new TH1F( "h_dphiregion_htm_mhtc", "Dphi region (0=LDP, 1=HDP), MHTC, medium HT", 2, -0.5, 1.5 ) ;    h_dphiregion_htm_mhtc -> Sumw2() ;
-   TH1F* h_dphiregion_htm_mht1 = new TH1F( "h_dphiregion_htm_mht1", "Dphi region (0=LDP, 1=HDP), MHT1, medium HT", 2, -0.5, 1.5 ) ;    h_dphiregion_htm_mht1 -> Sumw2() ;
-   TH1F* h_dphiregion_htm_mht2 = new TH1F( "h_dphiregion_htm_mht2", "Dphi region (0=LDP, 1=HDP), MHT2, medium HT", 2, -0.5, 1.5 ) ;    h_dphiregion_htm_mht2 -> Sumw2() ;
-   TH1F* h_dphiregion_htm_mht3 = new TH1F( "h_dphiregion_htm_mht3", "Dphi region (0=LDP, 1=HDP), MHT3, medium HT", 2, -0.5, 1.5 ) ;    h_dphiregion_htm_mht3 -> Sumw2() ;
-   TH1F* h_dphiregion_htm_mht4 = new TH1F( "h_dphiregion_htm_mht4", "Dphi region (0=LDP, 1=HDP), MHT4, medium HT", 2, -0.5, 1.5 ) ;    h_dphiregion_htm_mht4 -> Sumw2() ;
+   h_dphiregion_ht_badj_not_in_dphi_mht[ht_count][mht_count] = new TH1F( "h_dphiregion_ht"+ht_str_short+"_badj_not_in_dphi_mht"+mht_str, "Dphi region (0=LDP, 1=HDP), MHT"+mht_str+", bad jet not in Dphi, "+ht_str_long, 2, -0.5, 1.5 ) ;
 
-   TH1F* h_dphiregion_htm_all_badj_in_dphi = new TH1F( "h_dphiregion_htm_all_badj_in_dphi", "Dphi region (0=LDP, 1=HDP), bad jet in Dphi, medium HT", 2, -0.5, 1.5 ) ;          h_dphiregion_htm_all_badj_in_dphi -> Sumw2() ;
-   TH1F* h_dphiregion_htm_mhtc_badj_in_dphi = new TH1F( "h_dphiregion_htm_mhtc_badj_in_dphi", "Dphi region (0=LDP, 1=HDP), MHTC, bad jet in Dphi, medium HT", 2, -0.5, 1.5 ) ;  h_dphiregion_htm_mhtc_badj_in_dphi -> Sumw2() ;
-   TH1F* h_dphiregion_htm_mht1_badj_in_dphi = new TH1F( "h_dphiregion_htm_mht1_badj_in_dphi", "Dphi region (0=LDP, 1=HDP), MHT1, bad jet in Dphi, medium HT", 2, -0.5, 1.5 ) ;  h_dphiregion_htm_mht1_badj_in_dphi -> Sumw2() ;
-   TH1F* h_dphiregion_htm_mht2_badj_in_dphi = new TH1F( "h_dphiregion_htm_mht2_badj_in_dphi", "Dphi region (0=LDP, 1=HDP), MHT2, bad jet in Dphi, medium HT", 2, -0.5, 1.5 ) ;  h_dphiregion_htm_mht2_badj_in_dphi -> Sumw2() ;
-   TH1F* h_dphiregion_htm_mht3_badj_in_dphi = new TH1F( "h_dphiregion_htm_mht3_badj_in_dphi", "Dphi region (0=LDP, 1=HDP), MHT3, bad jet in Dphi, medium HT", 2, -0.5, 1.5 ) ;  h_dphiregion_htm_mht3_badj_in_dphi -> Sumw2() ;
-   TH1F* h_dphiregion_htm_mht4_badj_in_dphi = new TH1F( "h_dphiregion_htm_mht4_badj_in_dphi", "Dphi region (0=LDP, 1=HDP), MHT4, bad jet in Dphi, medium HT", 2, -0.5, 1.5 ) ;  h_dphiregion_htm_mht4_badj_in_dphi -> Sumw2() ;
-
-   TH1F* h_dphiregion_htm_all_badj_not_in_dphi = new TH1F( "h_dphiregion_htm_all_badj_not_in_dphi", "Dphi region (0=LDP, 1=HDP), bad jet not in Dphi, medium HT", 2, -0.5, 1.5 ) ;          h_dphiregion_htm_all_badj_not_in_dphi -> Sumw2() ;
-   TH1F* h_dphiregion_htm_mhtc_badj_not_in_dphi = new TH1F( "h_dphiregion_htm_mhtc_badj_not_in_dphi", "Dphi region (0=LDP, 1=HDP), MHTC, bad jet not in Dphi, medium HT", 2, -0.5, 1.5 ) ;  h_dphiregion_htm_mhtc_badj_not_in_dphi -> Sumw2() ;
-   TH1F* h_dphiregion_htm_mht1_badj_not_in_dphi = new TH1F( "h_dphiregion_htm_mht1_badj_not_in_dphi", "Dphi region (0=LDP, 1=HDP), MHT1, bad jet not in Dphi, medium HT", 2, -0.5, 1.5 ) ;  h_dphiregion_htm_mht1_badj_not_in_dphi -> Sumw2() ;
-   TH1F* h_dphiregion_htm_mht2_badj_not_in_dphi = new TH1F( "h_dphiregion_htm_mht2_badj_not_in_dphi", "Dphi region (0=LDP, 1=HDP), MHT2, bad jet not in Dphi, medium HT", 2, -0.5, 1.5 ) ;  h_dphiregion_htm_mht2_badj_not_in_dphi -> Sumw2() ;
-   TH1F* h_dphiregion_htm_mht3_badj_not_in_dphi = new TH1F( "h_dphiregion_htm_mht3_badj_not_in_dphi", "Dphi region (0=LDP, 1=HDP), MHT3, bad jet not in Dphi, medium HT", 2, -0.5, 1.5 ) ;  h_dphiregion_htm_mht3_badj_not_in_dphi -> Sumw2() ;
-   TH1F* h_dphiregion_htm_mht4_badj_not_in_dphi = new TH1F( "h_dphiregion_htm_mht4_badj_not_in_dphi", "Dphi region (0=LDP, 1=HDP), MHT4, bad jet not in Dphi, medium HT", 2, -0.5, 1.5 ) ;  h_dphiregion_htm_mht4_badj_not_in_dphi -> Sumw2() ;
-
-
-
-  //-----
-
-   TH1F* h_mdp_htl_all = new TH1F( "h_mdp_htl_all", "Min Delta Phi, all baseline, low HT", 68, 0., 3.4 ) ; h_mdp_htl_all -> Sumw2() ;
-   TH1F* h_mdp_htl_mhtc = new TH1F( "h_mdp_htl_mhtc", "Min Delta Phi, MHTC, low HT", 68, 0., 3.4 ) ;       h_mdp_htl_mhtc -> Sumw2() ;
-   TH1F* h_mdp_htl_mht1 = new TH1F( "h_mdp_htl_mht1", "Min Delta Phi, MHT1, low HT", 68, 0., 3.4 ) ;       h_mdp_htl_mht1 -> Sumw2() ;
-   TH1F* h_mdp_htl_mht2 = new TH1F( "h_mdp_htl_mht2", "Min Delta Phi, MHT2, low HT", 68, 0., 3.4 ) ;       h_mdp_htl_mht2 -> Sumw2() ;
-   TH1F* h_mdp_htl_mht3 = new TH1F( "h_mdp_htl_mht3", "Min Delta Phi, MHT3, low HT", 68, 0., 3.4 ) ;       h_mdp_htl_mht3 -> Sumw2() ;
-   TH1F* h_mdp_htl_mht4 = new TH1F( "h_mdp_htl_mht4", "Min Delta Phi, MHT4, low HT", 68, 0., 3.4 ) ;       h_mdp_htl_mht4 -> Sumw2() ;
-
-   TH1F* h_mdp_htl_all_badj_in_dphi = new TH1F( "h_mdp_htl_all_badj_in_dphi", "Min Delta Phi, all baseline, bad jet in Dphi, low HT", 68, 0., 3.4 ) ; h_mdp_htl_all_badj_in_dphi -> Sumw2() ;
-   TH1F* h_mdp_htl_mhtc_badj_in_dphi = new TH1F( "h_mdp_htl_mhtc_badj_in_dphi", "Min Delta Phi, MHTC, bad jet in Dphi, low HT", 68, 0., 3.4 ) ;       h_mdp_htl_mhtc_badj_in_dphi -> Sumw2() ;
-   TH1F* h_mdp_htl_mht1_badj_in_dphi = new TH1F( "h_mdp_htl_mht1_badj_in_dphi", "Min Delta Phi, MHT1, bad jet in Dphi, low HT", 68, 0., 3.4 ) ;       h_mdp_htl_mht1_badj_in_dphi -> Sumw2() ;
-   TH1F* h_mdp_htl_mht2_badj_in_dphi = new TH1F( "h_mdp_htl_mht2_badj_in_dphi", "Min Delta Phi, MHT2, bad jet in Dphi, low HT", 68, 0., 3.4 ) ;       h_mdp_htl_mht2_badj_in_dphi -> Sumw2() ;
-   TH1F* h_mdp_htl_mht3_badj_in_dphi = new TH1F( "h_mdp_htl_mht3_badj_in_dphi", "Min Delta Phi, MHT3, bad jet in Dphi, low HT", 68, 0., 3.4 ) ;       h_mdp_htl_mht3_badj_in_dphi -> Sumw2() ;
-   TH1F* h_mdp_htl_mht4_badj_in_dphi = new TH1F( "h_mdp_htl_mht4_badj_in_dphi", "Min Delta Phi, MHT4, bad jet in Dphi, low HT", 68, 0., 3.4 ) ;       h_mdp_htl_mht4_badj_in_dphi -> Sumw2() ;
-
-   TH1F* h_mdp_htl_all_badj_not_in_dphi = new TH1F( "h_mdp_htl_all_badj_not_in_dphi", "Min Delta Phi, all baseline, bad jet not in Dphi, low HT", 68, 0., 3.4 ) ; h_mdp_htl_all_badj_not_in_dphi -> Sumw2() ;
-   TH1F* h_mdp_htl_mhtc_badj_not_in_dphi = new TH1F( "h_mdp_htl_mhtc_badj_not_in_dphi", "Min Delta Phi, MHTC, bad jet not in Dphi, low HT", 68, 0., 3.4 ) ;       h_mdp_htl_mhtc_badj_not_in_dphi -> Sumw2() ;
-   TH1F* h_mdp_htl_mht1_badj_not_in_dphi = new TH1F( "h_mdp_htl_mht1_badj_not_in_dphi", "Min Delta Phi, MHT1, bad jet not in Dphi, low HT", 68, 0., 3.4 ) ;       h_mdp_htl_mht1_badj_not_in_dphi -> Sumw2() ;
-   TH1F* h_mdp_htl_mht2_badj_not_in_dphi = new TH1F( "h_mdp_htl_mht2_badj_not_in_dphi", "Min Delta Phi, MHT2, bad jet not in Dphi, low HT", 68, 0., 3.4 ) ;       h_mdp_htl_mht2_badj_not_in_dphi -> Sumw2() ;
-   TH1F* h_mdp_htl_mht3_badj_not_in_dphi = new TH1F( "h_mdp_htl_mht3_badj_not_in_dphi", "Min Delta Phi, MHT3, bad jet not in Dphi, low HT", 68, 0., 3.4 ) ;       h_mdp_htl_mht3_badj_not_in_dphi -> Sumw2() ;
-   TH1F* h_mdp_htl_mht4_badj_not_in_dphi = new TH1F( "h_mdp_htl_mht4_badj_not_in_dphi", "Min Delta Phi, MHT4, bad jet not in Dphi, low HT", 68, 0., 3.4 ) ;       h_mdp_htl_mht4_badj_not_in_dphi -> Sumw2() ;
-
-   TH1F* h_dphiregion_htl_all = new TH1F( "h_dphiregion_htl_all", "Dphi region (0=LDP, 1=HDP), low HT", 2, -0.5, 1.5 ) ;            h_dphiregion_htl_all -> Sumw2() ;
-   TH1F* h_dphiregion_htl_mhtc = new TH1F( "h_dphiregion_htl_mhtc", "Dphi region (0=LDP, 1=HDP), MHTC, low HT", 2, -0.5, 1.5 ) ;    h_dphiregion_htl_mhtc -> Sumw2() ;
-   TH1F* h_dphiregion_htl_mht1 = new TH1F( "h_dphiregion_htl_mht1", "Dphi region (0=LDP, 1=HDP), MHT1, low HT", 2, -0.5, 1.5 ) ;    h_dphiregion_htl_mht1 -> Sumw2() ;
-   TH1F* h_dphiregion_htl_mht2 = new TH1F( "h_dphiregion_htl_mht2", "Dphi region (0=LDP, 1=HDP), MHT2, low HT", 2, -0.5, 1.5 ) ;    h_dphiregion_htl_mht2 -> Sumw2() ;
-   TH1F* h_dphiregion_htl_mht3 = new TH1F( "h_dphiregion_htl_mht3", "Dphi region (0=LDP, 1=HDP), MHT3, low HT", 2, -0.5, 1.5 ) ;    h_dphiregion_htl_mht3 -> Sumw2() ;
-   TH1F* h_dphiregion_htl_mht4 = new TH1F( "h_dphiregion_htl_mht4", "Dphi region (0=LDP, 1=HDP), MHT4, low HT", 2, -0.5, 1.5 ) ;    h_dphiregion_htl_mht4 -> Sumw2() ;
-
-   TH1F* h_dphiregion_htl_all_badj_in_dphi = new TH1F( "h_dphiregion_htl_all_badj_in_dphi", "Dphi region (0=LDP, 1=HDP), bad jet in Dphi, low HT", 2, -0.5, 1.5 ) ;          h_dphiregion_htl_all_badj_in_dphi -> Sumw2() ;
-   TH1F* h_dphiregion_htl_mhtc_badj_in_dphi = new TH1F( "h_dphiregion_htl_mhtc_badj_in_dphi", "Dphi region (0=LDP, 1=HDP), MHTC, bad jet in Dphi, low HT", 2, -0.5, 1.5 ) ;  h_dphiregion_htl_mhtc_badj_in_dphi -> Sumw2() ;
-   TH1F* h_dphiregion_htl_mht1_badj_in_dphi = new TH1F( "h_dphiregion_htl_mht1_badj_in_dphi", "Dphi region (0=LDP, 1=HDP), MHT1, bad jet in Dphi, low HT", 2, -0.5, 1.5 ) ;  h_dphiregion_htl_mht1_badj_in_dphi -> Sumw2() ;
-   TH1F* h_dphiregion_htl_mht2_badj_in_dphi = new TH1F( "h_dphiregion_htl_mht2_badj_in_dphi", "Dphi region (0=LDP, 1=HDP), MHT2, bad jet in Dphi, low HT", 2, -0.5, 1.5 ) ;  h_dphiregion_htl_mht2_badj_in_dphi -> Sumw2() ;
-   TH1F* h_dphiregion_htl_mht3_badj_in_dphi = new TH1F( "h_dphiregion_htl_mht3_badj_in_dphi", "Dphi region (0=LDP, 1=HDP), MHT3, bad jet in Dphi, low HT", 2, -0.5, 1.5 ) ;  h_dphiregion_htl_mht3_badj_in_dphi -> Sumw2() ;
-   TH1F* h_dphiregion_htl_mht4_badj_in_dphi = new TH1F( "h_dphiregion_htl_mht4_badj_in_dphi", "Dphi region (0=LDP, 1=HDP), MHT4, bad jet in Dphi, low HT", 2, -0.5, 1.5 ) ;  h_dphiregion_htl_mht4_badj_in_dphi -> Sumw2() ;
-
-   TH1F* h_dphiregion_htl_all_badj_not_in_dphi = new TH1F( "h_dphiregion_htl_all_badj_not_in_dphi", "Dphi region (0=LDP, 1=HDP), bad jet not in Dphi, low HT", 2, -0.5, 1.5 ) ;          h_dphiregion_htl_all_badj_not_in_dphi -> Sumw2() ;
-   TH1F* h_dphiregion_htl_mhtc_badj_not_in_dphi = new TH1F( "h_dphiregion_htl_mhtc_badj_not_in_dphi", "Dphi region (0=LDP, 1=HDP), MHTC, bad jet not in Dphi, low HT", 2, -0.5, 1.5 ) ;  h_dphiregion_htl_mhtc_badj_not_in_dphi -> Sumw2() ;
-   TH1F* h_dphiregion_htl_mht1_badj_not_in_dphi = new TH1F( "h_dphiregion_htl_mht1_badj_not_in_dphi", "Dphi region (0=LDP, 1=HDP), MHT1, bad jet not in Dphi, low HT", 2, -0.5, 1.5 ) ;  h_dphiregion_htl_mht1_badj_not_in_dphi -> Sumw2() ;
-   TH1F* h_dphiregion_htl_mht2_badj_not_in_dphi = new TH1F( "h_dphiregion_htl_mht2_badj_not_in_dphi", "Dphi region (0=LDP, 1=HDP), MHT2, bad jet not in Dphi, low HT", 2, -0.5, 1.5 ) ;  h_dphiregion_htl_mht2_badj_not_in_dphi -> Sumw2() ;
-   TH1F* h_dphiregion_htl_mht3_badj_not_in_dphi = new TH1F( "h_dphiregion_htl_mht3_badj_not_in_dphi", "Dphi region (0=LDP, 1=HDP), MHT3, bad jet not in Dphi, low HT", 2, -0.5, 1.5 ) ;  h_dphiregion_htl_mht3_badj_not_in_dphi -> Sumw2() ;
-   TH1F* h_dphiregion_htl_mht4_badj_not_in_dphi = new TH1F( "h_dphiregion_htl_mht4_badj_not_in_dphi", "Dphi region (0=LDP, 1=HDP), MHT4, bad jet not in Dphi, low HT", 2, -0.5, 1.5 ) ;  h_dphiregion_htl_mht4_badj_not_in_dphi -> Sumw2() ;
-
-
+   }//mht_count
+   }//ht_count
 
   //-------
 
-   TH1F* h_hdp = new TH1F( "h_hdp", "HDP events", nb_global, 0.5, nb_global + 0.5 ) ; h_hdp -> Sumw2() ;
-   TH1F* h_nbsum_hdp = new TH1F( "h_nbsum_hdp", "HDP events", nb_global/nb_nb, 0.5, nb_global/nb_nb + 0.5 ) ; h_nbsum_hdp -> Sumw2() ;
-   set_bin_labels( h_nbsum_hdp ) ;
-   TH1F* h_nb0_hdp = new TH1F( "h_nb0_hdp", "HDP events, Nb=0", nb_global/nb_nb, 0.5, nb_global/nb_nb + 0.5 ) ; h_nb0_hdp -> Sumw2() ;
-   set_bin_labels( h_nb0_hdp ) ;
-   TH1F* h_nb1_hdp = new TH1F( "h_nb1_hdp", "HDP events, Nb=1", nb_global/nb_nb, 0.5, nb_global/nb_nb + 0.5 ) ; h_nb1_hdp -> Sumw2() ;
-   set_bin_labels( h_nb1_hdp ) ;
-   TH1F* h_nb2_hdp = new TH1F( "h_nb2_hdp", "HDP events, Nb=2", nb_global/nb_nb, 0.5, nb_global/nb_nb + 0.5 ) ; h_nb2_hdp -> Sumw2() ;
-   set_bin_labels( h_nb2_hdp ) ;
-   TH1F* h_nb3_hdp = new TH1F( "h_nb3_hdp", "HDP events, Nb=3", nb_global/nb_nb, 0.5, nb_global/nb_nb + 0.5 ) ; h_nb3_hdp -> Sumw2() ;
-   set_bin_labels( h_nb3_hdp ) ;
+   TH1F* h_hdp = new TH1F( "h_hdp", "HDP events", nb_global, 0.5, nb_global + 0.5 ) ;
+   TH1F* h_hdp_nbsum = new TH1F( "h_hdp_nbsum", "HDP events", nb_global/nb_nb, 0.5, nb_global/nb_nb + 0.5 ) ;
+   set_bin_labels( h_hdp_nbsum ) ;
 
-   TH1F* h_ldp = new TH1F( "h_ldp", "ldp events", nb_global, 0.5, nb_global + 0.5 ) ; h_ldp -> Sumw2() ;
-   TH1F* h_nbsum_ldp = new TH1F( "h_nbsum_ldp", "LDP events", nb_global/nb_nb, 0.5, nb_global/nb_nb + 0.5 ) ; h_nbsum_ldp -> Sumw2() ;
-   set_bin_labels( h_nbsum_ldp ) ;
-   TH1F* h_nb0_ldp = new TH1F( "h_nb0_ldp", "ldp events, Nb=0", nb_global/nb_nb, 0.5, nb_global/nb_nb + 0.5 ) ; h_nb0_ldp -> Sumw2() ;
-   set_bin_labels( h_nb0_ldp ) ;
-   TH1F* h_nb1_ldp = new TH1F( "h_nb1_ldp", "ldp events, Nb=1", nb_global/nb_nb, 0.5, nb_global/nb_nb + 0.5 ) ; h_nb1_ldp -> Sumw2() ;
-   set_bin_labels( h_nb1_ldp ) ;
-   TH1F* h_nb2_ldp = new TH1F( "h_nb2_ldp", "ldp events, Nb=2", nb_global/nb_nb, 0.5, nb_global/nb_nb + 0.5 ) ; h_nb2_ldp -> Sumw2() ;
-   set_bin_labels( h_nb2_ldp ) ;
-   TH1F* h_nb3_ldp = new TH1F( "h_nb3_ldp", "ldp events, Nb=3", nb_global/nb_nb, 0.5, nb_global/nb_nb + 0.5 ) ; h_nb3_ldp -> Sumw2() ;
-   set_bin_labels( h_nb3_ldp ) ;
+   TH1F* h_ldp = new TH1F( "h_ldp", "ldp events", nb_global, 0.5, nb_global + 0.5 ) ;
+   TH1F* h_ldp_nbsum = new TH1F( "h_ldp_nbsum", "LDP events", nb_global/nb_nb, 0.5, nb_global/nb_nb + 0.5 ) ;
+   set_bin_labels( h_ldp_nbsum ) ;
+
+   TH1F* h_hdp_nb[10], *h_ldp_nb[10];
+
+   for ( int nb_count = 0; nb_count <= 3; nb_count++)
+   {
+
+   TString nb_str; nb_str.Form("%d",nb_count);
+
+   h_hdp_nb[nb_count] = new TH1F( "h_hdp_nb"+nb_str, "HDP events, Nb="+nb_str, nb_global/nb_nb, 0.5, nb_global/nb_nb + 0.5 ) ;
+   set_bin_labels( h_hdp_nb[nb_count] ) ;
+
+   h_ldp_nb[nb_count] = new TH1F( "h_ldp_nb"+nb_str, "ldp events, Nb="+nb_str, nb_global/nb_nb, 0.5, nb_global/nb_nb + 0.5 ) ;
+   set_bin_labels( h_ldp_nb[nb_count] ) ;
+
+
+   }//nb_count
+  //-------
 
    TH2F* h_mht_vs_ht_nominal = new TH2F( "h_mht_vs_ht_nominal", "MHT vs HT, nominal, Njets>=3", 100, 0., 2000.,  100, 0., 2000. ) ;
-
-  //-------
 
 
    if (fChain == 0) return;
@@ -588,14 +508,12 @@ void syst_2015_v2::Loop( int max_dump, bool verb )
            recalc_in_ldp ? "LDP":"HDP",
            bi_global, bi_nbsum_global ) ;
 
-      bool is_hth(false) ;
-      if ( bi_ht == 3 || (bi_mht>3 && bi_ht == 2) ) is_hth = true ;
+      int ht_level = 0;
+      if ( bi_ht == 3 || (bi_mht>3 && bi_ht == 2) ) ht_level = 2; //high ht bin
 
-      bool is_htm(false) ;
-      if ( (bi_mht<=3 && bi_ht == 2) || (bi_mht>3 && bi_ht == 1) ) is_htm = true ;
+      if ( (bi_mht<=3 && bi_ht == 2) || (bi_mht>3 && bi_ht == 1) ) ht_level = 1 ; //medium ht bin
 
-      bool is_htl(false) ;
-      if ( (bi_mht<=3 && bi_ht == 1) ) is_htl = true ;
+      if ( (bi_mht<=3 && bi_ht == 1) ) ht_level = 1; // low ht bin
 
 
       if ( bi_global < 1 ) continue ; //--- only keep events in search or QCD control.
@@ -604,217 +522,57 @@ void syst_2015_v2::Loop( int max_dump, bool verb )
     //------
 
       h_mdp_all -> Fill( min_delta_phi, hw ) ;
-      if ( bi_mht == 1 ) h_mdp_mhtc -> Fill( min_delta_phi, hw ) ;
-      if ( bi_mht == 2 ) h_mdp_mht1 -> Fill( min_delta_phi, hw ) ;
-      if ( bi_mht == 3 ) h_mdp_mht2 -> Fill( min_delta_phi, hw ) ;
-      if ( bi_mht == 4 ) h_mdp_mht3 -> Fill( min_delta_phi, hw ) ;
-      if ( bi_mht == 5 ) h_mdp_mht4 -> Fill( min_delta_phi, hw ) ;
+      h_mdp_mht[bi_mht-1] -> Fill( min_delta_phi, hw ) ;
 
       if ( badjet_in_dphi ) {
-         h_mdp_all_badj_in_dphi -> Fill( min_delta_phi, hw ) ;
-         if ( bi_mht == 1 ) h_mdp_mhtc_badj_in_dphi -> Fill( min_delta_phi, hw ) ;
-         if ( bi_mht == 2 ) h_mdp_mht1_badj_in_dphi -> Fill( min_delta_phi, hw ) ;
-         if ( bi_mht == 3 ) h_mdp_mht2_badj_in_dphi -> Fill( min_delta_phi, hw ) ;
-         if ( bi_mht == 4 ) h_mdp_mht3_badj_in_dphi -> Fill( min_delta_phi, hw ) ;
-         if ( bi_mht == 5 ) h_mdp_mht4_badj_in_dphi -> Fill( min_delta_phi, hw ) ;
+         h_mdp_badj_in_dphi_all -> Fill( min_delta_phi, hw ) ;
+         h_mdp_badj_in_dphi_mht[bi_mht-1] -> Fill( min_delta_phi, hw ) ;
       } else {
-         h_mdp_all_badj_not_in_dphi -> Fill( min_delta_phi, hw ) ;
-         if ( bi_mht == 1 ) h_mdp_mhtc_badj_not_in_dphi -> Fill( min_delta_phi, hw ) ;
-         if ( bi_mht == 2 ) h_mdp_mht1_badj_not_in_dphi -> Fill( min_delta_phi, hw ) ;
-         if ( bi_mht == 3 ) h_mdp_mht2_badj_not_in_dphi -> Fill( min_delta_phi, hw ) ;
-         if ( bi_mht == 4 ) h_mdp_mht3_badj_not_in_dphi -> Fill( min_delta_phi, hw ) ;
-         if ( bi_mht == 5 ) h_mdp_mht4_badj_not_in_dphi -> Fill( min_delta_phi, hw ) ;
+         h_mdp_badj_not_in_dphi_all -> Fill( min_delta_phi, hw ) ;
+         h_mdp_badj_not_in_dphi_mht[bi_mht-1] -> Fill( min_delta_phi, hw ) ;
       }
 
 
 
       h_dphiregion_all -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-      if ( bi_mht == 1 ) h_dphiregion_mhtc -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-      if ( bi_mht == 2 ) h_dphiregion_mht1 -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-      if ( bi_mht == 3 ) h_dphiregion_mht2 -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-      if ( bi_mht == 4 ) h_dphiregion_mht3 -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-      if ( bi_mht == 5 ) h_dphiregion_mht4 -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
+      h_dphiregion_mht[bi_mht-1] -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
 
       if ( badjet_in_dphi ) {
-          h_dphiregion_all_badj_in_dphi -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-          if ( bi_mht == 1 ) h_dphiregion_mhtc_badj_in_dphi -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-          if ( bi_mht == 2 ) h_dphiregion_mht1_badj_in_dphi -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-          if ( bi_mht == 3 ) h_dphiregion_mht2_badj_in_dphi -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-          if ( bi_mht == 4 ) h_dphiregion_mht3_badj_in_dphi -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-          if ( bi_mht == 5 ) h_dphiregion_mht4_badj_in_dphi -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
+          h_dphiregion_badj_in_dphi_all -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
+          h_dphiregion_badj_in_dphi_mht[bi_mht-1] -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
       } else {
-          h_dphiregion_all_badj_not_in_dphi -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-          if ( bi_mht == 1 ) h_dphiregion_mhtc_badj_not_in_dphi -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-          if ( bi_mht == 2 ) h_dphiregion_mht1_badj_not_in_dphi -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-          if ( bi_mht == 3 ) h_dphiregion_mht2_badj_not_in_dphi -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-          if ( bi_mht == 4 ) h_dphiregion_mht3_badj_not_in_dphi -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-          if ( bi_mht == 5 ) h_dphiregion_mht4_badj_not_in_dphi -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
+          h_dphiregion_badj_not_in_dphi_all -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
+          h_dphiregion_badj_not_in_dphi_mht[bi_mht-1] -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
       }
 
 
 
     //------
 
-      if ( is_hth ) {
 
-         h_mdp_hth_all -> Fill( min_delta_phi, hw ) ;
-         if ( bi_mht == 1 ) h_mdp_hth_mhtc -> Fill( min_delta_phi, hw ) ;
-         if ( bi_mht == 2 ) h_mdp_hth_mht1 -> Fill( min_delta_phi, hw ) ;
-         if ( bi_mht == 3 ) h_mdp_hth_mht2 -> Fill( min_delta_phi, hw ) ;
-         if ( bi_mht == 4 ) h_mdp_hth_mht3 -> Fill( min_delta_phi, hw ) ;
-         if ( bi_mht == 5 ) h_mdp_hth_mht4 -> Fill( min_delta_phi, hw ) ;
+         h_mdp_ht_all[ht_level] -> Fill( min_delta_phi, hw ) ;
+         h_mdp_ht_mht[ht_level][bi_mht-1] -> Fill( min_delta_phi, hw ) ;
 
          if ( badjet_in_dphi ) {
-            h_mdp_hth_all_badj_in_dphi -> Fill( min_delta_phi, hw ) ;
-            if ( bi_mht == 1 ) h_mdp_hth_mhtc_badj_in_dphi -> Fill( min_delta_phi, hw ) ;
-            if ( bi_mht == 2 ) h_mdp_hth_mht1_badj_in_dphi -> Fill( min_delta_phi, hw ) ;
-            if ( bi_mht == 3 ) h_mdp_hth_mht2_badj_in_dphi -> Fill( min_delta_phi, hw ) ;
-            if ( bi_mht == 4 ) h_mdp_hth_mht3_badj_in_dphi -> Fill( min_delta_phi, hw ) ;
-            if ( bi_mht == 5 ) h_mdp_hth_mht4_badj_in_dphi -> Fill( min_delta_phi, hw ) ;
+            h_mdp_ht_badj_in_dphi_all[ht_level] -> Fill( min_delta_phi, hw ) ;
+            h_mdp_ht_badj_in_dphi_mht[ht_level][bi_mht-1] -> Fill( min_delta_phi, hw ) ;
          } else {
-            h_mdp_hth_all_badj_not_in_dphi -> Fill( min_delta_phi, hw ) ;
-            if ( bi_mht == 1 ) h_mdp_hth_mhtc_badj_not_in_dphi -> Fill( min_delta_phi, hw ) ;
-            if ( bi_mht == 2 ) h_mdp_hth_mht1_badj_not_in_dphi -> Fill( min_delta_phi, hw ) ;
-            if ( bi_mht == 3 ) h_mdp_hth_mht2_badj_not_in_dphi -> Fill( min_delta_phi, hw ) ;
-            if ( bi_mht == 4 ) h_mdp_hth_mht3_badj_not_in_dphi -> Fill( min_delta_phi, hw ) ;
-            if ( bi_mht == 5 ) h_mdp_hth_mht4_badj_not_in_dphi -> Fill( min_delta_phi, hw ) ;
+            h_mdp_ht_badj_not_in_dphi_all[ht_level] -> Fill( min_delta_phi, hw ) ;
+            h_mdp_ht_badj_not_in_dphi_mht[ht_level][bi_mht-1] -> Fill( min_delta_phi, hw ) ;
          }
 
 
 
-         h_dphiregion_hth_all -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-         if ( bi_mht == 1 ) h_dphiregion_hth_mhtc -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-         if ( bi_mht == 2 ) h_dphiregion_hth_mht1 -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-         if ( bi_mht == 3 ) h_dphiregion_hth_mht2 -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-         if ( bi_mht == 4 ) h_dphiregion_hth_mht3 -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-         if ( bi_mht == 5 ) h_dphiregion_hth_mht4 -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
+         h_dphiregion_ht_all[ht_level] -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
+         h_dphiregion_ht_mht[ht_level][bi_mht-1] -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
 
          if ( badjet_in_dphi ) {
-             h_dphiregion_hth_all_badj_in_dphi -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-             if ( bi_mht == 1 ) h_dphiregion_hth_mhtc_badj_in_dphi -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-             if ( bi_mht == 2 ) h_dphiregion_hth_mht1_badj_in_dphi -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-             if ( bi_mht == 3 ) h_dphiregion_hth_mht2_badj_in_dphi -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-             if ( bi_mht == 4 ) h_dphiregion_hth_mht3_badj_in_dphi -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-             if ( bi_mht == 5 ) h_dphiregion_hth_mht4_badj_in_dphi -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
+             h_dphiregion_ht_badj_in_dphi_all[ht_level] -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
+             h_dphiregion_ht_badj_in_dphi_mht[ht_level][bi_mht-1] -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
          } else {
-             h_dphiregion_hth_all_badj_not_in_dphi -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-             if ( bi_mht == 1 ) h_dphiregion_hth_mhtc_badj_not_in_dphi -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-             if ( bi_mht == 2 ) h_dphiregion_hth_mht1_badj_not_in_dphi -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-             if ( bi_mht == 3 ) h_dphiregion_hth_mht2_badj_not_in_dphi -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-             if ( bi_mht == 4 ) h_dphiregion_hth_mht3_badj_not_in_dphi -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-             if ( bi_mht == 5 ) h_dphiregion_hth_mht4_badj_not_in_dphi -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
+             h_dphiregion_ht_badj_not_in_dphi_all[ht_level] -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
+             h_dphiregion_ht_badj_not_in_dphi_mht[ht_level][bi_mht-1] -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
          }
-
-      } // hth?
-
-
-    //------
-
-      if ( is_htm ) {
-
-         h_mdp_htm_all -> Fill( min_delta_phi, hw ) ;
-         if ( bi_mht == 1 ) h_mdp_htm_mhtc -> Fill( min_delta_phi, hw ) ;
-         if ( bi_mht == 2 ) h_mdp_htm_mht1 -> Fill( min_delta_phi, hw ) ;
-         if ( bi_mht == 3 ) h_mdp_htm_mht2 -> Fill( min_delta_phi, hw ) ;
-         if ( bi_mht == 4 ) h_mdp_htm_mht3 -> Fill( min_delta_phi, hw ) ;
-         if ( bi_mht == 5 ) h_mdp_htm_mht4 -> Fill( min_delta_phi, hw ) ;
-
-         if ( badjet_in_dphi ) {
-            h_mdp_htm_all_badj_in_dphi -> Fill( min_delta_phi, hw ) ;
-            if ( bi_mht == 1 ) h_mdp_htm_mhtc_badj_in_dphi -> Fill( min_delta_phi, hw ) ;
-            if ( bi_mht == 2 ) h_mdp_htm_mht1_badj_in_dphi -> Fill( min_delta_phi, hw ) ;
-            if ( bi_mht == 3 ) h_mdp_htm_mht2_badj_in_dphi -> Fill( min_delta_phi, hw ) ;
-            if ( bi_mht == 4 ) h_mdp_htm_mht3_badj_in_dphi -> Fill( min_delta_phi, hw ) ;
-            if ( bi_mht == 5 ) h_mdp_htm_mht4_badj_in_dphi -> Fill( min_delta_phi, hw ) ;
-         } else {
-            h_mdp_htm_all_badj_not_in_dphi -> Fill( min_delta_phi, hw ) ;
-            if ( bi_mht == 1 ) h_mdp_htm_mhtc_badj_not_in_dphi -> Fill( min_delta_phi, hw ) ;
-            if ( bi_mht == 2 ) h_mdp_htm_mht1_badj_not_in_dphi -> Fill( min_delta_phi, hw ) ;
-            if ( bi_mht == 3 ) h_mdp_htm_mht2_badj_not_in_dphi -> Fill( min_delta_phi, hw ) ;
-            if ( bi_mht == 4 ) h_mdp_htm_mht3_badj_not_in_dphi -> Fill( min_delta_phi, hw ) ;
-            if ( bi_mht == 5 ) h_mdp_htm_mht4_badj_not_in_dphi -> Fill( min_delta_phi, hw ) ;
-         }
-
-
-
-         h_dphiregion_htm_all -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-         if ( bi_mht == 1 ) h_dphiregion_htm_mhtc -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-         if ( bi_mht == 2 ) h_dphiregion_htm_mht1 -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-         if ( bi_mht == 3 ) h_dphiregion_htm_mht2 -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-         if ( bi_mht == 4 ) h_dphiregion_htm_mht3 -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-         if ( bi_mht == 5 ) h_dphiregion_htm_mht4 -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-
-         if ( badjet_in_dphi ) {
-             h_dphiregion_htm_all_badj_in_dphi -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-             if ( bi_mht == 1 ) h_dphiregion_htm_mhtc_badj_in_dphi -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-             if ( bi_mht == 2 ) h_dphiregion_htm_mht1_badj_in_dphi -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-             if ( bi_mht == 3 ) h_dphiregion_htm_mht2_badj_in_dphi -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-             if ( bi_mht == 4 ) h_dphiregion_htm_mht3_badj_in_dphi -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-             if ( bi_mht == 5 ) h_dphiregion_htm_mht4_badj_in_dphi -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-         } else {
-             h_dphiregion_htm_all_badj_not_in_dphi -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-             if ( bi_mht == 1 ) h_dphiregion_htm_mhtc_badj_not_in_dphi -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-             if ( bi_mht == 2 ) h_dphiregion_htm_mht1_badj_not_in_dphi -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-             if ( bi_mht == 3 ) h_dphiregion_htm_mht2_badj_not_in_dphi -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-             if ( bi_mht == 4 ) h_dphiregion_htm_mht3_badj_not_in_dphi -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-             if ( bi_mht == 5 ) h_dphiregion_htm_mht4_badj_not_in_dphi -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-         }
-
-      } // htm?
-
-    //------
-
-      if ( is_htl ) {
-
-         h_mdp_htl_all -> Fill( min_delta_phi, hw ) ;
-         if ( bi_mht == 1 ) h_mdp_htl_mhtc -> Fill( min_delta_phi, hw ) ;
-         if ( bi_mht == 2 ) h_mdp_htl_mht1 -> Fill( min_delta_phi, hw ) ;
-         if ( bi_mht == 3 ) h_mdp_htl_mht2 -> Fill( min_delta_phi, hw ) ;
-         if ( bi_mht == 4 ) h_mdp_htl_mht3 -> Fill( min_delta_phi, hw ) ;
-         if ( bi_mht == 5 ) h_mdp_htl_mht4 -> Fill( min_delta_phi, hw ) ;
-
-         if ( badjet_in_dphi ) {
-            h_mdp_htl_all_badj_in_dphi -> Fill( min_delta_phi, hw ) ;
-            if ( bi_mht == 1 ) h_mdp_htl_mhtc_badj_in_dphi -> Fill( min_delta_phi, hw ) ;
-            if ( bi_mht == 2 ) h_mdp_htl_mht1_badj_in_dphi -> Fill( min_delta_phi, hw ) ;
-            if ( bi_mht == 3 ) h_mdp_htl_mht2_badj_in_dphi -> Fill( min_delta_phi, hw ) ;
-            if ( bi_mht == 4 ) h_mdp_htl_mht3_badj_in_dphi -> Fill( min_delta_phi, hw ) ;
-            if ( bi_mht == 5 ) h_mdp_htl_mht4_badj_in_dphi -> Fill( min_delta_phi, hw ) ;
-         } else {
-            h_mdp_htl_all_badj_not_in_dphi -> Fill( min_delta_phi, hw ) ;
-            if ( bi_mht == 1 ) h_mdp_htl_mhtc_badj_not_in_dphi -> Fill( min_delta_phi, hw ) ;
-            if ( bi_mht == 2 ) h_mdp_htl_mht1_badj_not_in_dphi -> Fill( min_delta_phi, hw ) ;
-            if ( bi_mht == 3 ) h_mdp_htl_mht2_badj_not_in_dphi -> Fill( min_delta_phi, hw ) ;
-            if ( bi_mht == 4 ) h_mdp_htl_mht3_badj_not_in_dphi -> Fill( min_delta_phi, hw ) ;
-            if ( bi_mht == 5 ) h_mdp_htl_mht4_badj_not_in_dphi -> Fill( min_delta_phi, hw ) ;
-         }
-
-
-
-         h_dphiregion_htl_all -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-         if ( bi_mht == 1 ) h_dphiregion_htl_mhtc -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-         if ( bi_mht == 2 ) h_dphiregion_htl_mht1 -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-         if ( bi_mht == 3 ) h_dphiregion_htl_mht2 -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-         if ( bi_mht == 4 ) h_dphiregion_htl_mht3 -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-         if ( bi_mht == 5 ) h_dphiregion_htl_mht4 -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-
-         if ( badjet_in_dphi ) {
-             h_dphiregion_htl_all_badj_in_dphi -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-             if ( bi_mht == 1 ) h_dphiregion_htl_mhtc_badj_in_dphi -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-             if ( bi_mht == 2 ) h_dphiregion_htl_mht1_badj_in_dphi -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-             if ( bi_mht == 3 ) h_dphiregion_htl_mht2_badj_in_dphi -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-             if ( bi_mht == 4 ) h_dphiregion_htl_mht3_badj_in_dphi -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-             if ( bi_mht == 5 ) h_dphiregion_htl_mht4_badj_in_dphi -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-         } else {
-             h_dphiregion_htl_all_badj_not_in_dphi -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-             if ( bi_mht == 1 ) h_dphiregion_htl_mhtc_badj_not_in_dphi -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-             if ( bi_mht == 2 ) h_dphiregion_htl_mht1_badj_not_in_dphi -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-             if ( bi_mht == 3 ) h_dphiregion_htl_mht2_badj_not_in_dphi -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-             if ( bi_mht == 4 ) h_dphiregion_htl_mht3_badj_not_in_dphi -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-             if ( bi_mht == 5 ) h_dphiregion_htl_mht4_badj_not_in_dphi -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-         }
-
-      } // htl?
 
      //-----
 
@@ -824,18 +582,14 @@ void syst_2015_v2::Loop( int max_dump, bool verb )
 
       if ( !recalc_in_ldp ) {
          h_hdp -> Fill( bi_global, hw ) ;
-         h_nbsum_hdp -> Fill( bi_nbsum_global, hw ) ;
-         if ( BTags == 0 ) h_nb0_hdp -> Fill( bi_nbsum_global, hw ) ;
-         if ( BTags == 1 ) h_nb1_hdp -> Fill( bi_nbsum_global, hw ) ;
-         if ( BTags == 2 ) h_nb2_hdp -> Fill( bi_nbsum_global, hw ) ;
-         if ( BTags >= 3 ) h_nb3_hdp -> Fill( bi_nbsum_global, hw ) ;
+         h_hdp_nbsum -> Fill( bi_nbsum_global, hw ) ;
+         if ( BTags < 3  ) h_hdp_nb[BTags] -> Fill( bi_nbsum_global, hw ) ;
+         if ( BTags >= 3 ) h_hdp_nb[3] -> Fill( bi_nbsum_global, hw ) ;
       } else {
          h_ldp -> Fill( bi_global, hw ) ;
-         h_nbsum_ldp -> Fill( bi_nbsum_global, hw ) ;
-         if ( BTags == 0 ) h_nb0_ldp -> Fill( bi_nbsum_global, hw ) ;
-         if ( BTags == 1 ) h_nb1_ldp -> Fill( bi_nbsum_global, hw ) ;
-         if ( BTags == 2 ) h_nb2_ldp -> Fill( bi_nbsum_global, hw ) ;
-         if ( BTags >= 3 ) h_nb3_ldp -> Fill( bi_nbsum_global, hw ) ;
+         h_ldp_nbsum -> Fill( bi_nbsum_global, hw ) ;
+         if ( BTags < 3  ) h_ldp_nb[BTags] -> Fill( bi_nbsum_global, hw ) ;
+         if ( BTags >= 3 ) h_ldp_nb[3] -> Fill( bi_nbsum_global, hw ) ;
       }
 
 
@@ -891,132 +645,6 @@ double syst_2015_v2::dr_match_rec_to_genjet( int rji, int& match_gji ) {
    return min_dr ;
 
 } // dr_match_rec_to_genjet
-
-//==================================================================================================
-
-   void syst_2015_v2::setup_bins() {
-
-      int bi ;
-
-      bi = 0 ;
-      bin_edges_nj[bi] = 2.5 ; bi++ ;
-      bin_edges_nj[bi] = 4.5 ; bi++ ;
-      bin_edges_nj[bi] = 6.5 ; bi++ ;
-      bin_edges_nj[bi] = 8.5 ; bi++ ;
-      bin_edges_nj[bi] = 99.5 ;
-      nb_nj = bi ;
-
-      bi = 0 ;
-      bin_edges_nb[bi] = -0.5 ; bi++ ;
-      bin_edges_nb[bi] =  0.5 ; bi++ ;
-      bin_edges_nb[bi] =  1.5 ; bi++ ;
-      bin_edges_nb[bi] =  2.5 ; bi++ ;
-      bin_edges_nb[bi] =  99.5 ;
-      nb_nb = bi ;
-
-      bi = 0 ;
-      bin_edges_mht[bi] =   250. ; bi++ ;
-      bin_edges_mht[bi] =   300. ; bi++ ;
-      bin_edges_mht[bi] =   350. ; bi++ ;
-      bin_edges_mht[bi] =   500. ; bi++ ;
-      bin_edges_mht[bi] =   750. ; bi++ ;
-      bin_edges_mht[bi] = 20000. ;
-      nb_mht = bi ;
-
-      int mbi(1) ;
-      nb_htmht = 0 ;
-      //--- MHT bin 0
-      bi = 0 ;
-      bin_edges_ht[mbi][bi] =   300. ; bi++ ;
-      bin_edges_ht[mbi][bi] =   500. ; bi++ ;
-      bin_edges_ht[mbi][bi] =  1000. ; bi++ ;
-      bin_edges_ht[mbi][bi] = 20000. ;
-      nb_ht[mbi] = bi ;
-      nb_htmht += bi ;
-      mbi++ ;
-      //--- MHT bin 1
-      bi = 0 ;
-      bin_edges_ht[mbi][bi] =   300. ; bi++ ;
-      bin_edges_ht[mbi][bi] =   500. ; bi++ ;
-      bin_edges_ht[mbi][bi] =  1000. ; bi++ ;
-      bin_edges_ht[mbi][bi] = 20000. ;
-      nb_ht[mbi] = bi ;
-      nb_htmht += bi ;
-      mbi++ ;
-      //--- MHT bin 2
-      bi = 0 ;
-      bin_edges_ht[mbi][bi] =   350. ; bi++ ;
-      bin_edges_ht[mbi][bi] =   500. ; bi++ ;
-      bin_edges_ht[mbi][bi] =  1000. ; bi++ ;
-      bin_edges_ht[mbi][bi] = 20000. ;
-      nb_ht[mbi] = bi ;
-      nb_htmht += bi ;
-      mbi++ ;
-      //--- MHT bin 3
-      bi = 0 ;
-      bin_edges_ht[mbi][bi] =   500. ; bi++ ;
-      bin_edges_ht[mbi][bi] =  1000. ; bi++ ;
-      bin_edges_ht[mbi][bi] = 20000. ;
-      nb_ht[mbi] = bi ;
-      nb_htmht += bi ;
-      mbi++ ;
-      //--- MHT bin 4
-      bi = 0 ;
-      bin_edges_ht[mbi][bi] =   750. ; bi++ ;
-      bin_edges_ht[mbi][bi] =  1500. ; bi++ ;
-      bin_edges_ht[mbi][bi] = 20000. ;
-      nb_ht[mbi] = bi ;
-      nb_htmht += bi ;
-
-
-
-      nb_global = nb_htmht * nb_nb * nb_nj ;
-
-      printf("\n\n") ;
-      printf("  nj bins : %d\n", nb_nj ) ; for ( int i=1; i<=nb_nj; i++ ) { printf("    nj bin %2d : [%.1f,%.1f]\n", i, bin_edges_nj[i-1], bin_edges_nj[i] ) ; }
-      printf("  nb bins : %d\n", nb_nb ) ; for ( int i=1; i<=nb_nb; i++ ) { printf("    nb bin %2d : [%.1f,%.1f]\n", i, bin_edges_nb[i-1], bin_edges_nb[i] ) ; }
-      printf("  mht bins : %d\n", nb_mht ) ; for ( int i=1; i<=nb_mht; i++ ) { printf("    mht bin %2d : [%.1f,%.1f]\n", i, bin_edges_mht[i-1], bin_edges_mht[i] ) ; }
-      for ( int mbi=1; mbi<=nb_mht; mbi++ ) {
-         printf("  ht bins, mht%d : %d\n", mbi, nb_ht[mbi] ) ; for ( int i=1; i<=nb_ht[mbi]; i++ ) { printf("    ht bin %2d : [%.1f,%.1f]\n", i, bin_edges_ht[mbi][i-1], bin_edges_ht[mbi][i] ) ; }
-      }
-      printf("\n\n") ;
-
-      TH1F* h_nj_bin_index = new TH1F( "h_nj_bin_index", "Njet bin index", nb_global, 0.5, nb_global+0.5 ) ;
-      TH1F* h_nb_bin_index = new TH1F( "h_nb_bin_index", "Nb bin index", nb_global, 0.5, nb_global+0.5 ) ;
-      TH1F* h_htmht_bin_index = new TH1F( "h_htmht_bin_index", "HTMHT bin index", nb_global, 0.5, nb_global+0.5 ) ;
-      TH1F* h_ht_bin_index = new TH1F( "h_ht_bin_index", "HT bin index", nb_global, 0.5, nb_global+0.5 ) ;
-      TH1F* h_mht_bin_index = new TH1F( "h_mht_bin_index", "MHT bin index", nb_global, 0.5, nb_global+0.5 ) ;
-
-      printf("\n\n") ;
-      for ( int bi=1; bi<=nb_global; bi++ ) {
-         int tbi_nj; int tbi_nb; int tbi_htmht; int tbi_ht; int tbi_mht ;
-         translate_global_bin( bi, tbi_nj, tbi_nb, tbi_htmht, tbi_ht, tbi_mht ) ;
-         h_nj_bin_index -> SetBinContent( bi, tbi_nj ) ;
-         h_nb_bin_index -> SetBinContent( bi, tbi_nb ) ;
-         h_htmht_bin_index -> SetBinContent( bi, tbi_htmht ) ;
-         h_ht_bin_index -> SetBinContent( bi, tbi_ht ) ;
-         h_mht_bin_index -> SetBinContent( bi, tbi_mht ) ;
-      } // bi
-
-
-      TH1F* h_nbsum_nj_bin_index = new TH1F( "h_nbsum_nj_bin_index", "Njet bin index", nb_global/nb_nb, 0.5, nb_global/nb_nb+0.5 ) ;
-      TH1F* h_nbsum_htmht_bin_index = new TH1F( "h_nbsum_htmht_bin_index", "HTMHT bin index", nb_global/nb_nb, 0.5, nb_global/nb_nb+0.5 ) ;
-      TH1F* h_nbsum_ht_bin_index = new TH1F( "h_nbsum_ht_bin_index", "HT bin index", nb_global/nb_nb, 0.5, nb_global/nb_nb+0.5 ) ;
-      TH1F* h_nbsum_mht_bin_index = new TH1F( "h_nbsum_mht_bin_index", "MHT bin index", nb_global/nb_nb, 0.5, nb_global/nb_nb+0.5 ) ;
-
-      printf("\n\n") ;
-      for ( int bi=1; bi<=nb_global/nb_nb; bi++ ) {
-         int tbi_nj; int tbi_htmht; int tbi_ht; int tbi_mht ;
-         translate_global_bin_nbsum( bi, tbi_nj, tbi_htmht, tbi_ht, tbi_mht ) ;
-         h_nbsum_nj_bin_index -> SetBinContent( bi, tbi_nj ) ;
-         h_nbsum_htmht_bin_index -> SetBinContent( bi, tbi_htmht ) ;
-         h_nbsum_ht_bin_index -> SetBinContent( bi, tbi_ht ) ;
-         h_nbsum_mht_bin_index -> SetBinContent( bi, tbi_mht ) ;
-      } // bi
-
-      printf("\n\n") ;
-
-   } // setup_bins
 
 //=====================================================================================================
 
