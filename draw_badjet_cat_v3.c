@@ -1,13 +1,20 @@
+#include "TDirectory.h"
+#include "TFile.h"
+#include "TCanvas.h"
+#include "TH1F.h"
+#include "TLegend.h"
+#include "TStyle.h"
+#include "TText.h"
+#include "TLine.h"
 
+#include "binning.h"
 
-   void draw_badjet_cat_v3( const char* htstr = "hth", const char* infile = "outputfiles/syst-2015-v2.root" ) {
+   void amin( const char* htstr = "hth", const char* infile = "outputfiles/syst-2015-v2.root" ) {
 
          char fname[10000] ;
 
       gStyle -> SetOptStat(0) ;
-
-      int nbins(5) ;
-      if ( strcmp( htstr, "htl" ) == 0 ) { nbins = 3 ; }
+      setup_bins();
 
       TFile* tf = new TFile( infile, "READ" ) ;
       if ( ! tf -> IsOpen() ) { printf( "\n\n *** Bad input file: %s\n\n", infile ) ; return ; }
@@ -16,10 +23,9 @@
 
       TCanvas* can = new TCanvas( "can_draw_badjet_cat", "", 800, 600 ) ;
 
+      int nbins(5) ;
+
       float histshift(0.03) ;
-      TH1F* h_rhl_bj_in_dphi = new TH1F( "h_rhl_bj_in_dphi", "Rhigh/low, bad jet in dphi", nbins, 0.5-histshift, nbins+0.5-histshift ) ;
-      TH1F* h_fmissfpass_bj_in_dphi = new TH1F( "h_fmissfpass_bj_in_dphi", "Fr(bj not in dphi)*fr(pass)", nbins, 0.5+histshift, nbins+0.5+histshift ) ;
-      TH1F* h_rprime = new TH1F( "h_rprime", "Effective Rhigh/low", nbins, 0.5, nbins+0.5 ) ;
 
       //double fmiss_val = 0.022 ;
       //double fmiss_err = 0.004 ;
@@ -32,6 +38,24 @@
    // fmiss_val[3] = 0.018 ;  fmiss_err[3] = 0.001 ;
    // fmiss_val[4] = 0.012 ;  fmiss_err[4] = 0.002 ;
    // fmiss_val[5] = 0.011 ;  fmiss_err[5] = 0.002 ;
+   
+
+   for ( int ht_level = 0; ht_level < nBinsHT; ht_level++)
+   {
+
+      if ( ht_level == 0 ) htstr = "htl";
+      if ( ht_level == 1 ) htstr = "htm";
+      if ( ht_level == 2 ) htstr = "hth";
+
+      TString ht_str;
+      TH1F* h_rhl_bj_in_dphi = new TH1F( "h_rhl_bj_in_dphi", "Rhigh/low, bad jet in dphi", nbins, 0.5-histshift, nbins+0.5-histshift ) ;
+      TH1F* h_fmissfpass_bj_in_dphi = new TH1F( "h_fmissfpass_bj_in_dphi", "Fr(bj not in dphi)*fr(pass)", nbins, 0.5+histshift, nbins+0.5+histshift ) ;
+      TH1F* h_rprime = new TH1F( "h_rprime", "Effective Rhigh/low", nbins, 0.5, nbins+0.5 ) ;
+
+ 
+      nbins = 5 ;
+      if ( strcmp( htstr, "htl" ) == 0 ) { nbins = 3 ; }
+
 
       for ( int mbi=1; mbi<=nbins; mbi++ ) {
 
@@ -41,11 +65,11 @@
          TH1F* hp_all = (TH1F*) tf -> Get( hname ) ;
          if ( hp_all == 0x0 ) { printf("\n\n *** missing %s\n\n", hname ) ; return ; }
 
-         if ( mbi==1 ) { sprintf( hname, "h_mdp_%s_mhtc_badj_in_dphi", htstr ) ; } else { sprintf( hname, "h_mdp_%s_mht%d_badj_in_dphi", htstr, mbi-1 ) ; }
+         if ( mbi==1 ) { sprintf( hname, "h_mdp_%s_badj_in_dphi_mhtc", htstr ) ; } else { sprintf( hname, "h_mdp_%s_badj_in_dphi_mht%d", htstr, mbi-1 ) ; }
          TH1F* hp_bj_in_dphi = (TH1F*) tf -> Get( hname ) ;
          if ( hp_bj_in_dphi == 0x0 ) { printf("\n\n *** missing %s\n\n", hname ) ; return ; }
 
-         if ( mbi==1 ) { sprintf( hname, "h_mdp_%s_mhtc_badj_not_in_dphi", htstr ) ; } else { sprintf( hname, "h_mdp_%s_mht%d_badj_not_in_dphi", htstr, mbi-1 ) ; }
+         if ( mbi==1 ) { sprintf( hname, "h_mdp_%s_badj_not_in_dphi_mhtc", htstr ) ; } else { sprintf( hname, "h_mdp_%s_badj_not_in_dphi_mht%d", htstr, mbi-1 ) ; }
          TH1F* hp_bj_not_in_dphi = (TH1F*) tf -> Get( hname ) ;
          if ( hp_bj_not_in_dphi == 0x0 ) { printf("\n\n *** missing %s\n\n", hname ) ; return ; }
 
@@ -56,11 +80,11 @@
          TH1F* hp_dphiregion_all = (TH1F*) tf -> Get( hname ) ;
          if ( hp_dphiregion_all == 0x0 ) { printf("\n\n *** missing%s\n\n", hname ) ; return ; }
 
-         if ( mbi==1 ) { sprintf( hname, "h_dphiregion_%s_mhtc_badj_in_dphi", htstr ) ; } else { sprintf( hname, "h_dphiregion_%s_mht%d_badj_in_dphi", htstr, mbi-1 ) ; }
+         if ( mbi==1 ) { sprintf( hname, "h_dphiregion_%s_badj_in_dphi_mhtc", htstr ) ; } else { sprintf( hname, "h_dphiregion_%s_badj_in_dphi_mht%d", htstr, mbi-1 ) ; }
          TH1F* hp_dphiregion_bj_in_dphi = (TH1F*) tf -> Get( hname ) ;
          if ( hp_dphiregion_bj_in_dphi == 0x0 ) { printf("\n\n *** missing%s\n\n", hname ) ; return ; }
 
-         if ( mbi==1 ) { sprintf( hname, "h_dphiregion_%s_mhtc_badj_not_in_dphi", htstr ) ; } else { sprintf( hname, "h_dphiregion_%s_mht%d_badj_not_in_dphi", htstr, mbi-1 ) ; }
+         if ( mbi==1 ) { sprintf( hname, "h_dphiregion_%s_badj_not_in_dphi_mhtc", htstr ) ; } else { sprintf( hname, "h_dphiregion_%s_badj_not_in_dphi_mht%d", htstr, mbi-1 ) ; }
          TH1F* hp_dphiregion_bj_not_in_dphi = (TH1F*) tf -> Get( hname ) ;
          if ( hp_dphiregion_bj_not_in_dphi == 0x0 ) { printf("\n\n *** missing%s\n\n", hname ) ; return ; }
 
@@ -433,7 +457,7 @@
       h_dr -> Draw("same") ;
       h_dr -> Draw("axis same" ) ;
       h_dr -> Draw("axig same" ) ;
-
+}//ht_level
 
    } // draw_badjet_cat_v3
 
