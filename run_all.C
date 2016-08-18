@@ -14,7 +14,7 @@
 #include "make_hadtau_input_files1.c"
 #include "make_znunu_input_files1.c"
 #include "syst_2015_v2.c"
-
+#include "draw_qcd_ratio_v3.c"
 #include "draw_badjet_cat_v3.c"
 
 void run_all ( TString skim_slim_input_dir = "" )
@@ -55,8 +55,9 @@ void run_all ( TString skim_slim_input_dir = "" )
    make_hadtau_input_files1();
    make_znunu_input_files1();
 
+   draw_qcd_ratio_v3();
    syst_2015_v2 f3;
    f3.Loop();
-
    draw_badjet_cat_v3();
+
 }

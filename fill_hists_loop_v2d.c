@@ -31,6 +31,7 @@
 #include <iostream>
 #include <vector>
 
+#include "lumi_taken.h"
 #include "binning.h"
 #include "histio.c"
 
@@ -45,11 +46,6 @@ void fill_hists_loop_v2d::Loop( bool verb, int nloop )
    setup_bins() ;
 
 
-   //double lumi = 2300. ;
-   //double lumi = 815. ;
-   ///////double lumi = 2585. ;
-   //////double lumi = 7632. ;
-   double lumi = 12903. ;
 
    bool islostlep(false) ;
    bool ishadtau(false) ;
@@ -219,8 +215,8 @@ void fill_hists_loop_v2d::Loop( bool verb, int nloop )
       set_bi() ;
 
 
-      //////////////double hw = Weight * lumi ;
-      double hw = Weight * puWeight * lumi ; // add pu weight
+      //////////////double hw = Weight * lumi_ ;
+      double hw = Weight * puWeight * lumi_ ; // add pu weight
 
       if ( islostlep && hasHadTau ) continue ;
       if ( ishadtau && !hasHadTau ) continue ;

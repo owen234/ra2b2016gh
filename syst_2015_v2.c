@@ -7,12 +7,11 @@
 #include "TStopwatch.h"
 #include "TSystem.h"
 
+#include "lumi_taken.h"
 #include "histio.c"
 #include "binning.h"
 
 double calc_dphi( double phi1, double phi2 ) ;
-
-   double lumi_ = 12903. ;
 
 
 void syst_2015_v2::Loop( int max_dump, bool verb )
@@ -22,6 +21,7 @@ void syst_2015_v2::Loop( int max_dump, bool verb )
 
    TH1::SetDefaultSumw2(); // to make sure all TH1 histograms have Sumw2 enabled
 
+   setup_bins();
 
    printf("\n\n") ;
 
@@ -54,22 +54,22 @@ void syst_2015_v2::Loop( int max_dump, bool verb )
    for ( int mht_count = 0; mht_count < nb_mht; mht_count++)
    {
 
-   TString mht_str; 
-   if ( mht_count == 0 ) mht_str = "C";
-   else                  mht_str.Form("%d",mht_count);
+   TString mht_str_capital, mht_str; 
+   if ( mht_count == 0 ) {mht_str_capital = "C"; mht_str = "c";}
+   else                  {mht_str_capital.Form("%d",mht_count);mht_str = mht_str_capital;}
 
-   h_mdp_mht                        [mht_count]  = new TH1F( "h_mdp_mht"+mht_str, "Min Delta Phi, MHT"+mht_str, 68, 0., 3.4 ) ;
+   h_mdp_mht                        [mht_count]  = new TH1F( "h_mdp_mht"+mht_str, "Min Delta Phi, MHT"+mht_str_capital, 68, 0., 3.4 ) ;
 
-   h_mdp_badj_in_dphi_mht           [mht_count] = new TH1F( "h_mdp_badj_in_dphi_mht"+mht_str, "Min Delta Phi, MHT"+mht_str+", bad jet in Dphi", 68, 0., 3.4 ) ;
+   h_mdp_badj_in_dphi_mht           [mht_count] = new TH1F( "h_mdp_badj_in_dphi_mht"+mht_str, "Min Delta Phi, MHT"+mht_str_capital+", bad jet in Dphi", 68, 0., 3.4 ) ;
 
-   h_mdp_badj_not_in_dphi_mht       [mht_count] = new TH1F( "h_mdp_badj_not_in_dphi_mht"+mht_str, "Min Delta Phi, MHT"+mht_str+", bad jet not in Dphi", 68, 0., 3.4  );
+   h_mdp_badj_not_in_dphi_mht       [mht_count] = new TH1F( "h_mdp_badj_not_in_dphi_mht"+mht_str, "Min Delta Phi, MHT"+mht_str_capital+", bad jet not in Dphi", 68, 0., 3.4  );
 
 
-   h_dphiregion_mht                 [mht_count] = new TH1F( "h_dphiregion_mht"+mht_str, "Dphi region (0=LDP, 1=HDP), MHT"+mht_str, 2, -0.5, 1.5 ) ;
+   h_dphiregion_mht                 [mht_count] = new TH1F( "h_dphiregion_mht"+mht_str, "Dphi region (0=LDP, 1=HDP), MHT"+mht_str_capital, 2, -0.5, 1.5 ) ;
 
-   h_dphiregion_badj_in_dphi_mht    [mht_count] = new TH1F( "h_dphiregion_badj_in_dphi_mht"+mht_str, "Dphi region (0=LDP, 1=HDP), MHT"+mht_str+", bad jet in Dphi", 2, -0.5, 1.5 ) ;
+   h_dphiregion_badj_in_dphi_mht    [mht_count] = new TH1F( "h_dphiregion_badj_in_dphi_mht"+mht_str, "Dphi region (0=LDP, 1=HDP), MHT"+mht_str_capital+", bad jet in Dphi", 2, -0.5, 1.5 ) ;
 
-   h_dphiregion_badj_not_in_dphi_mht[mht_count] = new TH1F( "h_dphiregion_badj_not_in_dphi_mht"+mht_str, "Dphi region (0=LDP, 1=HDP), MHT"+mht_str+", bad jet not in Dphi", 2, -0.5, 1.5 ) ;
+   h_dphiregion_badj_not_in_dphi_mht[mht_count] = new TH1F( "h_dphiregion_badj_not_in_dphi_mht"+mht_str, "Dphi region (0=LDP, 1=HDP), MHT"+mht_str_capital+", bad jet not in Dphi", 2, -0.5, 1.5 ) ;
 
    }//mht_count
 
@@ -115,24 +115,25 @@ void syst_2015_v2::Loop( int max_dump, bool verb )
 
    h_dphiregion_ht_badj_not_in_dphi_all[ht_count] = new TH1F( "h_dphiregion_ht"+ht_str_short+"_badj_not_in_dphi_all", "Dphi region (0=LDP, 1=HDP), bad jet not in Dphi, "+ht_str_long, 2, -0.5, 1.5 ) ;
 
-   for ( int mht_count = 0; mht_count <= nb_mht; mht_count++)
+   for ( int mht_count = 0; mht_count < nb_mht; mht_count++)
    {
-   TString mht_str; 
-   if ( mht_count == 0 ) mht_str = "C"; 
-   else                  mht_str.Form("%d",mht_count);
+
+   TString mht_str_capital, mht_str; 
+   if ( mht_count == 0 ) {mht_str_capital = "C"; mht_str = "c";}
+   else                  {mht_str_capital.Form("%d",mht_count);mht_str = mht_str_capital;}
 
 
-   h_mdp_ht_mht[ht_count][mht_count] = new TH1F( "h_mdp_ht"+ht_str_short+"_mht"+mht_str, "Min Delta Phi, MHT"+mht_str+", "+ht_str_long, 68, 0., 3.4 ) ;
+   h_mdp_ht_mht[ht_count][mht_count] = new TH1F( "h_mdp_ht"+ht_str_short+"_mht"+mht_str, "Min Delta Phi, MHT"+mht_str_capital+", "+ht_str_long, 68, 0., 3.4 ) ; 
+   std::cout << "h_mdp_ht"+ht_str_short+"_mht"+mht_str << std::endl;
+   h_mdp_ht_badj_in_dphi_mht[ht_count][mht_count] = new TH1F( "h_mdp_ht"+ht_str_short+"_badj_in_dphi_mht"+mht_str, "Min Delta Phi, MHT"+mht_str_capital+", bad jet in Dphi, "+ht_str_long, 68, 0., 3.4 ) ;
 
-   h_mdp_ht_badj_in_dphi_mht[ht_count][mht_count] = new TH1F( "h_mdp_ht"+ht_str_short+"_badj_in_dphi_mht"+mht_str, "Min Delta Phi, MHT"+mht_str+", bad jet in Dphi, "+ht_str_long, 68, 0., 3.4 ) ;
+   h_mdp_ht_badj_not_in_dphi_mht[ht_count][mht_count] = new TH1F( "h_mdp_ht"+ht_str_short+"_badj_not_in_dphi_mht"+mht_str, "Min Delta Phi, MHT"+mht_str_capital+", bad jet not in Dphi, "+ht_str_long, 68, 0., 3.4 ) ;
 
-   h_mdp_ht_badj_not_in_dphi_mht[ht_count][mht_count] = new TH1F( "h_mdp_ht"+ht_str_short+"_badj_not_in_dphi_mht"+mht_str, "Min Delta Phi, MHT"+mht_str+", bad jet not in Dphi, "+ht_str_long, 68, 0., 3.4 ) ;
+   h_dphiregion_ht_mht[ht_count][mht_count] = new TH1F( "h_dphiregion_ht"+ht_str_short+"_mht"+mht_str, "Dphi region (0=LDP, 1=HDP), MHT"+mht_str_capital+", "+ht_str_long, 2, -0.5, 1.5 ) ;
 
-   h_dphiregion_ht_mht[ht_count][mht_count] = new TH1F( "h_dphiregion_ht"+ht_str_short+"_mht"+mht_str, "Dphi region (0=LDP, 1=HDP), MHT"+mht_str+", "+ht_str_long, 2, -0.5, 1.5 ) ;
+   h_dphiregion_ht_badj_in_dphi_mht[ht_count][mht_count] = new TH1F( "h_dphiregion_ht"+ht_str_short+"_badj_in_dphi_mht"+mht_str, "Dphi region (0=LDP, 1=HDP), MHT"+mht_str_capital+", bad jet in Dphi, "+ht_str_long, 2, -0.5, 1.5 ) ;
 
-   h_dphiregion_ht_badj_in_dphi_mht[ht_count][mht_count] = new TH1F( "h_dphiregion_ht"+ht_str_short+"_badj_in_dphi_mht"+mht_str, "Dphi region (0=LDP, 1=HDP), MHT"+mht_str+", bad jet in Dphi, "+ht_str_long, 2, -0.5, 1.5 ) ;
-
-   h_dphiregion_ht_badj_not_in_dphi_mht[ht_count][mht_count] = new TH1F( "h_dphiregion_ht"+ht_str_short+"_badj_not_in_dphi_mht"+mht_str, "Dphi region (0=LDP, 1=HDP), MHT"+mht_str+", bad jet not in Dphi, "+ht_str_long, 2, -0.5, 1.5 ) ;
+   h_dphiregion_ht_badj_not_in_dphi_mht[ht_count][mht_count] = new TH1F( "h_dphiregion_ht"+ht_str_short+"_badj_not_in_dphi_mht"+mht_str, "Dphi region (0=LDP, 1=HDP), MHT"+mht_str_capital+", bad jet not in Dphi, "+ht_str_long, 2, -0.5, 1.5 ) ;
 
    }//mht_count
    }//ht_count
@@ -215,6 +216,7 @@ void syst_2015_v2::Loop( int max_dump, bool verb )
       if ( NJets < bin_edges_nj[0] ) continue ;
       if ( MHT < bin_edges_mht[0] ) continue ;
       if ( HT < bin_edges_ht[1][0] ) continue ;
+
 
 
      //-- take out the trash
@@ -515,7 +517,7 @@ void syst_2015_v2::Loop( int max_dump, bool verb )
 
       if ( (bi_mht<=3 && bi_ht == 2) || (bi_mht>3 && bi_ht == 1) ) ht_level = 1 ; //medium ht bin
 
-      if ( (bi_mht<=3 && bi_ht == 1) ) ht_level = 1; // low ht bin
+      if ( (bi_mht<=3 && bi_ht == 1) ) ht_level = 0; // low ht bin
 
 
       if ( bi_global < 1 ) continue ; //--- only keep events in search or QCD control.
