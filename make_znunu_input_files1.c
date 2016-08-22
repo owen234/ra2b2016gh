@@ -170,7 +170,7 @@
 
                TString hist_bin_label( h_ldp -> GetXaxis() -> GetBinLabel( bi_hist ) ) ;
 
-               int bi_ht, bi_mht ;
+               int bi_ht = 0, bi_mht = 0;
 
                if ( bi_htmht == 1 ) { bi_ht = 1; bi_mht = 1; }
                if ( bi_htmht == 2 ) { bi_ht = 2; bi_mht = 1; }
