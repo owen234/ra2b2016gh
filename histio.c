@@ -40,6 +40,8 @@ void saveHist(const char* filename, const char* pat)
   outf.Close() ;
 
   delete iter ;
+  gDirectory->DeleteAll();//This line will remove histrograms from memory. Without this line, when we create a histogram, I will be saved everytime we call saveHist function. Important when we use "run_all.C"
+
 }
 
 
