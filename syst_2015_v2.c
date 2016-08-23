@@ -140,11 +140,11 @@ void syst_2015_v2::Loop( int max_dump, bool verb )
 
   //-------
 
-   TH1F* h_hdp = new TH1F( "h_hdp_", "HDP events", nb_global, 0.5, nb_global + 0.5 ) ;
+   TH1F* h_hdp = new TH1F( "h_hdp", "HDP events", nb_global, 0.5, nb_global + 0.5 ) ;
    TH1F* h_hdp_nbsum = new TH1F( "h_hdp_nbsum", "HDP events", nb_global/nb_nb, 0.5, nb_global/nb_nb + 0.5 ) ;
    set_bin_labels( h_hdp_nbsum ) ;
 
-   TH1F* h_ldp = new TH1F( "h_ldp_", "ldp events", nb_global, 0.5, nb_global + 0.5 ) ;
+   TH1F* h_ldp = new TH1F( "h_ldp", "ldp events", nb_global, 0.5, nb_global + 0.5 ) ;
    TH1F* h_ldp_nbsum = new TH1F( "h_ldp_nbsum", "LDP events", nb_global/nb_nb, 0.5, nb_global/nb_nb + 0.5 ) ;
    set_bin_labels( h_ldp_nbsum ) ;
 
@@ -171,7 +171,7 @@ void syst_2015_v2::Loop( int max_dump, bool verb )
    if (fChain == 0) return;
 
    Long64_t nentries = fChain->GetEntries();
-
+   std::cout << "nentries: " << nentries << std::endl;
    Long64_t n_dump = 0 ;
 
    TStopwatch sw ;
