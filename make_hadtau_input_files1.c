@@ -158,10 +158,11 @@
       int bi_hist(0) ;
       int bi_control(0) ;
       int bi_search(0) ;
-      for ( int bi_nj=1; bi_nj<=nb_nj; bi_nj++ ) {
+      for ( int bi_nj=2; bi_nj<=nb_nj; bi_nj++ ) {
          for ( int bi_nb=1; bi_nb<=nb_nb; bi_nb++ ) {
             for ( int bi_htmht=1; bi_htmht<=nb_htmht; bi_htmht++ ) {
 
+               if ( bin_edges_nj[bi_nj-1] < 2.5 ) continue;// because lost lepton input file lasks NJets = 2 bin
                bi_hist ++ ;
 
                double ldp_val = h_pred_lowdphi -> GetBinContent( bi_hist ) ;
@@ -276,7 +277,9 @@
      //-----
 
       for ( int bi_ht=1; bi_ht<=nBinsHT; bi_ht++ ) {
-         for ( int bi_nj=1; bi_nj<=nb_nj; bi_nj++ ) {
+         for ( int bi_nj=2; bi_nj<=nb_nj; bi_nj++ ) {
+
+            if ( bin_edges_nj[bi_nj-1] < 2.5 ) continue; // because znuznu input file lasks NJets = 2 bin
 
             float ldp_nbsum_val(0.) ;
             float hdp_nbsum_val(0.) ;
