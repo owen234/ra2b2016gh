@@ -45,10 +45,10 @@
       TH1F* h_hdp = get_hist( "h_hdp" ) ;
       TH1F* h_max_ldp_weight = get_hist( "h_max_ldp_weight" ) ;
 
-      TH1F* h_ratio = new TH1F( "h_ratio", "QCD H/L ratio", 160, 0.5, 160.5 ) ;
-      TH1F* h_max_ldp_weight_160bins = new TH1F( "h_max_ldp_weight_160bins", "max LDP weight", 160, 0.5, 160.5 ) ;
-      TH1F* h_ldp_160bins = new TH1F( "h_ldp_160bins", "LDP counts, 160 bins", 160, 0.5, 160.5 ) ;
-      TH1F* h_hdp_160bins = new TH1F( "h_hdp_160bins", "HDP counts, 160 bins", 160, 0.5, 160.5 ) ;
+      TH1F* h_ratio = new TH1F( "h_ratio", "QCD H/L ratio", (nb_htmht-3) * nb_nb * nb_nj, 0.5, (nb_htmht-3) * nb_nb * nb_nj + 0.5 ) ;
+      TH1F* h_max_ldp_weight_search_bins = new TH1F( "h_max_ldp_weight_search_bins", "max LDP weight", (nb_htmht-3) * nb_nb * nb_nj, 0.5, (nb_htmht-3) * nb_nb * nb_nj + 0.5 ) ;
+      TH1F* h_ldp_search_bins = new TH1F( "h_ldp_search_bins", "LDP counts, (nb_htmht-3) * nb_nb * nb_nj bins", (nb_htmht-3) * nb_nb * nb_nj, 0.5, (nb_htmht-3) * nb_nb * nb_nj + 0.5 ) ;
+      TH1F* h_hdp_search_bins = new TH1F( "h_hdp_search_bins", "HDP counts, (nb_htmht-3) * nb_nb * nb_nj bins", (nb_htmht-3) * nb_nb * nb_nj, 0.5, (nb_htmht-3) * nb_nb * nb_nj + 0.5 ) ;
 
       TH1F * h_ratio_nb[10], * h_ratio_nj[10];
 
@@ -91,14 +91,14 @@
                   h_ratio -> SetBinContent( bi_search_hist, ratio_val ) ;
                   h_ratio -> SetBinError( bi_search_hist, ratio_err ) ;
                   h_ratio -> GetXaxis() -> SetBinLabel( bi_search_hist, label ) ;
-                  h_max_ldp_weight_160bins -> SetBinContent( bi_search_hist, h_max_ldp_weight->GetBinContent( bi_hist ) ) ;
-                  h_max_ldp_weight_160bins -> GetXaxis() -> SetBinLabel( bi_search_hist, label ) ;
-                  h_ldp_160bins -> SetBinContent( bi_search_hist, ldp_val ) ;
-                  h_ldp_160bins -> SetBinError( bi_search_hist, ldp_err ) ;
-                  h_ldp_160bins -> GetXaxis() -> SetBinLabel( bi_search_hist, label ) ;
-                  h_hdp_160bins -> SetBinContent( bi_search_hist, hdp_val ) ;
-                  h_hdp_160bins -> SetBinError( bi_search_hist, hdp_err ) ;
-                  h_hdp_160bins -> GetXaxis() -> SetBinLabel( bi_search_hist, label ) ;
+                  h_max_ldp_weight_search_bins -> SetBinContent( bi_search_hist, h_max_ldp_weight->GetBinContent( bi_hist ) ) ;
+                  h_max_ldp_weight_search_bins -> GetXaxis() -> SetBinLabel( bi_search_hist, label ) ;
+                  h_ldp_search_bins -> SetBinContent( bi_search_hist, ldp_val ) ;
+                  h_ldp_search_bins -> SetBinError( bi_search_hist, ldp_err ) ;
+                  h_ldp_search_bins -> GetXaxis() -> SetBinLabel( bi_search_hist, label ) ;
+                  h_hdp_search_bins -> SetBinContent( bi_search_hist, hdp_val ) ;
+                  h_hdp_search_bins -> SetBinError( bi_search_hist, hdp_err ) ;
+                  h_hdp_search_bins -> GetXaxis() -> SetBinLabel( bi_search_hist, label ) ;
                   printf( "  search %3d : %30s : R= %6.4f +/- %6.4f\n", bi_search_hist, label, ratio_val, ratio_err ) ;
                   TH1F* hp_nb(0x0) ;
                   hp_nb = h_ratio_nb[bi_nb-1] ;
@@ -120,9 +120,9 @@
       h_ratio -> GetXaxis() -> LabelsOption( "v" ) ;
       h_ratio -> SetMarkerStyle(20) ;
 
-      h_max_ldp_weight_160bins -> GetXaxis() -> LabelsOption( "v" ) ;
-      h_ldp_160bins -> GetXaxis() -> LabelsOption( "v" ) ;
-      h_hdp_160bins -> GetXaxis() -> LabelsOption( "v" ) ;
+      h_max_ldp_weight_search_bins -> GetXaxis() -> LabelsOption( "v" ) ;
+      h_ldp_search_bins -> GetXaxis() -> LabelsOption( "v" ) ;
+      h_hdp_search_bins -> GetXaxis() -> LabelsOption( "v" ) ;
 
 
       for ( int nb_count = 0; nb_count < nb_nb; nb_count++)
