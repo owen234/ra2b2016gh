@@ -1,3 +1,6 @@
+#ifndef create_model_ratio_hist1_c
+#define create_model_ratio_hist1_c
+
 #include "TSystem.h"
 #include "TPad.h"
 #include "TStyle.h"
@@ -256,12 +259,15 @@
             return ;
          }
       }
-
+//      std::cout << line_parname << ":" << pname << std::endl;
       printf("\n\n *** get_par : Failed to find parameter %s\n\n", pname ) ;
       gSystem -> Exit(-1) ;
 
    } // get_par
 //===============================================================================
+
+#ifndef get_hist_
+#define get_hist_
 
    TH1F* get_hist( const char* hname ) {
       TH1F* hp = (TH1F*) gDirectory -> FindObject( hname ) ;
@@ -273,5 +279,6 @@
       return hp ;
    } // get_hist
 
+#endif
 //===============================================================================
-
+#endif
