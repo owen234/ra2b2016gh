@@ -12,7 +12,7 @@
 
 #include "binning.h"
 
-   void gen_modelfit_input(
+   void gen_modelfit_input1(
          const char* data_file    = "outputfiles/nbsum-input-data.txt",
          const char* lostlep_file = "outputfiles/nbsum-input-lostlep.txt",
          const char* hadtau_file  = "outputfiles/nbsum-input-hadtau.txt",
@@ -45,18 +45,18 @@
       double nonqcd_val_hdp[10][10] ;
       double nonqcd_err_hdp[10][10] ;
 
-      TH1F* h_ratio = new TH1F( "h_ratio", "H/L ratio", nBinsHT * nb_nj, 0.5, nBinsHT * nb_n + 0.5 ) ;
+      TH1F* h_ratio = new TH1F( "h_ratio", "H/L ratio", nBinsHT * nb_nj, 0.5, nBinsHT * nb_nj + 0.5 ) ;
 
-      TH1F* h_ldp_lostlep = new TH1F( "h_ldp_lostlep", "ldp, lostlep", nBinsHT * nb_n, 0.5, nBinsHT * nb_n + 0.5 ) ;
-      TH1F* h_ldp_hadtau = new TH1F( "h_ldp_hadtau", "ldp, hadtau", nBinsHT * nb_n, 0.5, nBinsHT * nb_n + 0.5 ) ;
-      TH1F* h_ldp_znunu = new TH1F( "h_ldp_znunu", "ldp, znunu", nBinsHT * nb_n, 0.5, nBinsHT * nb_n + 0.5 ) ;
-      TH1F* h_ldp_data = new TH1F( "h_ldp_data", "ldp, data", nBinsHT * nb_n, 0.5, nBinsHT * nb_n + 0.5 ) ;
+      TH1F* h_ldp_lostlep = new TH1F( "h_ldp_lostlep", "ldp, lostlep", nBinsHT * nb_nj, 0.5, nBinsHT * nb_nj + 0.5 ) ;
+      TH1F* h_ldp_hadtau = new TH1F( "h_ldp_hadtau", "ldp, hadtau", nBinsHT * nb_nj, 0.5, nBinsHT * nb_nj + 0.5 ) ;
+      TH1F* h_ldp_znunu = new TH1F( "h_ldp_znunu", "ldp, znunu", nBinsHT * nb_nj, 0.5, nBinsHT * nb_nj + 0.5 ) ;
+      TH1F* h_ldp_data = new TH1F( "h_ldp_data", "ldp, data", nBinsHT * nb_nj, 0.5, nBinsHT * nb_nj + 0.5 ) ;
 
 
-      TH1F* h_hdp_lostlep = new TH1F( "h_hdp_lostlep", "hdp, lostlep", nBinsHT * nb_n, 0.5, nBinsHT * nb_n + 0.5 ) ;
-      TH1F* h_hdp_hadtau = new TH1F( "h_hdp_hadtau", "hdp, hadtau", nBinsHT * nb_n, 0.5, nBinsHT * nb_n + 0.5 ) ;
-      TH1F* h_hdp_znunu = new TH1F( "h_hdp_znunu", "hdp, znunu", nBinsHT * nb_n, 0.5, nBinsHT * nb_n + 0.5 ) ;
-      TH1F* h_hdp_data = new TH1F( "h_hdp_data", "hdp, data", nBinsHT * nb_n, 0.5, nBinsHT * nb_n + 0.5 ) ;
+      TH1F* h_hdp_lostlep = new TH1F( "h_hdp_lostlep", "hdp, lostlep", nBinsHT * nb_nj, 0.5, nBinsHT * nb_nj + 0.5 ) ;
+      TH1F* h_hdp_hadtau = new TH1F( "h_hdp_hadtau", "hdp, hadtau", nBinsHT * nb_nj, 0.5, nBinsHT * nb_nj + 0.5 ) ;
+      TH1F* h_hdp_znunu = new TH1F( "h_hdp_znunu", "hdp, znunu", nBinsHT * nb_nj, 0.5, nBinsHT * nb_nj + 0.5 ) ;
+      TH1F* h_hdp_data = new TH1F( "h_hdp_data", "hdp, data", nBinsHT * nb_nj, 0.5, nBinsHT * nb_nj + 0.5 ) ;
 
 
       int bi_hist(0) ;
