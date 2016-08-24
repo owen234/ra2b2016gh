@@ -500,7 +500,8 @@ void draw_badjet_cat_v3(const char* infile = "outputfiles/syst-2015-v2.root" ) {
 
    for ( int nb_count = 0; nb_count < nb_nb; nb_count++)
          fprintf( out_file, "Sqcd_nb%d        1.000000     0.00000  0.00\n", nb_count) ;
-
+   fclose(out_file);
+   delete tf;
    } // draw_badjet_cat_v3
 
 bool transfer_qcd_parameters(string filein_name, string fileout_name)
@@ -518,11 +519,11 @@ bool transfer_qcd_parameters(string filein_name, string fileout_name)
     {
 
         std::size_t index = line.find("+/-");
-        if (index == std::string::npos) { cout << "Warning: The structure of file " << filein_name << "is not as expected"; return 0; }
+        if (index == std::string::npos) { cout << "Warning: The structure of file " << filein_name << "is not as expected";filein.close();fileout.close(); return 0; }
         line.replace( index, 3, "   ");
 
         index = line.find("(");
-        if (index == std::string::npos) { cout << "Warning: The structure of file " << filein_name << "is not as expected"; return 0; }
+        if (index == std::string::npos) { cout << "Warning: The structure of file " << filein_name << "is not as expected";filein.close();fileout.close(); return 0; }
         line.replace(line.find('('),line.find(')')-line.find('(')+1,"0.00");
 
         string var_str, name_str;        
@@ -531,9 +532,9 @@ bool transfer_qcd_parameters(string filein_name, string fileout_name)
         convert_temp >> var_str;
         stringstream convert(var_str);
         double val;
-        if ( !(convert >> val) )  { cout << val << "Warning: The structure of file " << filein_name << "is not as expected"; return 0; }
+        if ( !(convert >> val) )  { cout << val << "Warning: The structure of file " << filein_name << "is not as expected";filein.close();fileout.close(); return 0; }
         fileout << line << std::endl;
     }    
-
+   filein.close();fileout.close();
    return 1;
 }//transfer_qcd_parameters
