@@ -512,7 +512,7 @@ bool transfer_qcd_parameters(string filein_name, string fileout_name)
     ofstream fileout(fileout_name);
 
     if ( !filein ) { cout << "Warning: file " << filein_name <<" doesn't exist" << endl; return 0; }
-    if ( !filein ) { cout << "Warning: cannot open/create file" << fileout_name << endl; return 0; }
+    if ( !fileout ) { cout << "Warning: cannot open/create file" << fileout_name << endl; return 0; }
 
     std::string line;
     while( std::getline(filein,line) )
