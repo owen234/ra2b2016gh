@@ -463,7 +463,7 @@ void draw_badjet_cat_v3(const char* infile = "outputfiles/syst-2015-v2.root" ) {
 
          if ( dr_val == 0. && bi!=2)
          { 
-            fprintf( out_file, "Sqcd_mht%d_%3s   %3.6f     0.00000   1.00f\n", bi-1, htstr,store_val) ;
+            fprintf( out_file, "Sqcd_mht%d_%3s   %3.6f     0.00000  1.00\n", bi-1, htstr,store_val) ;
             printf("===================================================================================================================\n");
             printf("Warning: I automatically set Sqcd_mht%d_%3s = Sqcd_mht%d_%3s and relative error = 1, because Sqcd_mht%d_%3s was equal to zero\n", bi-1, htstr,bi-2, store_htstr, bi-1,htstr);
             printf("===================================================================================================================\n");
