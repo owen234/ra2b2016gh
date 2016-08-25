@@ -526,11 +526,11 @@ bool transfer_qcd_parameters(string filein_name, string fileout_name)
         if (index == std::string::npos) { cout << "Warning: The structure of file " << filein_name << "is not as expected";filein.close();fileout.close(); return 0; }
         line.replace(line.find('('),line.find(')')-line.find('(')+1,"0.00");
 
-        string var_str, name_str;        
+        string val_str, name_str;        
         stringstream convert_temp(line);
         convert_temp >> name_str;
-        convert_temp >> var_str;
-        stringstream convert(var_str);
+        convert_temp >> val_str;
+        stringstream convert(val_str);
         double val;
         if ( !(convert >> val) )  { cout << val << "Warning: The structure of file " << filein_name << "is not as expected";filein.close();fileout.close(); return 0; }
         fileout << line << std::endl;
