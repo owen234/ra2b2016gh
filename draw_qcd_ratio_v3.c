@@ -6,22 +6,19 @@
 #include "TCanvas.h"
 #include "TLine.h"
 
-
+#include "binning.h"
 #include "histio.c"
 
    TH1F* get_hist( const char* hname ) ;
    void  draw_boundaries() ;
    void  draw_boundaries_nj( int nhtb ) ;
 
-   const int nb_nj(4) ;
-   const int nb_nb(4) ;
-   const int nb_mht(5) ;
-   const int nb_htmht(13) ;
 
    //---------
 
    void draw_qcd_ratio_v3( const char* infile = "outputfiles/hists-v2d-qcd.root", const char* outputdir = "outputfiles/" ) {
-
+     
+      setup_bins();
       TLine* line0 = new TLine() ;
       line0 -> SetLineColor(4) ;
       TString tstring ;
@@ -48,18 +45,28 @@
       TH1F* h_hdp = get_hist( "h_hdp" ) ;
       TH1F* h_max_ldp_weight = get_hist( "h_max_ldp_weight" ) ;
 
-      TH1F* h_ratio = new TH1F( "h_ratio", "QCD H/L ratio", 160, 0.5, 160.5 ) ;
-      TH1F* h_ratio_nb0 = new TH1F( "h_ratio_nb0", "QCD H/L ratio, Nb0", 40, 0.5, 40.5 ) ;
-      TH1F* h_ratio_nb1 = new TH1F( "h_ratio_nb1", "QCD H/L ratio, Nb1", 40, 0.5, 40.5 ) ;
-      TH1F* h_ratio_nb2 = new TH1F( "h_ratio_nb2", "QCD H/L ratio, Nb2", 40, 0.5, 40.5 ) ;
-      TH1F* h_ratio_nb3 = new TH1F( "h_ratio_nb3", "QCD H/L ratio, Nb3", 40, 0.5, 40.5 ) ;
-      TH1F* h_ratio_nj1 = new TH1F( "h_ratio_nj1", "QCD H/L ratio, Nj1", 40, 0.5, 40.5 ) ;
-      TH1F* h_ratio_nj2 = new TH1F( "h_ratio_nj2", "QCD H/L ratio, Nj2", 40, 0.5, 40.5 ) ;
-      TH1F* h_ratio_nj3 = new TH1F( "h_ratio_nj3", "QCD H/L ratio, Nj3", 40, 0.5, 40.5 ) ;
-      TH1F* h_ratio_nj4 = new TH1F( "h_ratio_nj4", "QCD H/L ratio, Nj4", 40, 0.5, 40.5 ) ;
-      TH1F* h_max_ldp_weight_160bins = new TH1F( "h_max_ldp_weight_160bins", "max LDP weight", 160, 0.5, 160.5 ) ;
-      TH1F* h_ldp_160bins = new TH1F( "h_ldp_160bins", "LDP counts, 160 bins", 160, 0.5, 160.5 ) ;
-      TH1F* h_hdp_160bins = new TH1F( "h_hdp_160bins", "HDP counts, 160 bins", 160, 0.5, 160.5 ) ;
+      TH1F* h_ratio = new TH1F( "h_ratio", "QCD H/L ratio", (nb_htmht-3) * nb_nb * nb_nj, 0.5, (nb_htmht-3) * nb_nb * nb_nj + 0.5 ) ;
+      TH1F* h_max_ldp_weight_search_bins = new TH1F( "h_max_ldp_weight_search_bins", "max LDP weight", (nb_htmht-3) * nb_nb * nb_nj, 0.5, (nb_htmht-3) * nb_nb * nb_nj + 0.5 ) ;
+      TH1F* h_ldp_search_bins = new TH1F( "h_ldp_search_bins", "LDP counts, (nb_htmht-3) * nb_nb * nb_nj bins", (nb_htmht-3) * nb_nb * nb_nj, 0.5, (nb_htmht-3) * nb_nb * nb_nj + 0.5 ) ;
+      TH1F* h_hdp_search_bins = new TH1F( "h_hdp_search_bins", "HDP counts, (nb_htmht-3) * nb_nb * nb_nj bins", (nb_htmht-3) * nb_nb * nb_nj, 0.5, (nb_htmht-3) * nb_nb * nb_nj + 0.5 ) ;
+
+      TH1F * h_ratio_nb[10], * h_ratio_nj[10];
+
+      for ( int nb_count = 0; nb_count < nb_nb; nb_count++)
+      {
+
+      TString nb_str; nb_str.Form("%d",nb_count);
+      h_ratio_nb[nb_count] = new TH1F( "h_ratio_nb"+nb_str, "QCD H/L ratio, Nb"+nb_str, 40, 0.5, 40.5 ) ;
+
+      }
+
+      for ( int nj_count = 1; nj_count <= nb_nj; nj_count++)
+      {
+
+      TString nj_str; nj_str.Form("%d",nj_count);
+      h_ratio_nj[nj_count] = new TH1F( "h_ratio_nj"+nj_str, "QCD H/L ratio, Nj"+nj_str, 40, 0.5, 40.5 ) ;
+
+      }
 
       int bi_hist(0) ;
       int bi_search_hist(0) ;
@@ -84,29 +91,23 @@
                   h_ratio -> SetBinContent( bi_search_hist, ratio_val ) ;
                   h_ratio -> SetBinError( bi_search_hist, ratio_err ) ;
                   h_ratio -> GetXaxis() -> SetBinLabel( bi_search_hist, label ) ;
-                  h_max_ldp_weight_160bins -> SetBinContent( bi_search_hist, h_max_ldp_weight->GetBinContent( bi_hist ) ) ;
-                  h_max_ldp_weight_160bins -> GetXaxis() -> SetBinLabel( bi_search_hist, label ) ;
-                  h_ldp_160bins -> SetBinContent( bi_search_hist, ldp_val ) ;
-                  h_ldp_160bins -> SetBinError( bi_search_hist, ldp_err ) ;
-                  h_ldp_160bins -> GetXaxis() -> SetBinLabel( bi_search_hist, label ) ;
-                  h_hdp_160bins -> SetBinContent( bi_search_hist, hdp_val ) ;
-                  h_hdp_160bins -> SetBinError( bi_search_hist, hdp_err ) ;
-                  h_hdp_160bins -> GetXaxis() -> SetBinLabel( bi_search_hist, label ) ;
+                  h_max_ldp_weight_search_bins -> SetBinContent( bi_search_hist, h_max_ldp_weight->GetBinContent( bi_hist ) ) ;
+                  h_max_ldp_weight_search_bins -> GetXaxis() -> SetBinLabel( bi_search_hist, label ) ;
+                  h_ldp_search_bins -> SetBinContent( bi_search_hist, ldp_val ) ;
+                  h_ldp_search_bins -> SetBinError( bi_search_hist, ldp_err ) ;
+                  h_ldp_search_bins -> GetXaxis() -> SetBinLabel( bi_search_hist, label ) ;
+                  h_hdp_search_bins -> SetBinContent( bi_search_hist, hdp_val ) ;
+                  h_hdp_search_bins -> SetBinError( bi_search_hist, hdp_err ) ;
+                  h_hdp_search_bins -> GetXaxis() -> SetBinLabel( bi_search_hist, label ) ;
                   printf( "  search %3d : %30s : R= %6.4f +/- %6.4f\n", bi_search_hist, label, ratio_val, ratio_err ) ;
                   TH1F* hp_nb(0x0) ;
-                  if ( bi_nb==1 ) hp_nb = h_ratio_nb0 ;
-                  if ( bi_nb==2 ) hp_nb = h_ratio_nb1 ;
-                  if ( bi_nb==3 ) hp_nb = h_ratio_nb2 ;
-                  if ( bi_nb==4 ) hp_nb = h_ratio_nb3 ;
+                  hp_nb = h_ratio_nb[bi_nb-1] ;
                   int bi_nb_hist = (bi_nj-1)*10 + bi_htmht-3 ;
                   hp_nb -> SetBinContent( bi_nb_hist, ratio_val ) ;
                   hp_nb -> SetBinError( bi_nb_hist, ratio_err ) ;
                   hp_nb -> GetXaxis() -> SetBinLabel( bi_nb_hist, label ) ;
                   TH1F* hp_nj(0x0) ;
-                  if ( bi_nj==1 ) hp_nj = h_ratio_nj1 ;
-                  if ( bi_nj==2 ) hp_nj = h_ratio_nj2 ;
-                  if ( bi_nj==3 ) hp_nj = h_ratio_nj3 ;
-                  if ( bi_nj==4 ) hp_nj = h_ratio_nj4 ;
+                  hp_nj = h_ratio_nj[bi_nj] ;
                   int bi_nj_hist = (bi_nb-1)*10 + bi_htmht-3 ;
                   hp_nj -> SetBinContent( bi_nj_hist, ratio_val ) ;
                   hp_nj -> SetBinError( bi_nj_hist, ratio_err ) ;
@@ -119,30 +120,22 @@
       h_ratio -> GetXaxis() -> LabelsOption( "v" ) ;
       h_ratio -> SetMarkerStyle(20) ;
 
-      h_max_ldp_weight_160bins -> GetXaxis() -> LabelsOption( "v" ) ;
-      h_ldp_160bins -> GetXaxis() -> LabelsOption( "v" ) ;
-      h_hdp_160bins -> GetXaxis() -> LabelsOption( "v" ) ;
+      h_max_ldp_weight_search_bins -> GetXaxis() -> LabelsOption( "v" ) ;
+      h_ldp_search_bins -> GetXaxis() -> LabelsOption( "v" ) ;
+      h_hdp_search_bins -> GetXaxis() -> LabelsOption( "v" ) ;
 
 
+      for ( int nb_count = 0; nb_count < nb_nb; nb_count++)
+      {
+         h_ratio_nb[nb_count] -> GetXaxis() -> LabelsOption( "v" ) ;
+         h_ratio_nb[nb_count] -> SetMarkerStyle(20) ;
+      }
 
-      h_ratio_nb0 -> GetXaxis() -> LabelsOption( "v" ) ;
-      h_ratio_nb0 -> SetMarkerStyle(20) ;
-      h_ratio_nb1 -> GetXaxis() -> LabelsOption( "v" ) ;
-      h_ratio_nb1 -> SetMarkerStyle(20) ;
-      h_ratio_nb2 -> GetXaxis() -> LabelsOption( "v" ) ;
-      h_ratio_nb2 -> SetMarkerStyle(20) ;
-      h_ratio_nb3 -> GetXaxis() -> LabelsOption( "v" ) ;
-      h_ratio_nb3 -> SetMarkerStyle(20) ;
-
-      h_ratio_nj1 -> GetXaxis() -> LabelsOption( "v" ) ;
-      h_ratio_nj1 -> SetMarkerStyle(20) ;
-      h_ratio_nj2 -> GetXaxis() -> LabelsOption( "v" ) ;
-      h_ratio_nj2 -> SetMarkerStyle(20) ;
-      h_ratio_nj3 -> GetXaxis() -> LabelsOption( "v" ) ;
-      h_ratio_nj3 -> SetMarkerStyle(20) ;
-      h_ratio_nj4 -> GetXaxis() -> LabelsOption( "v" ) ;
-      h_ratio_nj4 -> SetMarkerStyle(20) ;
-
+      for ( int nj_count = 1; nj_count <= nb_nj; nj_count++)
+      {
+         h_ratio_nj[nj_count] -> GetXaxis() -> LabelsOption( "v" ) ;
+         h_ratio_nj[nj_count] -> SetMarkerStyle(20) ;
+      }
       h_ratio -> Draw() ;
       gPad -> SetGridy(1) ;
 
@@ -151,6 +144,8 @@
    } // draw_qcd_ratio_v3
 
 //===============================================================================
+#ifndef get_hist_
+#define get_hist_
 
    TH1F* get_hist( const char* hname ) {
       TH1F* hp = (TH1F*) gDirectory -> FindObject( hname ) ;
@@ -161,7 +156,7 @@
       }
       return hp ;
    } // get_hist
-
+#endif
 //===============================================================================
 
    void draw_boundaries() {

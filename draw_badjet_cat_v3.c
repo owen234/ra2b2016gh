@@ -1,25 +1,49 @@
+#include "TDirectory.h"
+#include "TFile.h"
+#include "TCanvas.h"
+#include "TH1F.h"
+#include "TLegend.h"
+#include "TStyle.h"
+#include "TText.h"
+#include "TLine.h"
+#include <fstream>
+#include "binning.h"
+#include <iostream>
+#include <string>
+#include <sstream>
 
+bool transfer_qcd_parameters(string filein_name, string fileout_name);
 
-   void draw_badjet_cat_v3( const char* htstr = "hth", const char* infile = "outputfiles/syst-2015-v2.root" ) {
+void draw_badjet_cat_v3(const char* infile = "outputfiles/syst-2015-v2.root" ) {
 
-         char fname[10000] ;
-
+      char fname[10000] ;
+      char htstr[10];
       gStyle -> SetOptStat(0) ;
-
-      int nbins(5) ;
-      if ( strcmp( htstr, "htl" ) == 0 ) { nbins = 3 ; }
+      setup_bins();
 
       TFile* tf = new TFile( infile, "READ" ) ;
       if ( ! tf -> IsOpen() ) { printf( "\n\n *** Bad input file: %s\n\n", infile ) ; return ; }
 
+      FILE * out_file;
+
+      if ( transfer_qcd_parameters("./outputfiles/qcdmc-chi2-fit-model-pars.txt","./outputfiles/model-pars-qcdmc3.txt") )
+      {
+         out_file = fopen ("./outputfiles/model-pars-qcdmc3.txt","a");// "a" for append
+      }
+      else 
+         out_file = fopen ("./outputfiles/model-pars-qcdmc3.txt","w");// "w" for write
+      
+
+
+
       gDirectory -> Delete( "h*" ) ;
 
       TCanvas* can = new TCanvas( "can_draw_badjet_cat", "", 800, 600 ) ;
+      TCanvas* can2 = new TCanvas( "can2_draw_badjet_cat", "", 500, 600 ) ;
+
+      int nbins(5) ;
 
       float histshift(0.03) ;
-      TH1F* h_rhl_bj_in_dphi = new TH1F( "h_rhl_bj_in_dphi", "Rhigh/low, bad jet in dphi", nbins, 0.5-histshift, nbins+0.5-histshift ) ;
-      TH1F* h_fmissfpass_bj_in_dphi = new TH1F( "h_fmissfpass_bj_in_dphi", "Fr(bj not in dphi)*fr(pass)", nbins, 0.5+histshift, nbins+0.5+histshift ) ;
-      TH1F* h_rprime = new TH1F( "h_rprime", "Effective Rhigh/low", nbins, 0.5, nbins+0.5 ) ;
 
       //double fmiss_val = 0.022 ;
       //double fmiss_err = 0.004 ;
@@ -32,6 +56,25 @@
    // fmiss_val[3] = 0.018 ;  fmiss_err[3] = 0.001 ;
    // fmiss_val[4] = 0.012 ;  fmiss_err[4] = 0.002 ;
    // fmiss_val[5] = 0.011 ;  fmiss_err[5] = 0.002 ;
+   
+
+   for ( int ht_level = nBinsHT-1; ht_level >= 0; ht_level--)
+   {
+
+      if ( ht_level == 0 ) strcpy (htstr, "htl");
+      if ( ht_level == 1 ) strcpy (htstr, "htm");
+      if ( ht_level == 2 ) strcpy (htstr, "hth");
+
+      TString ht_str = htstr;
+
+      TH1F* h_rhl_bj_in_dphi = new TH1F( "h_rhl_bj_in_dphi_"+ht_str, "Rhigh/low, bad jet in dphi", nbins, 0.5-histshift, nbins+0.5-histshift ) ;
+      TH1F* h_fmissfpass_bj_in_dphi = new TH1F( "h_fmissfpass_bj_in_dphi_"+ht_str, "Fr(bj not in dphi)*fr(pass)", nbins, 0.5+histshift, nbins+0.5+histshift ) ;
+      TH1F* h_rprime = new TH1F( "h_rprime_"+ht_str, "Effective Rhigh/low", nbins, 0.5, nbins+0.5 ) ;
+
+ 
+      nbins = 5 ;
+      if ( strcmp( htstr, "htl" ) == 0 ) { nbins = 3 ; }
+
 
       for ( int mbi=1; mbi<=nbins; mbi++ ) {
 
@@ -41,11 +84,11 @@
          TH1F* hp_all = (TH1F*) tf -> Get( hname ) ;
          if ( hp_all == 0x0 ) { printf("\n\n *** missing %s\n\n", hname ) ; return ; }
 
-         if ( mbi==1 ) { sprintf( hname, "h_mdp_%s_mhtc_badj_in_dphi", htstr ) ; } else { sprintf( hname, "h_mdp_%s_mht%d_badj_in_dphi", htstr, mbi-1 ) ; }
+         if ( mbi==1 ) { sprintf( hname, "h_mdp_%s_badj_in_dphi_mhtc", htstr ) ; } else { sprintf( hname, "h_mdp_%s_badj_in_dphi_mht%d", htstr, mbi-1 ) ; }
          TH1F* hp_bj_in_dphi = (TH1F*) tf -> Get( hname ) ;
          if ( hp_bj_in_dphi == 0x0 ) { printf("\n\n *** missing %s\n\n", hname ) ; return ; }
 
-         if ( mbi==1 ) { sprintf( hname, "h_mdp_%s_mhtc_badj_not_in_dphi", htstr ) ; } else { sprintf( hname, "h_mdp_%s_mht%d_badj_not_in_dphi", htstr, mbi-1 ) ; }
+         if ( mbi==1 ) { sprintf( hname, "h_mdp_%s_badj_not_in_dphi_mhtc", htstr ) ; } else { sprintf( hname, "h_mdp_%s_badj_not_in_dphi_mht%d", htstr, mbi-1 ) ; }
          TH1F* hp_bj_not_in_dphi = (TH1F*) tf -> Get( hname ) ;
          if ( hp_bj_not_in_dphi == 0x0 ) { printf("\n\n *** missing %s\n\n", hname ) ; return ; }
 
@@ -56,11 +99,11 @@
          TH1F* hp_dphiregion_all = (TH1F*) tf -> Get( hname ) ;
          if ( hp_dphiregion_all == 0x0 ) { printf("\n\n *** missing%s\n\n", hname ) ; return ; }
 
-         if ( mbi==1 ) { sprintf( hname, "h_dphiregion_%s_mhtc_badj_in_dphi", htstr ) ; } else { sprintf( hname, "h_dphiregion_%s_mht%d_badj_in_dphi", htstr, mbi-1 ) ; }
+         if ( mbi==1 ) { sprintf( hname, "h_dphiregion_%s_badj_in_dphi_mhtc", htstr ) ; } else { sprintf( hname, "h_dphiregion_%s_badj_in_dphi_mht%d", htstr, mbi-1 ) ; }
          TH1F* hp_dphiregion_bj_in_dphi = (TH1F*) tf -> Get( hname ) ;
          if ( hp_dphiregion_bj_in_dphi == 0x0 ) { printf("\n\n *** missing%s\n\n", hname ) ; return ; }
 
-         if ( mbi==1 ) { sprintf( hname, "h_dphiregion_%s_mhtc_badj_not_in_dphi", htstr ) ; } else { sprintf( hname, "h_dphiregion_%s_mht%d_badj_not_in_dphi", htstr, mbi-1 ) ; }
+         if ( mbi==1 ) { sprintf( hname, "h_dphiregion_%s_badj_not_in_dphi_mhtc", htstr ) ; } else { sprintf( hname, "h_dphiregion_%s_badj_not_in_dphi_mht%d", htstr, mbi-1 ) ; }
          TH1F* hp_dphiregion_bj_not_in_dphi = (TH1F*) tf -> Get( hname ) ;
          if ( hp_dphiregion_bj_not_in_dphi == 0x0 ) { printf("\n\n *** missing%s\n\n", hname ) ; return ; }
 
@@ -329,8 +372,6 @@
       TH1F* h_fmissfpass_bj_in_dphi_c = (TH1F*) h_fmissfpass_bj_in_dphi -> Clone( "h_fmissfpass_bj_in_dphi_c" ) ;
       TH1F* h_rhl_bj_in_dphi_c = (TH1F*) h_rhl_bj_in_dphi -> Clone( "h_rhl_bj_in_dphi_c" ) ;
 
-      TCanvas* can2 = new TCanvas( "can2_draw_badjet_cat", "", 500, 600 ) ;
-
       h_rprime -> SetMarkerStyle( 20 ) ;
       h_rprime -> SetLineWidth( 2 ) ;
       h_rprime_c -> SetLineWidth( 2 ) ;
@@ -387,12 +428,17 @@
     //   DR and syst
 
       printf("\n\n\n") ;
-      TH1F* h_dr = new TH1F( "h_dr", "double ratio", nbins-1, 0.5, nbins-1+0.5 ) ;
-      TH1F* h_dr_stat = new TH1F( "h_dr_stat", "double ratio", nbins-1, 0.5, nbins-1+0.5 ) ;
-      TH1F* h_dr_syst = new TH1F( "h_dr_syst", "double ratio", nbins-1, 0.5, nbins-1+0.5 ) ;
-      TH1F* h_dr_total = new TH1F( "h_dr_total", "double ratio", nbins-1, 0.5, nbins-1+0.5 ) ;
+      TH1F* h_dr = new TH1F( "h_dr_"+ht_str, "double ratio", nbins-1, 0.5, nbins-1+0.5 ) ;
+      TH1F* h_dr_stat = new TH1F( "h_dr_stat_"+ht_str, "double ratio", nbins-1, 0.5, nbins-1+0.5 ) ;
+      TH1F* h_dr_syst = new TH1F( "h_dr_syst_"+ht_str, "double ratio", nbins-1, 0.5, nbins-1+0.5 ) ;
+      TH1F* h_dr_total = new TH1F( "h_dr_total_"+ht_str, "double ratio", nbins-1, 0.5, nbins-1+0.5 ) ;
       double rc_val = h_rprime -> GetBinContent(1) ;
       double rc_err = h_rprime -> GetBinError(1) ;
+
+         fprintf( out_file, "Sqcd_mhtc_%3s   1.000000     0.00000  0.00\n", htstr) ;
+
+      double store_val = 0, store_rel_err = 0;
+      char store_htstr[10];
       for ( int bi=2; bi<=nbins; bi++ ) {
          double r_val = h_rprime -> GetBinContent(bi) ;
          double r_err = h_rprime -> GetBinError(bi) ;
@@ -412,6 +458,23 @@
          if ( dr_val > 0 ) dr_rel_err = dr_total / dr_val ;
          printf("  MHT%d :  DR = (%6.4f +/- %6.4f) / ( %6.4f +/- %6.4f) = %6.4f +/- %6.4f (%6.4f, %6.4f), %5.0f%%\n",
             bi-1, r_val, r_err, rc_val, rc_err, dr_val, dr_total, dr_stat, dr_syst, 100*dr_rel_err ) ;
+
+        /// if the variable is equal to zero, equate it to the previous value in the list (if it is not the first variable of its kind)
+
+         if ( dr_val == 0. && bi!=2)
+         { 
+            fprintf( out_file, "Sqcd_mht%d_%3s   %3.6f     0.00000  1.00\n", bi-1, htstr,store_val) ;
+            printf("===================================================================================================================\n");
+            printf("Warning: I automatically set Sqcd_mht%d_%3s = Sqcd_mht%d_%3s and relative error = 1, because Sqcd_mht%d_%3s was equal to zero\n", bi-1, htstr,bi-2, store_htstr, bi-1,htstr);
+            printf("===================================================================================================================\n");
+
+         }
+         else
+            fprintf( out_file, "Sqcd_mht%d_%3s   %3.6f     0.00000  %3.2f\n", bi-1, htstr,dr_val,dr_rel_err) ;
+
+         store_val = dr_val;
+         store_rel_err = dr_rel_err;
+         strcpy(store_htstr,htstr);
          h_dr -> SetBinContent( bi-1, dr_val ) ;
          h_dr -> SetBinError( bi-1, 0.0000001 ) ;
          h_dr_stat -> SetBinContent( bi-1, dr_val ) ;
@@ -433,13 +496,45 @@
       h_dr -> Draw("same") ;
       h_dr -> Draw("axis same" ) ;
       h_dr -> Draw("axig same" ) ;
+   }//ht_level
 
-
+   for ( int nb_count = 0; nb_count < nb_nb; nb_count++)
+         fprintf( out_file, "Sqcd_nb%d        1.000000     0.00000  0.00\n", nb_count) ;
+   fclose(out_file);
+   delete tf;
    } // draw_badjet_cat_v3
 
+bool transfer_qcd_parameters(string filein_name, string fileout_name)
+{
 
 
+    ifstream filein(filein_name);
+    ofstream fileout(fileout_name);
 
+    if ( !filein ) { cout << "Warning: file " << filein_name <<" doesn't exist" << endl; return 0; }
+    if ( !fileout ) { cout << "Warning: cannot open/create file" << fileout_name << endl; return 0; }
 
+    std::string line;
+    while( std::getline(filein,line) )
+    {
 
+        std::size_t index = line.find("+/-");
+        if (index == std::string::npos) { cout << "Warning: The structure of file " << filein_name << "is not as expected";filein.close();fileout.close(); return 0; }
+        line.replace( index, 3, "   ");
 
+        index = line.find("(");
+        if (index == std::string::npos) { cout << "Warning: The structure of file " << filein_name << "is not as expected";filein.close();fileout.close(); return 0; }
+        line.replace(line.find('('),line.find(')')-line.find('(')+1,"0.00");
+
+        string val_str, name_str;        
+        stringstream convert_temp(line);
+        convert_temp >> name_str;
+        convert_temp >> val_str;
+        stringstream convert(val_str);
+        double val;
+        if ( !(convert >> val) )  { cout << val << "Warning: The structure of file " << filein_name << "is not as expected";filein.close();fileout.close(); return 0; }
+        fileout << line << std::endl;
+    }    
+   filein.close();fileout.close();
+   return 1;
+}//transfer_qcd_parameters

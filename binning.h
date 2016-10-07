@@ -38,6 +38,7 @@ using namespace std ;
    int   bi_global ;
    int   bi_nbsum_global ;
 
+   int   njet_bin_to_fix_in_qcd_model_fit;
 
 //=====================================================================================================
 
@@ -48,6 +49,7 @@ using namespace std ;
       bi = 0 ;
 
       bin_edges_nj[bi] = 1.5 ; bi++ ; // *** adding NJets=2 binning
+      njet_bin_to_fix_in_qcd_model_fit  = bi; // Setting bin NJets = {3,4} as the bin to be fixed to one while fitting QCD toymodel parameters
       bin_edges_nj[bi] = 2.5 ; bi++ ;
       bin_edges_nj[bi] = 4.5 ; bi++ ;
       bin_edges_nj[bi] = 6.5 ; bi++ ;

@@ -1,35 +1,28 @@
+#ifndef create_model_ratio_hist1_c
+#define create_model_ratio_hist1_c
 
+#include "TSystem.h"
+#include "TPad.h"
+#include "TStyle.h"
+#include <fstream>
 
-      float par_val_ht[5] ;
-      float par_err_ht_fit[5] ;
-      float par_err_ht_syst[5] ;
+#include "binning.h"
+#include "histio.c"
 
-      float par_val_njet[5] ;
-      float par_err_njet_fit[5] ;
-      float par_err_njet_syst[5] ;
+      float par_val_ht[10] ;
+      float par_err_ht_fit[10] ;
+      float par_err_ht_syst[10] ;
 
-      float par_val_mht_hth[6] ;
-      float par_err_mht_hth[6] ;
+      float par_val_njet[10] ;
+      float par_err_njet_fit[10] ;
+      float par_err_njet_syst[10] ;
 
-      float par_val_mht_htm[6] ;
-      float par_err_mht_htm[6] ;
+      float par_val_ht_mht[10][10] ;
+      float par_err_ht_mht[10][10] ;
 
-      float par_val_mht_htl[6] ;
-      float par_err_mht_htl[6] ;
+      float par_val_nb[10] ;
+      float par_err_nb[10] ;
 
-      float par_val_nb[5] ;
-      float par_err_nb[5] ;
-
-
-      int   ht_ind[209] ;
-      int   nj_ind[209] ;
-      int   mht_ind[209] ;
-      int   nb_ind[209] ;
-
-      int nb_nj(4) ;
-      int nb_nb(4) ;
-      int nb_htmht(13) ;
-      int nb_ht(3) ;
 
    void get_par( ifstream& ifs, const char* pname, float& val, float& err1, float& err2 ) ;
    void set_ht_and_mht_ind_from_htmht_ind( int bi_htmht, int& bi_ht, int& bi_mht ) ;
@@ -37,22 +30,20 @@
    TH1F* get_hist( const char* hname ) ;
 
 
-#include "histio.c"
-
-   void create_model_ratio_hist1( const char* model_pars_file = "model-pars-qcdmc4c.txt",
+   void create_model_ratio_hist1( const char* model_pars_file = "outputfiles/model-pars-qcdmc3.txt",
                                   const char* qcd_ratio_file = "outputfiles/qcdmc-ratio-v3.root" ) {
-
+      setup_bins(); 
       gDirectory -> Delete( "h*" ) ;
 
       loadHist( qcd_ratio_file, "qcdmc" ) ;
 
       read_pars( model_pars_file ) ;
 
-      TH1F* h_ratio_all = new TH1F( "h_ratio_all", "QCD model H/L ratio", 160, 0.5, 160.5 ) ;
+      TH1F* h_ratio_all = new TH1F( "h_ratio_all", "QCD model H/L ratio", (nb_htmht-3) * nb_nb * nb_nj, 0.5, (nb_htmht-3) * nb_nb * nb_nj + 0.5 ) ;
 
-      TH1F* h_max_ldp_weight_160bins = get_hist( "h_max_ldp_weight_160bins_qcdmc" ) ;
-      TH1F* h_ldp_160bins = get_hist( "h_ldp_160bins_qcdmc" ) ;
-      TH1F* h_hdp_160bins = get_hist( "h_hdp_160bins_qcdmc" ) ;
+      TH1F* h_max_ldp_weight_search_bins = get_hist( "h_max_ldp_weight_search_bins_qcdmc" ) ;
+      TH1F* h_ldp_search_bins = get_hist( "h_ldp_search_bins_qcdmc" ) ;
+      TH1F* h_hdp_search_bins = get_hist( "h_hdp_search_bins_qcdmc" ) ;
       TH1F* h_ratio_qcdmc = get_hist( "h_ratio_qcdmc" ) ;
 
       int bi_hist(0) ;
@@ -68,50 +59,24 @@
                char label[100] ;
                sprintf( label, " %3d Nj%d-Nb%d-MHT%d-HT%d (%d)", bi_hist, bi_nj, bi_nb-1, bi_mht-1, bi_ht, bi_htmht-3 ) ;
 
-               double model_ratio_val ;
-               double model_ratio_err ;
+               double model_ratio_val = 0;
+               double model_ratio_err = 0;
 
-               if ( bi_ht == 1 ) {
-                  model_ratio_val = par_val_ht[bi_ht] * par_val_njet[bi_nj] * par_val_mht_htl[bi_mht] * par_val_nb[bi_nb] ;
+                  model_ratio_val = par_val_ht[bi_ht] * par_val_njet[bi_nj] * par_val_ht_mht[bi_ht][bi_mht] * par_val_nb[bi_nb] ;
                   model_ratio_err = model_ratio_val * sqrt(
                          pow( par_err_ht_fit[bi_ht]/par_val_ht[bi_ht], 2. )
                       +  pow( par_err_ht_syst[bi_ht]/par_val_ht[bi_ht], 2. )
                       +  pow( par_err_njet_fit[bi_nj]/par_val_njet[bi_nj], 2. )
                       +  pow( par_err_njet_syst[bi_nj]/par_val_njet[bi_nj], 2. )
-                      +  pow( par_err_mht_htl[bi_mht]/par_val_mht_htl[bi_mht], 2. )
+                      +  pow( par_err_ht_mht[bi_ht][bi_mht]/par_val_ht_mht[bi_ht][bi_mht], 2. )
                       +  pow( par_err_nb[bi_nb]/par_val_nb[bi_nb], 2. )
                     ) ;
                   printf("  %s : Nj %6.4f Nb %6.4f MHT %6.4f HT %6.4f  model ratio = %6.4f +/- %6.4f\n", label,
-                    par_val_njet[bi_nj], par_val_nb[bi_nb], par_val_mht_htl[bi_mht], par_val_ht[bi_ht], model_ratio_val, model_ratio_err  ) ;
-               } else if ( bi_ht == 2 ) {
-                  model_ratio_val = par_val_ht[bi_ht] * par_val_njet[bi_nj] * par_val_mht_htm[bi_mht] * par_val_nb[bi_nb] ;
-                  model_ratio_err = model_ratio_val * sqrt(
-                         pow( par_err_ht_fit[bi_ht]/par_val_ht[bi_ht], 2. )
-                      +  pow( par_err_ht_syst[bi_ht]/par_val_ht[bi_ht], 2. )
-                      +  pow( par_err_njet_fit[bi_nj]/par_val_njet[bi_nj], 2. )
-                      +  pow( par_err_njet_syst[bi_nj]/par_val_njet[bi_nj], 2. )
-                      +  pow( par_err_mht_htm[bi_mht]/par_val_mht_htm[bi_mht], 2. )
-                      +  pow( par_err_nb[bi_nb]/par_val_nb[bi_nb], 2. )
-                    ) ;
-                  printf("  %s : Nj %6.4f Nb %6.4f MHT %6.4f HT %6.4f  model ratio = %6.4f +/- %6.4f\n", label,
-                    par_val_njet[bi_nj], par_val_nb[bi_nb], par_val_mht_htm[bi_mht], par_val_ht[bi_ht], model_ratio_val, model_ratio_err  ) ;
-               } else if ( bi_ht == 3 ) {
-                  model_ratio_val = par_val_ht[bi_ht] * par_val_njet[bi_nj] * par_val_mht_hth[bi_mht] * par_val_nb[bi_nb] ;
-                  model_ratio_err = model_ratio_val * sqrt(
-                         pow( par_err_ht_fit[bi_ht]/par_val_ht[bi_ht], 2. )
-                      +  pow( par_err_ht_syst[bi_ht]/par_val_ht[bi_ht], 2. )
-                      +  pow( par_err_njet_fit[bi_nj]/par_val_njet[bi_nj], 2. )
-                      +  pow( par_err_njet_syst[bi_nj]/par_val_njet[bi_nj], 2. )
-                      +  pow( par_err_mht_hth[bi_mht]/par_val_mht_hth[bi_mht], 2. )
-                      +  pow( par_err_nb[bi_nb]/par_val_nb[bi_nb], 2. )
-                    ) ;
-                  printf("  %s : Nj %6.4f Nb %6.4f MHT %6.4f HT %6.4f  model ratio = %6.4f +/- %6.4f\n", label,
-                    par_val_njet[bi_nj], par_val_nb[bi_nb], par_val_mht_hth[bi_mht], par_val_ht[bi_ht], model_ratio_val, model_ratio_err  ) ;
-               }
+                    par_val_njet[bi_nj], par_val_nb[bi_nb], par_val_ht_mht[bi_ht][bi_mht], par_val_ht[bi_ht], model_ratio_val, model_ratio_err  ) ;
 
                h_ratio_all -> GetXaxis() -> SetBinLabel( bi_hist, label ) ;
 
-               if ( bi_nj>2 && bi_ht==1 ) continue ;
+               if ( bi_nj>(nb_nj-2) && bi_ht==1 ) continue ; // skip top two njets bins for lowest HT.
 
                h_ratio_all -> SetBinContent( bi_hist, model_ratio_val ) ;
                h_ratio_all -> SetBinError( bi_hist, model_ratio_err ) ;
@@ -133,15 +98,15 @@
 
      //---------------
 
-      TH1F* h_ratio_qcdmc_minus_model = new TH1F( "h_ratio_qcdmc_minus_model", "QCD H/L ratio difference (QCD MC - model)", 160, 0.5, 160.5 ) ;
+      TH1F* h_ratio_qcdmc_minus_model = new TH1F( "h_ratio_qcdmc_minus_model", "QCD H/L ratio difference (QCD MC - model)", (nb_htmht-3) * nb_nb * nb_nj, 0.5, (nb_htmht-3) * nb_nb * nb_nj + 0.5 ) ;
 
       printf("\n\n") ;
-      for ( int bi=1; bi<=160; bi++ ) {
+      for ( int bi=1; bi<=(nb_htmht-3) * nb_nb * nb_nj; bi++ ) { //loop over search bins
          float model_val = h_ratio_all -> GetBinContent( bi ) ;
          float qcdmc_val = h_ratio_qcdmc -> GetBinContent( bi ) ;
-         float ldp_val = h_ldp_160bins -> GetBinContent( bi ) ;
-         float hdp_val = h_hdp_160bins -> GetBinContent( bi ) ;
-         float max_ldp_weight = h_max_ldp_weight_160bins -> GetBinContent( bi ) ;
+         float ldp_val = h_ldp_search_bins -> GetBinContent( bi ) ;
+         float hdp_val = h_hdp_search_bins -> GetBinContent( bi ) ;
+         float max_ldp_weight = h_max_ldp_weight_search_bins -> GetBinContent( bi ) ;
          char label[100] ;
          sprintf( label, "%s", h_ratio_all -> GetXaxis() -> GetBinLabel( bi ) ) ;
          float diff_val(0.) ;
@@ -187,168 +152,59 @@
          char pname[100] ;
 
        //---
-         sprintf( pname, "Kqcd_HT1" ) ;
+
+         for ( int bi_ht=1; bi_ht<=nBinsHT; bi_ht++ ) 
+         {
+         sprintf( pname, "Kqcd_HT%d",bi_ht ) ;
          get_par( ifs_model_pars, pname, val, err1, err2 ) ;
-         par_val_ht[1] = val ;
-         par_err_ht_fit[1] = err1 ;
-         par_err_ht_syst[1] = val*err2 ;
+         par_val_ht     [bi_ht] = val ;
+         par_err_ht_fit [bi_ht] = err1 ;
+         par_err_ht_syst[bi_ht] = val*err2 ;
          printf("   Read %s : %.4f %.4f %.4f\n", pname, val, err1, err2 ) ;
 
-         sprintf( pname, "Kqcd_HT2" ) ;
-         get_par( ifs_model_pars, pname, val, err1, err2 ) ;
-         par_val_ht[2] = val ;
-         par_err_ht_fit[2] = err1 ;
-         par_err_ht_syst[2] = val*err2 ;
-         printf("   Read %s : %.4f %.4f %.4f\n", pname, val, err1, err2 ) ;
-
-         sprintf( pname, "Kqcd_HT3" ) ;
-         get_par( ifs_model_pars, pname, val, err1, err2 ) ;
-         par_val_ht[3] = val ;
-         par_err_ht_fit[3] = err1 ;
-         par_err_ht_syst[3] = val*err2 ;
-         printf("   Read %s : %.4f %.4f %.4f\n", pname, val, err1, err2 ) ;
-
+         }
        //---
-         sprintf( pname, "Sqcd_njet1" ) ;
+         for ( int bi_nj=1; bi_nj<=nb_nj; bi_nj++ )  
+         {
+         sprintf( pname, "Sqcd_njet%d",bi_nj ) ;
          get_par( ifs_model_pars, pname, val, err1, err2 ) ;
-         par_val_njet[1] = val ;
-         par_err_njet_fit[1] = err1 ;
-         par_err_njet_syst[1] = val*err2 ;
+         par_val_njet     [bi_nj] = val ;
+         par_err_njet_fit [bi_nj] = err1 ;
+         par_err_njet_syst[bi_nj] = val*err2 ;
          printf("   Read %s : %.4f %.4f %.4f\n", pname, val, err1, err2 ) ;
 
-         sprintf( pname, "Sqcd_njet2" ) ;
-         get_par( ifs_model_pars, pname, val, err1, err2 ) ;
-         par_val_njet[2] = val ;
-         par_err_njet_fit[2] = err1 ;
-         par_err_njet_syst[2] = val*err2 ;
-         printf("   Read %s : %.4f %.4f %.4f\n", pname, val, err1, err2 ) ;
-
-         sprintf( pname, "Sqcd_njet3" ) ;
-         get_par( ifs_model_pars, pname, val, err1, err2 ) ;
-         par_val_njet[3] = val ;
-         par_err_njet_fit[3] = err1 ;
-         par_err_njet_syst[3] = val*err2 ;
-         printf("   Read %s : %.4f %.4f %.4f\n", pname, val, err1, err2 ) ;
-
-         sprintf( pname, "Sqcd_njet4" ) ;
-         get_par( ifs_model_pars, pname, val, err1, err2 ) ;
-         par_val_njet[4] = val ;
-         par_err_njet_fit[4] = err1 ;
-         par_err_njet_syst[4] = val*err2 ;
-         printf("   Read %s : %.4f %.4f %.4f\n", pname, val, err1, err2 ) ;
-
+         }
 
 
        //---
-         sprintf( pname, "Sqcd_mhtc_hth" ) ;
-         get_par( ifs_model_pars, pname, val, err1, err2 ) ;
-         par_val_mht_hth[1] = val ;
-         par_err_mht_hth[1] = sqrt( err1*err1 + val*val*err2*err2 ) ;
-         printf("   Read %s : %.4f %.4f %.4f\n", pname, val, err1, err2 ) ;
+         for ( int bi_ht =1; bi_ht<=nBinsHT; bi_ht++ )
+         for ( int bi_mht=0; bi_mht<nb_mht; bi_mht++ )
+         {
+         char ht_level [10], mhtc[10] = "c";
+         if ( bi_ht == 1 ) strcpy(ht_level, "hth");
+         if ( bi_ht == 2 ) strcpy(ht_level, "htm");
+         if ( bi_ht == 3 ) strcpy(ht_level, "htl");
 
-         sprintf( pname, "Sqcd_mht1_hth" ) ;
-         get_par( ifs_model_pars, pname, val, err1, err2 ) ;
-         par_val_mht_hth[2] = val ;
-         par_err_mht_hth[2] = sqrt( err1*err1 + val*val*err2*err2 ) ;
-         printf("   Read %s : %.4f %.4f %.4f\n", pname, val, err1, err2 ) ;
+         if ( bi_ht == 3 && bi_mht > 2 ) continue;
 
-         sprintf( pname, "Sqcd_mht2_hth" ) ;
-         get_par( ifs_model_pars, pname, val, err1, err2 ) ;
-         par_val_mht_hth[3] = val ;
-         par_err_mht_hth[3] = sqrt( err1*err1 + val*val*err2*err2 ) ;
-         printf("   Read %s : %.4f %.4f %.4f\n", pname, val, err1, err2 ) ;
+         if ( bi_mht == 0 ) sprintf( pname, "Sqcd_mht%s_%s",mhtc  , ht_level ) ;
+         else               sprintf( pname, "Sqcd_mht%d_%s",bi_mht, ht_level ) ;
 
-         sprintf( pname, "Sqcd_mht3_hth" ) ;
          get_par( ifs_model_pars, pname, val, err1, err2 ) ;
-         par_val_mht_hth[4] = val ;
-         par_err_mht_hth[4] = sqrt( err1*err1 + val*val*err2*err2 ) ;
+         par_val_ht_mht[nBinsHT - bi_ht + 1][bi_mht+1] = val ;
+         par_err_ht_mht[nBinsHT - bi_ht + 1][bi_mht+1] = sqrt( err1*err1 + val*val*err2*err2 ) ;
          printf("   Read %s : %.4f %.4f %.4f\n", pname, val, err1, err2 ) ;
-
-         sprintf( pname, "Sqcd_mht4_hth" ) ;
-         get_par( ifs_model_pars, pname, val, err1, err2 ) ;
-         par_val_mht_hth[5] = val ;
-         par_err_mht_hth[5] = sqrt( err1*err1 + val*val*err2*err2 ) ;
-         printf("   Read %s : %.4f %.4f %.4f\n", pname, val, err1, err2 ) ;
-
+         }
        //---
-         sprintf( pname, "Sqcd_mhtc_htm" ) ;
+
+         for ( int bi_nb=0; bi_nb<nb_nb; bi_nb++ )
+         {
+         sprintf( pname, "Sqcd_nb%d",bi_nb ) ;
          get_par( ifs_model_pars, pname, val, err1, err2 ) ;
-         par_val_mht_htm[1] = val ;
-         par_err_mht_htm[1] = sqrt( err1*err1 + val*val*err2*err2 ) ;
+         par_val_nb[bi_nb+1] = val ;
+         par_err_nb[bi_nb+1] = sqrt( err1*err1 + val*val*err2*err2 ) ;
          printf("   Read %s : %.4f %.4f %.4f\n", pname, val, err1, err2 ) ;
-
-         sprintf( pname, "Sqcd_mht1_htm" ) ;
-         get_par( ifs_model_pars, pname, val, err1, err2 ) ;
-         par_val_mht_htm[2] = val ;
-         par_err_mht_htm[2] = sqrt( err1*err1 + val*val*err2*err2 ) ;
-         printf("   Read %s : %.4f %.4f %.4f\n", pname, val, err1, err2 ) ;
-
-         sprintf( pname, "Sqcd_mht2_htm" ) ;
-         get_par( ifs_model_pars, pname, val, err1, err2 ) ;
-         par_val_mht_htm[3] = val ;
-         par_err_mht_htm[3] = sqrt( err1*err1 + val*val*err2*err2 ) ;
-         printf("   Read %s : %.4f %.4f %.4f\n", pname, val, err1, err2 ) ;
-
-         sprintf( pname, "Sqcd_mht3_htm" ) ;
-         get_par( ifs_model_pars, pname, val, err1, err2 ) ;
-         par_val_mht_htm[4] = val ;
-         par_err_mht_htm[4] = sqrt( err1*err1 + val*val*err2*err2 ) ;
-         printf("   Read %s : %.4f %.4f %.4f\n", pname, val, err1, err2 ) ;
-
-         sprintf( pname, "Sqcd_mht4_htm" ) ;
-         get_par( ifs_model_pars, pname, val, err1, err2 ) ;
-         par_val_mht_htm[5] = val ;
-         par_err_mht_htm[5] = sqrt( err1*err1 + val*val*err2*err2 ) ;
-         printf("   Read %s : %.4f %.4f %.4f\n", pname, val, err1, err2 ) ;
-
-       //---
-         sprintf( pname, "Sqcd_mhtc_htl" ) ;
-         get_par( ifs_model_pars, pname, val, err1, err2 ) ;
-         par_val_mht_htl[1] = val ;
-         par_err_mht_htl[1] = sqrt( err1*err1 + val*val*err2*err2 ) ;
-         printf("   Read %s : %.4f %.4f %.4f\n", pname, val, err1, err2 ) ;
-
-         sprintf( pname, "Sqcd_mht1_htl" ) ;
-         get_par( ifs_model_pars, pname, val, err1, err2 ) ;
-         par_val_mht_htl[2] = val ;
-         par_err_mht_htl[2] = sqrt( err1*err1 + val*val*err2*err2 ) ;
-         printf("   Read %s : %.4f %.4f %.4f\n", pname, val, err1, err2 ) ;
-
-         sprintf( pname, "Sqcd_mht2_htl" ) ;
-         get_par( ifs_model_pars, pname, val, err1, err2 ) ;
-         par_val_mht_htl[3] = val ;
-         par_err_mht_htl[3] = sqrt( err1*err1 + val*val*err2*err2 ) ;
-         printf("   Read %s : %.4f %.4f %.4f\n", pname, val, err1, err2 ) ;
-
-
-
-
-
-       //---
-         sprintf( pname, "Sqcd_nb0" ) ;
-         get_par( ifs_model_pars, pname, val, err1, err2 ) ;
-         par_val_nb[1] = val ;
-         par_err_nb[1] = sqrt( err1*err1 + val*val*err2*err2 ) ;
-         printf("   Read %s : %.4f %.4f %.4f\n", pname, val, err1, err2 ) ;
-
-         sprintf( pname, "Sqcd_nb1" ) ;
-         get_par( ifs_model_pars, pname, val, err1, err2 ) ;
-         par_val_nb[2] = val ;
-         par_err_nb[2] = sqrt( err1*err1 + val*val*err2*err2 ) ;
-         printf("   Read %s : %.4f %.4f %.4f\n", pname, val, err1, err2 ) ;
-
-         sprintf( pname, "Sqcd_nb2" ) ;
-         get_par( ifs_model_pars, pname, val, err1, err2 ) ;
-         par_val_nb[3] = val ;
-         par_err_nb[3] = sqrt( err1*err1 + val*val*err2*err2 ) ;
-         printf("   Read %s : %.4f %.4f %.4f\n", pname, val, err1, err2 ) ;
-
-         sprintf( pname, "Sqcd_nb3" ) ;
-         get_par( ifs_model_pars, pname, val, err1, err2 ) ;
-         par_val_nb[4] = val ;
-         par_err_nb[4] = sqrt( err1*err1 + val*val*err2*err2 ) ;
-         printf("   Read %s : %.4f %.4f %.4f\n", pname, val, err1, err2 ) ;
-
+         }
       } // read_pars
 
   //=======================================================================================
@@ -403,12 +259,15 @@
             return ;
          }
       }
-
+//      std::cout << line_parname << ":" << pname << std::endl;
       printf("\n\n *** get_par : Failed to find parameter %s\n\n", pname ) ;
       gSystem -> Exit(-1) ;
 
    } // get_par
 //===============================================================================
+
+#ifndef get_hist_
+#define get_hist_
 
    TH1F* get_hist( const char* hname ) {
       TH1F* hp = (TH1F*) gDirectory -> FindObject( hname ) ;
@@ -420,5 +279,6 @@
       return hp ;
    } // get_hist
 
+#endif
 //===============================================================================
-
+#endif

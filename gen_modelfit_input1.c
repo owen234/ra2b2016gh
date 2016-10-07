@@ -1,12 +1,22 @@
+#ifndef gen_modelfit_input1_c
+#define gen_modelfit_input1_c
 
+#include "TH1.h"
+#include "TFile.h"
+#include "TLegend.h"
+#include "TPad.h"
+#include "THStack.h"
+#include "TCanvas.h"
+#include "TStyle.h"
+#include <fstream>
 
+#include "binning.h"
 
-   void gen_modelfit_input(
+   void gen_modelfit_input1(
          const char* data_file    = "outputfiles/nbsum-input-data.txt",
          const char* lostlep_file = "outputfiles/nbsum-input-lostlep.txt",
          const char* hadtau_file  = "outputfiles/nbsum-input-hadtau.txt",
          const char* znunu_file   = "outputfiles/nbsum-input-znunu.txt",
-         const char* modelfit_output_file = "outputfiles/modelfit-input-all.txt",
          const char* output_hist_file = "outputfiles/modelfit-input-data.root"
                          ) {
 
@@ -27,36 +37,31 @@
       ifs_znunu.open( znunu_file ) ;
       if ( !ifs_znunu.good() ) { printf("\n\n *** Problem opening znunu file: %s\n\n", znunu_file ) ; return ; }
 
-      int    nobs_ldp[4][5] ;
-      double nonqcd_val_ldp[4][5] ;
-      double nonqcd_err_ldp[4][5] ;
+      int    nobs_ldp[10][10] ;
+      double nonqcd_val_ldp[10][10] ;
+      double nonqcd_err_ldp[10][10] ;
 
-      int    nobs_hdp[4][5] ;
-      double nonqcd_val_hdp[4][5] ;
-      double nonqcd_err_hdp[4][5] ;
+      int    nobs_hdp[10][10] ;
+      double nonqcd_val_hdp[10][10] ;
+      double nonqcd_err_hdp[10][10] ;
 
-      int nb_nj(4) ;
-      int nb_nb(4) ;
-      int nb_htmht(13) ;
-      int nb_ht(3) ;
+      TH1F* h_ratio = new TH1F( "h_ratio", "H/L ratio", nBinsHT * nb_nj, 0.5, nBinsHT * nb_nj + 0.5 ) ;
 
-      TH1F* h_ratio = new TH1F( "h_ratio", "H/L ratio", 12, 0.5, 12.5 ) ;
-
-      TH1F* h_ldp_lostlep = new TH1F( "h_ldp_lostlep", "ldp, lostlep", 12, 0.5, 12.5 ) ;
-      TH1F* h_ldp_hadtau = new TH1F( "h_ldp_hadtau", "ldp, hadtau", 12, 0.5, 12.5 ) ;
-      TH1F* h_ldp_znunu = new TH1F( "h_ldp_znunu", "ldp, znunu", 12, 0.5, 12.5 ) ;
-      TH1F* h_ldp_data = new TH1F( "h_ldp_data", "ldp, data", 12, 0.5, 12.5 ) ;
+      TH1F* h_ldp_lostlep = new TH1F( "h_ldp_lostlep", "ldp, lostlep", nBinsHT * nb_nj, 0.5, nBinsHT * nb_nj + 0.5 ) ;
+      TH1F* h_ldp_hadtau = new TH1F( "h_ldp_hadtau", "ldp, hadtau", nBinsHT * nb_nj, 0.5, nBinsHT * nb_nj + 0.5 ) ;
+      TH1F* h_ldp_znunu = new TH1F( "h_ldp_znunu", "ldp, znunu", nBinsHT * nb_nj, 0.5, nBinsHT * nb_nj + 0.5 ) ;
+      TH1F* h_ldp_data = new TH1F( "h_ldp_data", "ldp, data", nBinsHT * nb_nj, 0.5, nBinsHT * nb_nj + 0.5 ) ;
 
 
-      TH1F* h_hdp_lostlep = new TH1F( "h_hdp_lostlep", "hdp, lostlep", 12, 0.5, 12.5 ) ;
-      TH1F* h_hdp_hadtau = new TH1F( "h_hdp_hadtau", "hdp, hadtau", 12, 0.5, 12.5 ) ;
-      TH1F* h_hdp_znunu = new TH1F( "h_hdp_znunu", "hdp, znunu", 12, 0.5, 12.5 ) ;
-      TH1F* h_hdp_data = new TH1F( "h_hdp_data", "hdp, data", 12, 0.5, 12.5 ) ;
+      TH1F* h_hdp_lostlep = new TH1F( "h_hdp_lostlep", "hdp, lostlep", nBinsHT * nb_nj, 0.5, nBinsHT * nb_nj + 0.5 ) ;
+      TH1F* h_hdp_hadtau = new TH1F( "h_hdp_hadtau", "hdp, hadtau", nBinsHT * nb_nj, 0.5, nBinsHT * nb_nj + 0.5 ) ;
+      TH1F* h_hdp_znunu = new TH1F( "h_hdp_znunu", "hdp, znunu", nBinsHT * nb_nj, 0.5, nBinsHT * nb_nj + 0.5 ) ;
+      TH1F* h_hdp_data = new TH1F( "h_hdp_data", "hdp, data", nBinsHT * nb_nj, 0.5, nBinsHT * nb_nj + 0.5 ) ;
 
 
       int bi_hist(0) ;
 
-      for ( int bi_ht=1; bi_ht<=nb_ht; bi_ht++ ) {
+      for ( int bi_ht=1; bi_ht<=nBinsHT; bi_ht++ ) {
          for ( int bi_nj=1; bi_nj<=nb_nj; bi_nj++ ) {
 
                bi_hist ++ ;
@@ -183,7 +188,7 @@
 
                printf("\n") ;
 
-               if ( !(bi_ht==1 && bi_nj>2) ) {
+               if ( !(bi_ht==1 && bi_nj>nb_nj-2) ) {  // skip top two njets bins for lowest HT
                   h_ratio -> SetBinContent( bi_hist, ratio_val ) ;
                   h_ratio -> SetBinError( bi_hist, ratio_err ) ;
                } else {
@@ -337,4 +342,4 @@
 
 
 
-
+#endif

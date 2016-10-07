@@ -9,6 +9,16 @@
 #include "TFile.h"
 #include "TROOT.h"
 #include "modelfit3.c"
+#include "make_data_input_files1.c"
+#include "make_lostlep_input_files1.c"
+#include "make_hadtau_input_files1.c"
+#include "make_znunu_input_files1.c"
+#include "syst_2015_v2.c"
+#include "draw_qcd_ratio_v3.c"
+#include "draw_badjet_cat_v3.c"
+#include "gen_modelfit_input1.c"
+#include "run_modelfit3_on_data.c"
+#include "create_model_ratio_hist1.c"
 
 void run_all ( TString skim_slim_input_dir = "" )
 
@@ -42,4 +52,17 @@ void run_all ( TString skim_slim_input_dir = "" )
 
    make_qcdmc_input_files1();
    modelfit3();
+
+   make_data_input_files1();
+   make_lostlep_input_files1();
+   make_hadtau_input_files1();
+   make_znunu_input_files1();
+
+   gen_modelfit_input1();
+   run_modelfit3_on_data();
+   syst_2015_v2 f3;
+   f3.Loop();
+   draw_qcd_ratio_v3();
+   draw_badjet_cat_v3();
+   create_model_ratio_hist1();
 }

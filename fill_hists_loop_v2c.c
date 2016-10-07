@@ -29,16 +29,13 @@
 #include "histio.c"
 #include <iostream>
 #include <vector>
+#include "lumi_taken.h"
+
 using namespace std ;
 
 
 void fill_hists_loop_v2c::Loop( bool verb, int nloop )
 {
-
-   //double lumi = 2300. ;
-   //double lumi = 815. ;
-   ////////double lumi = 2585. ;
-   double lumi = 7632. ;
 
    bool islostlep(false) ;
    bool ishadtau(false) ;
@@ -203,7 +200,7 @@ void fill_hists_loop_v2c::Loop( bool verb, int nloop )
       set_bi() ;
 
 
-      double hw = Weight * lumi ;
+      double hw = Weight * lumi_ ;
 
       if ( islostlep && hasHadTau ) continue ;
       if ( ishadtau && !hasHadTau ) continue ;

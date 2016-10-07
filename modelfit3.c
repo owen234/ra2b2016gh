@@ -38,9 +38,6 @@
 
    bool only_fit_mht1 ;
 
-   int njet_bin_to_fix = 1;
-   //int njet_bin_to_fix = 0;
-
    double calc_fit_error( TMinuit* tm, int hbi, int nji, double& simple_model_err ) ;
    void  draw_boundaries( float hmin, float hmax ) ;
 
@@ -66,7 +63,7 @@
          parind ++ ;
       } // hbi.
       for ( int nji=0; nji<nb_nj; nji++ ) {
-         if ( nji == njet_bin_to_fix ) {
+         if ( nji == njet_bin_to_fix_in_qcd_model_fit ) {
             fit_SFqcd_njet[nji] = 1.0 ;
          } else {
             fit_SFqcd_njet[nji] = par[parind] ;
@@ -178,7 +175,7 @@
          parind++ ;
       } // hbi.
       for ( int nji=0; nji<nb_nj; nji++ ) {
-         if (nji == njet_bin_to_fix ) continue;
+         if (nji == njet_bin_to_fix_in_qcd_model_fit ) continue;
          char pname[1000] ;
          sprintf( pname, "SFqcd_njet%d", nji+1 ) ;
          myMinuit->mnparm( parind, pname, 1.0, 0.10, 0., 90., ierflg ) ;
@@ -272,24 +269,33 @@
          double rel_err(0.) ;
          if ( val != 0 ) { rel_err = err/val ; }
          printf(" %11s  %8.5f +/- %8.5f  (%5.2f)\n", pname, val, err, rel_err ) ;
-         fprintf( ofp, " %11s  %8.5f +/- %8.5f  (%5.2f)\n", pname, val, err, rel_err ) ;
+         fprintf( ofp, " %12s  %8.5f +/- %8.5f  (%5.2f)\n", pname, val, err, rel_err ) ;
          fit_Rqcd_HT[hbi] = val ;
          parind++ ;
       } // hbi.
 
 
       for ( int nji=0; nji<nb_nj; nji++ ) {
-         if ( nji == njet_bin_to_fix ) continue;
          char pname[1000] ;
          double val, err ;
          sprintf( pname, "Sqcd_njet%d", nji+1 ) ;
-         myMinuit->GetParameter( parind, val, err ) ;
          double rel_err(0.) ;
+
+         if ( nji == njet_bin_to_fix_in_qcd_model_fit ) 
+         {
+            val = 1; err = 0; rel_err = 0; 
+            printf(" %11s  %6.3f +/- %5.3f  (%5.2f)\n", pname, val, err, rel_err ) ;
+            fprintf( ofp, " %12s  %8.5f +/- %8.5f  (%5.2f)\n", pname, val, err, rel_err ) ;
+         }
+         else
+         {
+         myMinuit->GetParameter( parind, val, err ) ;
          if ( val != 0 ) { rel_err = err/val ; }
          printf(" %11s  %6.3f +/- %5.3f  (%5.2f)\n", pname, val, err, rel_err ) ;
-         fprintf( ofp, " %11s  %6.3f +/- %5.3f  (%5.2f)\n", pname, val, err, rel_err ) ;
+         fprintf( ofp, " %12s  %8.5f +/- %8.5f  (%5.2f)\n", pname, val, err, rel_err ) ;
          fit_SFqcd_njet[nji] = val ;
          parind++ ;
+         }
       } // nji.
       printf("\n\n") ;
 

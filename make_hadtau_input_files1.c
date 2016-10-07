@@ -1,10 +1,19 @@
+#ifndef make_hadtau_input_files1_c
+#define make_hadtau_input_files1_c
 
-   TH1* get_hist( TFile* tf, const char* hname ) ;
+#include "TFile.h"
+#include "TH1.h"
+#include "TString.h"
+#include "TSystem.h"
+#include "binning.h"
+#include "get_hist.h"
 
    void make_hadtau_input_files1( const char* input_root_file  = "non-qcd-inputs-topup2/ARElog60_12.9ifb_HadTauEstimation_data_formatted_New.root",
                                   const char* output_text_file = "outputfiles/combine-input-hadtau.txt",
                                   const char* nbsum_text_file  = "outputfiles/nbsum-input-hadtau.txt"
                                ) {
+
+      setup_bins();
 
       gDirectory -> Delete( "h*" ) ;
 
@@ -145,18 +154,15 @@
 
 
 
-      int nb_nj(4) ;
-      int nb_nb(4) ;
-      int nb_htmht(13) ;
-      int nb_ht(3) ;
 
       int bi_hist(0) ;
       int bi_control(0) ;
       int bi_search(0) ;
-      for ( int bi_nj=1; bi_nj<=nb_nj; bi_nj++ ) {
+      for ( int bi_nj=2; bi_nj<=nb_nj; bi_nj++ ) {
          for ( int bi_nb=1; bi_nb<=nb_nb; bi_nb++ ) {
             for ( int bi_htmht=1; bi_htmht<=nb_htmht; bi_htmht++ ) {
 
+               if ( bin_edges_nj[bi_nj-1] < 2.5 ) continue;// because lost lepton input file lasks NJets = 2 bin
                bi_hist ++ ;
 
                double ldp_val = h_pred_lowdphi -> GetBinContent( bi_hist ) ;
@@ -186,7 +192,7 @@
 
                TString hist_bin_label( h_pred_lowdphi -> GetXaxis() -> GetBinLabel( bi_hist ) ) ;
 
-               int bi_ht, bi_mht ;
+               int bi_ht = 0, bi_mht = 0;
 
                if ( bi_htmht == 1 ) { bi_ht = 1; bi_mht = 1; }
                if ( bi_htmht == 2 ) { bi_ht = 2; bi_mht = 1; }
@@ -270,8 +276,10 @@
 
      //-----
 
-      for ( int bi_ht=1; bi_ht<=nb_ht; bi_ht++ ) {
-         for ( int bi_nj=1; bi_nj<=nb_nj; bi_nj++ ) {
+      for ( int bi_ht=1; bi_ht<=nBinsHT; bi_ht++ ) {
+         for ( int bi_nj=2; bi_nj<=nb_nj; bi_nj++ ) {
+
+            if ( bin_edges_nj[bi_nj-1] < 2.5 ) continue; // because znuznu input file lasks NJets = 2 bin
 
             float ldp_nbsum_val(0.) ;
             float hdp_nbsum_val(0.) ;
@@ -378,19 +386,5 @@
 
 
 
-  //========================================================================================================
 
-   TH1* get_hist( TFile* tf, const char* hname ) {
-      TH1* hp   = (TH1*) tf -> Get( hname ) ;
-      if ( hp == 0x0 ) {
-         printf("\n\n *** Can't find hist %s.\n\n", hname ) ;
-         gSystem -> Exit(-1) ;
-      }
-      return hp ;
-   } // get_hist
-
-  //========================================================================================================
-
-
-
-
+#endif

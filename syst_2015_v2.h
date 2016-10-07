@@ -22,28 +22,6 @@
 class syst_2015_v2 {
 public :
 
-   //----------
-   float bin_edges_nj[100]  ;
-   float bin_edges_nb[100]  ;
-   float bin_edges_mht[100]  ;
-   float bin_edges_ht[100][100]  ;
-   int   nb_nj ;
-   int   nb_nb ;
-   int   nb_ht[100] ;
-   int   nb_mht ;
- //int   bi_nj ;
- //int   bi_nb ;
- //int   bi_ht ;
- //int   bi_mht ;
-
-   int   nb_htmht ;
- //int   bi_htmht ;
-
-   int   nb_global ;
- //int   bi_global ;
- //int   bi_nbsum_global ;
-
-   void setup_bins() ;
    void set_bi( int nj, int nb, double ht, double mht,
                              int& bi_nj, int& bi_nb, int& bi_ht, int& bi_mht,
                              int& bi_htmht,
