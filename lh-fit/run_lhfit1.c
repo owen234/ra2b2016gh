@@ -20,6 +20,7 @@
 #include "TH2.h"
 #include "TCanvas.h"
 #include "TMatrixT.h"
+#include "TVectorT.h"
 #include "TSystem.h"
 #include "THStack.h"
 #include "TLegend.h"
