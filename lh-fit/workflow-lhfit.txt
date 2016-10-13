@@ -23,6 +23,45 @@
        fill_data_hists_loop_v2d.c
        make_data_input_files1.c
 
+To do all of this, here are the commands
+
+.L make_lostlep_input_files1.c+
+make_lostlep_input_files1()
+.q
+.L make_hadtau_input_files1.c+
+make_hadtau_input_files1()
+.q
+.L make_znunu_input_files1.c+
+make_znunu_input_files1()
+.q
+.L run_fill_hists_loop_v2d_signal.c+
+run_fill_hists_loop_v2d_signal()
+.q
+.L run_make_signalmc_input_files1.c+
+run_make_signalmc_input_files1()
+.q
+.L fill_data_hists_loop_v2d.c+
+fill_data_hists_loop_v2d f
+f.Loop()
+.q
+.L make_data_input_files1.c+
+make_data_input_files1()
+.q
+.L RooPoissonLogEval.cxx+
+.L RooProdPdfLogSum.cxx+
+.L build_2016_ws1.c+
+.> build.log
+build_2016_ws1()
+.q
+.L run_lhfit1.c+
+.> fit.log
+run_lhfit1()
+.q
+
+
+   If you want to check your output, compare with the files in the
+   subdirectory example-input-and-logs
+
 
 -------------------
 
@@ -39,7 +78,9 @@
         .L RooPoissonLogEval.cxx+
         .L RooProdPdfLogSum.cxx+
         .L build_2016_ws1.c+
+        .> build.log
         build_2016_ws1()
+        .q
 
 
 -------------------
@@ -49,5 +90,11 @@
          outputfiles/ws-lhfit-test.root
       output files
          tons of stuff in outputfiles/lhfit-results-ws-lhfit-test directory
+      from the command line
+        .L run_lhfit1.c+
+        .> fit.log
+        run_lhfit1()
+        .q
+
 
 
