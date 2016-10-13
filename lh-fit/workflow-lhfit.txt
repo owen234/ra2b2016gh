@@ -1,4 +1,28 @@
 
+   If you are starting from a fresh GitHub checkout, do this
+
+   0) Go down one to the ra2b2016gh directory.
+
+   1) Make a symbolic link to your directory for the production root files in
+      the ra2b2016gh directory and create the outputfiles directory.
+
+   2) *** For now, it only works without the Njets=2 bin, so edit binning.h to
+      remove the Njets=2 bin.
+
+   3) Make the non-QCD input files by running these.
+       make_lostlep_input_files1.c
+       make_hadtau_input_files1.c
+       make_znunu_input_files1.c
+
+   4) Fill the signal MC histograms and create the signal input files by
+      running these.
+       run_fill_hists_loop_v2d_signal.c
+       run_make_signalmc_input_files1.c
+
+   5) Fill the data histograms and make the data input files by running these.
+       fill_data_hists_loop_v2d.c
+       make_data_input_files1.c
+
 
 -------------------
 
