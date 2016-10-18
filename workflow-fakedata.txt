@@ -1,0 +1,82 @@
+
+
+ -------
+  data_turnon1.c
+      input is slimmed data
+      output is outputfiles/data-turnon.root
+      from the command line
+        .L data_turnon1.c
+        data_turnon1()
+
+ -------
+  run_fill_hists_loop_v2d.c
+      input is slimmed data
+      output is
+        outputfiles/hists-v2d-qcd.root
+        outputfiles/hists-v2d-znunu.root
+        outputfiles/hists-v2d-lostlep.root
+        outputfiles/hists-v2d-hadtau.root
+      from the command line
+        .L run_fill_hists_loop_v2d.c+
+        run_fill_hists_loop_v2d()
+
+ -------
+  run_make_mc_input_files1.c  (uses make_mc_input_files1.c)
+      input is
+        outputfiles/hists-v2d-qcd.root
+        outputfiles/hists-v2d-znunu.root
+        outputfiles/hists-v2d-lostlep.root
+        outputfiles/hists-v2d-hadtau.root
+      output is
+        outputfiles/mc-combine-input-qcd.root
+        outputfiles/mc-combine-input-znunu.root
+        outputfiles/mc-combine-input-lostlep.root
+        outputfiles/mc-combine-input-hadtau.root
+        outputfiles/mc-nbsum-input-qcd.root
+        outputfiles/mc-nbsum-input-znunu.root
+        outputfiles/mc-nbsum-input-lostlep.root
+        outputfiles/mc-nbsum-input-hadtau.root
+      from the command line
+        .L run_make_mc_input_files1.c+
+        run_make_mc_input_files1()
+
+ -------
+   make_fakedata_input_files1.c
+      input is
+        outputfiles/mc-nbsum-input-qcd.root
+        outputfiles/mc-nbsum-input-znunu.root
+        outputfiles/mc-nbsum-input-lostlep.root
+        outputfiles/mc-nbsum-input-hadtau.root
+      output is
+        outputfiles/mc-nbsum-input-fakedata.txt
+      from the command line
+        .L make_fakedata_input_files1.c+
+        make_fakedata_input_files1()
+
+ -------
+   run_gen_modelfit_input1_mc_fakedata.c  (uses gen_modelfit_input1.c)
+      input is
+        outputfiles/mc-nbsum-input-fakedata.txt
+        outputfiles/mc-nbsum-input-lostlep.txt
+        outputfiles/mc-nbsum-input-hadtau.txt
+        outputfiles/mc-nbsum-input-znunu.txt
+        outputfiles/modelfit-input-mc-fakedata.root
+      output is
+        outputfiles/files-modelfit-input-mc-fakedata/modelfit-input-mc-fakedata.root
+        and some pdf files in outputfiles/files-modelfit-input-mc-fakedata
+      from the command line
+        .L run_gen_modelfit_input1_mc_fakedata.c+
+        run_gen_modelfit_input1_mc_fakedata()
+
+ -------
+   run_modelfit3_on_fakedata.c (uses modelfit3.c)
+      input is
+        outputfiles/files-modelfit-input-mc-fakedata/modelfit-input-mc-fakedata.root
+      output is
+        outputfiles/fakedata-chi2-fit-model-pars.txt
+        outputfiles/fakedata-chi2-fit-modelfit.pdf
+
+
+
+
+
