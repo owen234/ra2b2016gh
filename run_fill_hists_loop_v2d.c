@@ -13,19 +13,53 @@
 
    //----------------------
 
-///   ch = new TChain("tree") ;
-///   sprintf( sample_name, "qcd" ) ;
+      ch = new TChain("tree") ;
+      sprintf( sample_name, "qcd" ) ;
 
-///   sprintf( fpat, "%s/tree_LDP/tree_QCD*.root", indir ) ;
-///   n_added = ch->Add(fpat) ;
-///   printf("  Added %d files matching %s to sample %s\n", n_added, fpat, sample_name ) ;
+      ///////sprintf( fpat, "%s/tree_LDP/tree_QCD*.root", indir ) ;
+      sprintf( fpat, "%s/tree_LDP/tree_QCD_HT-500to700-slimskim.root", indir ) ;
+      n_added = ch->Add(fpat) ;
+      printf("  Added %d files matching %s to sample %s\n", n_added, fpat, sample_name ) ;
 
-///   sprintf( fpat, "%s/tree_signal/tree_QCD*.root", indir ) ;
-///   n_added = ch->Add(fpat) ;
-///   printf("  Added %d files matching %s to sample %s\n", n_added, fpat, sample_name ) ;
+      sprintf( fpat, "%s/tree_LDP/tree_QCD_HT-700to1000-slimskim.root", indir ) ;
+      n_added = ch->Add(fpat) ;
+      printf("  Added %d files matching %s to sample %s\n", n_added, fpat, sample_name ) ;
 
-///   fhl = new fill_hists_loop_v2d( ch, sample_name ) ;
-///   fhl -> Loop() ;
+      sprintf( fpat, "%s/tree_LDP/tree_QCD_HT-1000to1500-slimskim.root", indir ) ;
+      n_added = ch->Add(fpat) ;
+      printf("  Added %d files matching %s to sample %s\n", n_added, fpat, sample_name ) ;
+
+      sprintf( fpat, "%s/tree_LDP/tree_QCD_HT-1500to2000-slimskim.root", indir ) ;
+      n_added = ch->Add(fpat) ;
+      printf("  Added %d files matching %s to sample %s\n", n_added, fpat, sample_name ) ;
+
+      sprintf( fpat, "%s/tree_LDP/tree_QCD_HT-2000toInf-slimskim.root", indir ) ;
+      n_added = ch->Add(fpat) ;
+      printf("  Added %d files matching %s to sample %s\n", n_added, fpat, sample_name ) ;
+
+      ////////sprintf( fpat, "%s/tree_signal/tree_QCD*.root", indir ) ;
+      sprintf( fpat, "%s/tree_signal/tree_QCD_HT-500to700-slimskim.root", indir ) ;
+      n_added = ch->Add(fpat) ;
+      printf("  Added %d files matching %s to sample %s\n", n_added, fpat, sample_name ) ;
+
+      sprintf( fpat, "%s/tree_signal/tree_QCD_HT-700to1000-slimskim.root", indir ) ;
+      n_added = ch->Add(fpat) ;
+      printf("  Added %d files matching %s to sample %s\n", n_added, fpat, sample_name ) ;
+
+      sprintf( fpat, "%s/tree_signal/tree_QCD_HT-1000to1500-slimskim.root", indir ) ;
+      n_added = ch->Add(fpat) ;
+      printf("  Added %d files matching %s to sample %s\n", n_added, fpat, sample_name ) ;
+
+      sprintf( fpat, "%s/tree_signal/tree_QCD_HT-1500to2000-slimskim.root", indir ) ;
+      n_added = ch->Add(fpat) ;
+      printf("  Added %d files matching %s to sample %s\n", n_added, fpat, sample_name ) ;
+
+      sprintf( fpat, "%s/tree_signal/tree_QCD_HT-2000toInf-slimskim.root", indir ) ;
+      n_added = ch->Add(fpat) ;
+      printf("  Added %d files matching %s to sample %s\n", n_added, fpat, sample_name ) ;
+
+      fhl = new fill_hists_loop_v2d( ch, sample_name ) ;
+      fhl -> Loop() ;
 
 
    //----------------------
