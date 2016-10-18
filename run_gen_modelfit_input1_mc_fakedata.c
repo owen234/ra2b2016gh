@@ -1,4 +1,6 @@
 
+#include "TSystem.h"
+
 #include "gen_modelfit_input1.c"
 
    void run_gen_modelfit_input1_mc_fakedata() {
