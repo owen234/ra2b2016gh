@@ -1,0 +1,26 @@
+
+
+  1) Make the slimmed skims for the TTJets files if you haven't already
+
+      .L run_slimskim.c+
+      run_slimskim("/data/strange2/--------/tree_LDP","tree_TTJets*.root")
+      run_slimskim("/data/strange2/--------/tree_signal","tree_TTJets*.root")
+    
+
+  2) Run the code that selects only the events that are acceptable in the combination
+     Make sure you set the input directory argument to yours.
+
+      .L run_ttbar_filter_skims.c+  (uses do_ttbar_filter_skim.c)
+      run_ttbar_filter_skims()
+
+  3) Check the output by running ttbar_comp.c
+     Make sure you set the input directory argument to yours.
+
+      .L ttbar_comp.c+
+      ttbar_comp("your-input-directory")
+
+     The h_stitch and h_combo histograms should be identical.
+     The h_stitch histogram should be a much higher stats version of the
+     distribution in h_incl, but they should be consistent with each other.
+
+

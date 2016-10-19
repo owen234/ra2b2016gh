@@ -20,6 +20,7 @@
 #include "TH2.h"
 #include "TCanvas.h"
 #include "TMatrixT.h"
+#include "TVectorT.h"
 #include "TSystem.h"
 #include "THStack.h"
 #include "TLegend.h"
@@ -173,7 +174,7 @@
 
 
       FILE* ofp_covmat(0x0) ;
-      sprintf( output_file, "%s/kqcd-parameter-fit-covmat.tex", output_dir ) ;
+      sprintf( output_file, "%s/kqcd-parameter-fit-covmat.txt", output_dir ) ;
       if ( (ofp_covmat=fopen( output_file, "w" ))==NULL ) {
          printf("\n\n *** Problem opening %s\n\n", output_file ) ;
          return ;

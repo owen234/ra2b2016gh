@@ -1,4 +1,67 @@
 
+   If you are starting from a fresh GitHub checkout, do this
+
+   0) Go down one to the ra2b2016gh directory.
+
+   1) Make a symbolic link to your directory for the production root files in
+      the ra2b2016gh directory and create the outputfiles directory.
+
+   2) *** For now, it only works without the Njets=2 bin, so edit binning.h to
+      remove the Njets=2 bin.
+
+   3) Make the non-QCD input files by running these.
+       make_lostlep_input_files1.c
+       make_hadtau_input_files1.c
+       make_znunu_input_files1.c
+
+   4) Fill the signal MC histograms and create the signal input files by
+      running these.
+       run_fill_hists_loop_v2d_signal.c
+       run_make_signalmc_input_files1.c
+
+   5) Fill the data histograms and make the data input files by running these.
+       fill_data_hists_loop_v2d.c
+       make_data_input_files1.c
+
+To do all of this, here are the commands
+
+.L make_lostlep_input_files1.c+
+make_lostlep_input_files1()
+.q
+.L make_hadtau_input_files1.c+
+make_hadtau_input_files1()
+.q
+.L make_znunu_input_files1.c+
+make_znunu_input_files1()
+.q
+.L run_fill_hists_loop_v2d_signal.c+
+run_fill_hists_loop_v2d_signal()
+.q
+.L run_make_signalmc_input_files1.c+
+run_make_signalmc_input_files1()
+.q
+.L fill_data_hists_loop_v2d.c+
+fill_data_hists_loop_v2d f
+f.Loop()
+.q
+.L make_data_input_files1.c+
+make_data_input_files1()
+.q
+.L RooPoissonLogEval.cxx+
+.L RooProdPdfLogSum.cxx+
+.L build_2016_ws1.c+
+.> build.log
+build_2016_ws1()
+.q
+.L run_lhfit1.c+
+.> fit.log
+run_lhfit1()
+.q
+
+
+   If you want to check your output, compare with the files in the
+   subdirectory example-input-and-logs
+
 
 -------------------
 
@@ -15,7 +78,9 @@
         .L RooPoissonLogEval.cxx+
         .L RooProdPdfLogSum.cxx+
         .L build_2016_ws1.c+
+        .> build.log
         build_2016_ws1()
+        .q
 
 
 -------------------
@@ -25,5 +90,11 @@
          outputfiles/ws-lhfit-test.root
       output files
          tons of stuff in outputfiles/lhfit-results-ws-lhfit-test directory
+      from the command line
+        .L run_lhfit1.c+
+        .> fit.log
+        run_lhfit1()
+        .q
+
 
 

@@ -47,7 +47,7 @@
 
   //---------
 
-   void gen_combine_table_from_cov_mat( const char* infile = "outputfiles/lhfit-results-ws-lhfit-test/kqcd-parameter-fit-covmat.tex",
+   void gen_combine_table_from_cov_mat( const char* infile = "outputfiles/lhfit-results-ws-lhfit-test/kqcd-parameter-fit-covmat.txt",
                                         const char* datarootfile = "../outputfiles/modelfit-input-data.root",
                                         const char* wsfile = "outputfiles/ws-lhfit-test.root" ) {
 
@@ -478,6 +478,8 @@
 
 
 
+
+      return ; //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
 

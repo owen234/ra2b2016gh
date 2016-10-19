@@ -1,4 +1,7 @@
 
+#include "TFile.h"
+#include "TH1F.h"
+
 
    void make_signalmc_input_files1( const char* input_root_file = "outputfiles/hists-v2d-T1bbbbH.root",
                                     const char* output_text_file = "outputfiles/combine-input-T1bbbbH.txt",

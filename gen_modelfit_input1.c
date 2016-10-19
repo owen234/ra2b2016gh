@@ -21,6 +21,7 @@
                          ) {
 
 
+      setup_bins() ;
       ifstream ifs_data ;
       ifs_data.open( data_file ) ;
       if ( !ifs_data.good() ) { printf("\n\n *** Problem opening data file: %s\n\n", data_file ) ; return ; }
