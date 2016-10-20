@@ -27,6 +27,8 @@
 
 #include "histio.c"
 
+#include "../binning.h"
+
 #include <iostream>
 #include <sstream>
 
@@ -67,6 +69,7 @@
                        bool fix_bg_mu_pars = false
                       ) {
 
+      setup_bins() ;
       char output_file[10000] ;
 
       char command[10000] ;
@@ -158,14 +161,16 @@
 
 
 
+      int num_model_pars = nb_ht[1] + nb_nj - 1 ;
+      printf("\n\n Number of model pars:  %d HT, %d-1 Nj = %d\n", nb_ht[1], nb_nj, num_model_pars ) ;
 
       TMatrixDSym cov_mat = fitResult -> covarianceMatrix() ;
-      TMatrixDSym cov_mat_modelpars_only(6) ;
+      TMatrixDSym cov_mat_modelpars_only(num_model_pars) ;
       for ( int i=0; i<10; i++ ) {
          printf( "  row %2d : ", i ) ;
          for ( int j=0; j<10; j++ ) {
             printf("  %12.8f  ", cov_mat[i][j] ) ;
-            if ( i < 6 && j < 6 ) {
+            if ( i < num_model_pars && j < num_model_pars ) {
                cov_mat_modelpars_only[i][j] = cov_mat[i][j] ;
             }
          } // j
@@ -174,7 +179,7 @@
 
 
       FILE* ofp_covmat(0x0) ;
-      sprintf( output_file, "%s/kqcd-parameter-fit-covmat.txt", output_dir ) ;
+      sprintf( output_file, "%s/kqcd-parameter-fit-covmat.tex", output_dir ) ;
       if ( (ofp_covmat=fopen( output_file, "w" ))==NULL ) {
          printf("\n\n *** Problem opening %s\n\n", output_file ) ;
          return ;
@@ -185,7 +190,7 @@
 
       RooArgList float_pars_final = fitResult -> floatParsFinal() ;
       RooArgList kqcd_pars ;
-      for ( int pi=0; pi<6; pi++ ) {
+      for ( int pi=0; pi<num_model_pars; pi++ ) {
          TString pname( float_pars_final.at(pi)->GetName() ) ;
          sprintf( model_par_names[pi], "%s", pname.Data() ) ;
          float val = ((RooAbsReal*)float_pars_final.at(pi))->getVal() ;
@@ -199,16 +204,16 @@
       printf("\n\n\n ====== Cov mat of model pars only:\n") ;
       printf("               ") ;
       fprintf( ofp_covmat, "  covmat_columns            " ) ;
-      for ( int i=0; i<6; i++ ) {
+      for ( int i=0; i<num_model_pars; i++ ) {
          printf("  %12s  ", model_par_names[i] ) ;
          fprintf( ofp_covmat, "  %12s  ",  model_par_names[i] ) ;
       } // i
       printf("\n") ;
       fprintf( ofp_covmat, "\n" ) ;
-      for ( int i=0; i<6; i++ ) {
+      for ( int i=0; i<num_model_pars; i++ ) {
          printf( "%12s : ", model_par_names[i] ) ;
          fprintf( ofp_covmat, "  covmat_row%d %12s  ", i+1, model_par_names[i] ) ;
-         for ( int j=0; j<6; j++ ) {
+         for ( int j=0; j<num_model_pars; j++ ) {
              printf("  %12.8f  ", cov_mat_modelpars_only[i][j] ) ;
              fprintf( ofp_covmat, "  %12.8f  ", cov_mat_modelpars_only[i][j] ) ;
          } // j
@@ -221,17 +226,17 @@
 
 
 
-      TVectorD eigen_vals( 6 ) ;
+      TVectorD eigen_vals( num_model_pars ) ;
       TMatrixD eigen_vector_matrix = cov_mat_modelpars_only.EigenVectors( eigen_vals ) ;
 
       printf("\n\n") ;
-      for ( int i=0; i<6; i++ ) {
+      for ( int i=0; i<num_model_pars; i++ ) {
          printf("   Eigen value %d : %12.8f\n", i, eigen_vals[i] ) ;
       } // i
 
       printf("\n\n Eigen vector matrix:\n") ;
-      for ( int i=0; i<6; i++ ) {
-         for ( int j=0; j<6; j++ ) {
+      for ( int i=0; i<num_model_pars; i++ ) {
+         for ( int j=0; j<num_model_pars; j++ ) {
             printf("  %12.8f  ", eigen_vector_matrix[i][j] ) ;
          } // j
          printf("\n" ) ;
@@ -239,14 +244,14 @@
       printf("\n\n") ;
 
       printf("\n\n  Check of eigen vectors:\n") ;
-      for ( int i=0; i<6; i++ ) {
+      for ( int i=0; i<num_model_pars; i++ ) {
          printf("  Eigen value %d : %12.8f\n", i, eigen_vals[i] ) ;
-         TMatrixT<double> eigen_vector_col(6,1) ;
-         TMatrixT<double> eigen_vector_row(1,6) ;
+         TMatrixT<double> eigen_vector_col(num_model_pars,1) ;
+         TMatrixT<double> eigen_vector_row(1,num_model_pars) ;
          double largest_component_val(0.) ;
          int largest_component_ind(-1) ;
          printf("      Eigen vector elements : ") ;
-         for ( int j=0; j<6; j++ ) {
+         for ( int j=0; j<num_model_pars; j++ ) {
             eigen_vector_col(j,0) = eigen_vector_matrix[j][i] ;
             eigen_vector_row(0,j) = eigen_vector_matrix[j][i] ;
             if ( fabs( eigen_vector_matrix[j][i] ) > largest_component_val ) {
@@ -257,15 +262,15 @@
          }
          printf("\n") ;
          printf("   Largest component is %s\n", model_par_names[largest_component_ind] ) ;
-         TMatrixT<double> cm_times_ev(6,1) ;
+         TMatrixT<double> cm_times_ev(num_model_pars,1) ;
          cm_times_ev.Mult( cov_mat_modelpars_only, eigen_vector_col ) ;
          printf("      CM times eigen vector : ") ;
-         for ( int j=0; j<6; j++ ) {
+         for ( int j=0; j<num_model_pars; j++ ) {
             printf( "  %12.8f  ", cm_times_ev(j,0) ) ;
          }
          printf("\n") ;
          printf("      after div  by EV      : ") ;
-         for ( int j=0; j<6; j++ ) {
+         for ( int j=0; j<num_model_pars; j++ ) {
             printf( "  %12.8f  ", cm_times_ev(j,0) / eigen_vals[i] ) ;
          }
          printf("\n") ;
@@ -326,7 +331,7 @@
 
       for ( int pi=0; pi<float_pars_final.getSize(); pi++ ) {
          TString pname( float_pars_final.at(pi)->GetName() ) ;
-         if ( pi < 6 ) sprintf( model_par_names[pi], "%s", pname.Data() ) ;
+         if ( pi < num_model_pars ) sprintf( model_par_names[pi], "%s", pname.Data() ) ;
          TString latex_pname = pname ;
          latex_pname.ReplaceAll("_"," ") ;
          if ( pname.Index( "Kqcd" ) == 0 || pname.Index( "Sqcd" ) == 0 ) {
@@ -387,7 +392,8 @@
       gDirectory -> Delete( "h_*" ) ;
 
 
-      int n_bins_unblind = 2 + 4 + 4 ;
+      /////////////int n_bins_unblind = 2 + 4 + 4 ;
+      int n_bins_unblind = nb_nj-2 + 2*nb_nj ;
 
       TH1F* h_rqcd = new TH1F( "h_rqcd", "Rqcd", n_bins_unblind, 0.5, n_bins_unblind + 0.5 ) ; hist_list.push_back( h_rqcd ) ;
 
@@ -422,10 +428,10 @@
       {
          int bi(1) ;
 
-         for ( int hbi=1; hbi<=3; hbi++ ) {
-            for ( int nji=1; nji<=4; nji++ ) {
+         for ( int hbi=1; hbi<=nb_ht[1]; hbi++ ) {
+            for ( int nji=1; nji<=nb_nj; nji++ ) {
 
-               if ( hbi==1 && nji>2 ) continue ;
+               if ( hbi==1 && nji>(nb_nj-2) ) continue ;
 
                char bin_name[1000] ;
                sprintf( bin_name, "Nj%d-HT%d", nji, hbi ) ;
@@ -1089,7 +1095,8 @@
       double kqcd_njet_val = 1. ;
       double kqcd_njet_err = 0. ;
       RooRealVar* rrv_kqcd_njet(0x0) ;
-      if ( nji > 1 ) {
+      ////////////////////////if ( nji > 1 )
+      if ( nji != (njet_bin_to_fix_in_qcd_model_fit+1) ) {
          rrv_kqcd_njet = (RooRealVar*) ral_kqcd_pars.find( kqcd_njet_name ) ;
          if ( rrv_kqcd_njet == 0x0 ) {
             char pname[100] ;
@@ -1121,7 +1128,8 @@
       pd_row_vec(0,0) = Rqcd_val / kqcd_ht_val ;
       cov_mat(0,0) = kqcd_ht_err * kqcd_ht_err ;
 
-      if ( nji > 1 ) {
+      ////////if ( nji > 1 ) {
+      if ( nji != (njet_bin_to_fix_in_qcd_model_fit+1) ) {
     //--- Terms for Njet par.
          pd_col_vec(1,0) = Rqcd_val / kqcd_njet_val ;
          pd_row_vec(0,1) = Rqcd_val / kqcd_njet_val ;
