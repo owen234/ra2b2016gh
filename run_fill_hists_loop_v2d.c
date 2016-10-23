@@ -108,7 +108,7 @@
       n_added = ch->Add(fpat) ;
       printf("  Added %d files matching %s to sample %s\n", n_added, fpat, sample_name ) ;
 
-      sprintf( fpat, "%s/tree_signal/tree_TTJets_DiLept_ght_lt600-slimskim.root", indir ) ;
+      sprintf( fpat, "%s/tree_signal/tree_TTJets_DiLept-slimskim.root", indir ) ;
       n_added = ch->Add(fpat) ;
       printf("  Added %d files matching %s to sample %s\n", n_added, fpat, sample_name ) ;
 

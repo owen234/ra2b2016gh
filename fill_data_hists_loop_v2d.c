@@ -148,7 +148,6 @@ void fill_data_hists_loop_v2d::Loop( bool verb, int nloop )
          time = thistime ;
       } // timer printing stuff
 
-
       Long64_t ientry = LoadTree(jentry);
       if (ientry < 0) break;
       nb = fChain->GetEntry(jentry);   nbytes += nb;
