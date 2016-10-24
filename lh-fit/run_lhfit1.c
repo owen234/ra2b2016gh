@@ -25,6 +25,8 @@
 #include "THStack.h"
 #include "TLegend.h"
 
+#include <fstream>
+
 #include "histio.c"
 
 #include "../binning.h"
@@ -60,13 +62,18 @@
       int fb_qcd_njet_par_ind[10] ;
       int fb_qcd_nb_par_ind[10] ;
 
+      ifstream ifs_qcdmc ;
+
+   void get_qcdmc_counts( const char* binlabel, float& qcdmc_hdp_val, float& qcdmc_hdp_err ) ;
+
   //---------------
 
    void run_lhfit1( const char* wsfile = "outputfiles/ws-lhfit-test.root",
                        float fixed_sig_strength = 0.,
                        bool make_all_plots = true,
                        bool fix_nuisance_pars = false,
-                       bool fix_bg_mu_pars = false
+                       bool fix_bg_mu_pars = false,
+                       const char* qcd_mc_file = "../outputfiles/nbsum-input-qcd.txt"
                       ) {
 
       setup_bins() ;
@@ -802,6 +809,27 @@
 
 
 
+     //--- Read in QCD MC counts, if the file is provided, and include the HDP counts in the tables.
+
+      bool include_qcdmc(false) ;
+      ifs_qcdmc.open( qcd_mc_file ) ;
+      if ( ifs_qcdmc.good() ) {
+         printf("\n\n\n  *** QCD MC file provided.  Will include it in the tables.\n\n\n") ;
+         include_qcdmc = true ;
+      } else {
+         printf("\n\n\n  *** No QCD MC file provided.  Not including it in the tables.\n\n\n") ;
+         include_qcdmc = false ;
+      }
+
+
+
+
+
+
+
+
+
+
       FILE* ofp_qcd_table1(0x0) ;
       sprintf( output_file, "%s/qcd-event-yield-fit-results1.tex", output_dir ) ;
       if ( (ofp_qcd_table1=fopen( output_file, "w" ))==NULL ) {
@@ -823,33 +851,67 @@
          return ;
       }
 
-      fprintf( ofp_qcd_table1, "\\begin{tabular}{|l||c|c|c||c|c|c|}\n" ) ;
-      fprintf( ofp_qcd_table1, "\\hline\n" ) ;
-      fprintf( ofp_qcd_table1, "  &  \\multicolumn{3}{|c||}{  LDP }   &  \\multicolumn{3}{|c|}{ ZL }  \\\\\n" ) ;
-      fprintf( ofp_qcd_table1, " Bin &  Nobs  &  Fit  &  Fit QCD   &  Nobs  &  Fit  &  Fit QCD  \\\\\n" ) ;
-      fprintf( ofp_qcd_table1, "\\hline\n" ) ;
-      fprintf( ofp_qcd_table1, "\\hline\n" ) ;
 
-      fprintf( ofp_qcd_table2, "\\begin{tabular}{|l||c|c|c||c|c|c|}\n" ) ;
-      fprintf( ofp_qcd_table2, "\\hline\n" ) ;
-      fprintf( ofp_qcd_table2, "  &  \\multicolumn{3}{|c||}{  LDP }   &  \\multicolumn{3}{|c|}{ ZL }  \\\\\n" ) ;
-      fprintf( ofp_qcd_table2, " Bin &  Nobs  &  Non-QCD &  Fit QCD   &  Nobs  &  Non-QCD  &  Fit QCD  \\\\\n" ) ;
-      fprintf( ofp_qcd_table2, "\\hline\n" ) ;
-      fprintf( ofp_qcd_table2, "\\hline\n" ) ;
 
-      fprintf( ofp_qcd_table3, "\\begin{tabular}{|l||c|c|c|c|c|}\n" ) ;
-      fprintf( ofp_qcd_table3, "\\hline\n" ) ;
-      fprintf( ofp_qcd_table3, "  &  \\multicolumn{2}{|c||}{  LDP } &    &  \\multicolumn{2}{|c|}{ ZL }  \\\\\n" ) ;
-      fprintf( ofp_qcd_table3, " Bin &  Nobs-NonQCD &  Fit QCD   &  Rqcd  &  Nobs-NonQCD  &  Fit QCD  \\\\\n" ) ;
-      fprintf( ofp_qcd_table3, "\\hline\n" ) ;
-      fprintf( ofp_qcd_table3, "\\hline\n" ) ;
+
+
+      if ( include_qcdmc ) {
+
+         fprintf( ofp_qcd_table1, "\\begin{tabular}{|l||c|c|c||c|c|c||c|}\n" ) ;
+         fprintf( ofp_qcd_table1, "\\hline\n" ) ;
+         fprintf( ofp_qcd_table1, "  &  \\multicolumn{3}{|c||}{  LDP }   &  \\multicolumn{4}{|c|}{ ZL }  \\\\\n" ) ;
+         fprintf( ofp_qcd_table1, " Bin &  Nobs  &  Fit  &  Fit QCD   &  Nobs  &  Fit  &  Fit QCD     & QCD MC \\\\\n" ) ;
+         fprintf( ofp_qcd_table1, "\\hline\n" ) ;
+         fprintf( ofp_qcd_table1, "\\hline\n" ) ;
+
+         fprintf( ofp_qcd_table2, "\\begin{tabular}{|l||c|c|c||c|c|c||c|}\n" ) ;
+         fprintf( ofp_qcd_table2, "\\hline\n" ) ;
+         fprintf( ofp_qcd_table2, "  &  \\multicolumn{3}{|c||}{  LDP }   &  \\multicolumn{4}{|c|}{ ZL }  \\\\\n" ) ;
+         fprintf( ofp_qcd_table2, " Bin &  Nobs  &  Non-QCD &  Fit QCD   &  Nobs  &  Non-QCD  &  Fit QCD     & QCD MC \\\\\n" ) ;
+         fprintf( ofp_qcd_table2, "\\hline\n" ) ;
+         fprintf( ofp_qcd_table2, "\\hline\n" ) ;
+
+         fprintf( ofp_qcd_table3, "\\begin{tabular}{|l||c|c|c|c|c||c|}\n" ) ;
+         fprintf( ofp_qcd_table3, "\\hline\n" ) ;
+         fprintf( ofp_qcd_table3, "  &  \\multicolumn{2}{|c||}{  LDP } &    &  \\multicolumn{3}{|c|}{ ZL }  \\\\\n" ) ;
+         fprintf( ofp_qcd_table3, " Bin &  Nobs-NonQCD &  Fit QCD   &  Rqcd  &  Nobs-NonQCD  &  Fit QCD     & QCD MC \\\\\n" ) ;
+         fprintf( ofp_qcd_table3, "\\hline\n" ) ;
+         fprintf( ofp_qcd_table3, "\\hline\n" ) ;
+
+      } else {
+
+         fprintf( ofp_qcd_table1, "\\begin{tabular}{|l||c|c|c||c|c|c|}\n" ) ;
+         fprintf( ofp_qcd_table1, "\\hline\n" ) ;
+         fprintf( ofp_qcd_table1, "  &  \\multicolumn{3}{|c||}{  LDP }   &  \\multicolumn{3}{|c|}{ ZL }  \\\\\n" ) ;
+         fprintf( ofp_qcd_table1, " Bin &  Nobs  &  Fit  &  Fit QCD   &  Nobs  &  Fit  &  Fit QCD  \\\\\n" ) ;
+         fprintf( ofp_qcd_table1, "\\hline\n" ) ;
+         fprintf( ofp_qcd_table1, "\\hline\n" ) ;
+
+         fprintf( ofp_qcd_table2, "\\begin{tabular}{|l||c|c|c||c|c|c|}\n" ) ;
+         fprintf( ofp_qcd_table2, "\\hline\n" ) ;
+         fprintf( ofp_qcd_table2, "  &  \\multicolumn{3}{|c||}{  LDP }   &  \\multicolumn{3}{|c|}{ ZL }  \\\\\n" ) ;
+         fprintf( ofp_qcd_table2, " Bin &  Nobs  &  Non-QCD &  Fit QCD   &  Nobs  &  Non-QCD  &  Fit QCD  \\\\\n" ) ;
+         fprintf( ofp_qcd_table2, "\\hline\n" ) ;
+         fprintf( ofp_qcd_table2, "\\hline\n" ) ;
+
+         fprintf( ofp_qcd_table3, "\\begin{tabular}{|l||c|c|c|c|c|}\n" ) ;
+         fprintf( ofp_qcd_table3, "\\hline\n" ) ;
+         fprintf( ofp_qcd_table3, "  &  \\multicolumn{2}{|c||}{  LDP } &    &  \\multicolumn{2}{|c|}{ ZL }  \\\\\n" ) ;
+         fprintf( ofp_qcd_table3, " Bin &  Nobs-NonQCD &  Fit QCD   &  Rqcd  &  Nobs-NonQCD  &  Fit QCD  \\\\\n" ) ;
+         fprintf( ofp_qcd_table3, "\\hline\n" ) ;
+         fprintf( ofp_qcd_table3, "\\hline\n" ) ;
+
+      }
 
       for ( int bi=1; bi<=n_bins_unblind; bi++ ) {
 
          char bin_name[100] ;
          sprintf( bin_name, "%s", h_nobs_ldp -> GetXaxis() -> GetBinLabel( bi ) ) ;
+         int lbn ;
+         char short_bin_name[100] ;
+         sscanf( bin_name, "%s %d", short_bin_name, &lbn ) ;
 
-         fprintf( ofp_qcd_table1,  " %20s &  $%7.0f$  &  $%7.1f$  &  $%7.1f \\pm %5.1f$ &  $%7.0f$  &  $%7.1f$  &  $%7.1f \\pm %5.1f$  \\\\\n",
+         fprintf( ofp_qcd_table1,  " %20s &  $%7.0f$  &  $%7.1f$  &  $%7.1f \\pm %5.1f$ &  $%7.0f$  &  $%7.1f$  &  $%7.1f \\pm %5.1f$  ",
               bin_name,
               h_nobs_ldp -> GetBinContent(bi),
               h_model_ldp -> GetBinContent(bi),
@@ -858,7 +920,7 @@
               h_model_zl -> GetBinContent(bi),
               h_qcd_model_zl -> GetBinContent(bi),  h_qcd_model_zl -> GetBinError(bi) ) ;
 
-         fprintf( ofp_qcd_table2,  " %20s &  $%7.0f$  &  $%7.1f \\pm %5.1f$  &  $%7.1f \\pm %5.1f$ &  $%7.0f$  &  $%7.1f \\pm %5.1f$  &  $%7.1f \\pm %5.1f$  \\\\\n",
+         fprintf( ofp_qcd_table2,  " %20s &  $%7.0f$  &  $%7.1f \\pm %5.1f$  &  $%7.1f \\pm %5.1f$ &  $%7.0f$  &  $%7.1f \\pm %5.1f$  &  $%7.1f \\pm %5.1f$  ",
               bin_name,
               h_nobs_ldp -> GetBinContent(bi),
               h_nonqcd_ldp -> GetBinContent(bi),  h_nonqcd_ldp -> GetBinError(bi),
@@ -867,13 +929,25 @@
               h_nonqcd_zl -> GetBinContent(bi),  h_nonqcd_zl -> GetBinError(bi),
               h_qcd_model_zl -> GetBinContent(bi),  h_qcd_model_zl -> GetBinError(bi) ) ;
 
-         fprintf( ofp_qcd_table3,  " %20s &  $%7.1f \\pm %5.1f$  &  $%7.1f \\pm %5.1f$ &    $%5.3f \\pm %5.3f$  &  $%7.1f \\pm %5.1f$  &  $%7.1f \\pm %5.1f$  \\\\\n",
+         fprintf( ofp_qcd_table3,  " %20s &  $%7.1f \\pm %5.1f$  &  $%7.1f \\pm %5.1f$ &    $%5.3f \\pm %5.3f$  &  $%7.1f \\pm %5.1f$  &  $%7.1f \\pm %5.1f$  ",
               bin_name,
               h_nonqcdsub_ldp -> GetBinContent(bi),  h_nonqcdsub_ldp -> GetBinError(bi),
               h_qcd_model_ldp -> GetBinContent(bi),  h_qcd_model_ldp -> GetBinError(bi),
               h_rqcd -> GetBinContent(bi),          h_rqcd -> GetBinError(bi),
               h_nonqcdsub_zl -> GetBinContent(bi),  h_nonqcdsub_zl -> GetBinError(bi),
               h_qcd_model_zl -> GetBinContent(bi),  h_qcd_model_zl -> GetBinError(bi) ) ;
+
+         if ( include_qcdmc) {
+            float qcdmc_hdp_val(0.), qcdmc_hdp_err(0.) ;
+            get_qcdmc_counts( short_bin_name, qcdmc_hdp_val, qcdmc_hdp_err ) ;
+            fprintf( ofp_qcd_table1, "  &  $%5.1f \\pm %5.1f$  \\\\\n", qcdmc_hdp_val, qcdmc_hdp_err ) ;
+            fprintf( ofp_qcd_table2, "  &  $%5.1f \\pm %5.1f$  \\\\\n", qcdmc_hdp_val, qcdmc_hdp_err ) ;
+            fprintf( ofp_qcd_table3, "  &  $%5.1f \\pm %5.1f$  \\\\\n", qcdmc_hdp_val, qcdmc_hdp_err ) ;
+         } else {
+            fprintf( ofp_qcd_table1, "  \\\\\n" ) ;
+            fprintf( ofp_qcd_table2, "  \\\\\n" ) ;
+            fprintf( ofp_qcd_table3, "  \\\\\n" ) ;
+         }
 
          if ( n_bins_unblind==55 && bi%11 == 0 && bi<55 ) fprintf( ofp_qcd_table1,  " \\hline\n" ) ;
          if ( n_bins_unblind==55 && bi%11 == 0 && bi<55 ) fprintf( ofp_qcd_table2,  " \\hline\n" ) ;
@@ -1446,6 +1520,44 @@
    } // draw_pull
 
   //---------
+
+
+   void get_qcdmc_counts( const char* binlabel, float& qcdmc_hdp_val, float& qcdmc_hdp_err ) {
+
+      qcdmc_hdp_val = 0. ;
+      qcdmc_hdp_err = 0. ;
+
+      ifs_qcdmc.seekg(0) ;
+
+      if ( !ifs_qcdmc.good() ) {
+         printf("\n\n *** get_qcdmc_counts : bad input file.\n\n") ;
+         gSystem -> Exit(-1) ;
+      }
+
+      while ( ifs_qcdmc.good() ) {
+         TString line ;
+         line.ReadLine( ifs_qcdmc ) ;
+         char line_binlabel[100] ;
+         float line_ldp_val(0.) ;
+         float line_ldp_err(0.) ;
+         float line_hdp_val(0.) ;
+         float line_hdp_err(0.) ;
+         sscanf( line.Data(), "%s %f +/- %f  %f +/- %f", line_binlabel, &line_ldp_val, &line_ldp_err, &line_hdp_val, &line_hdp_err ) ;
+         if ( strcmp( line_binlabel, binlabel ) == 0 ) {
+            qcdmc_hdp_val = line_hdp_val ;
+            qcdmc_hdp_err = line_hdp_err ;
+            return ;
+         }
+      }
+
+      printf("\n\n *** get_qcdmc_counts : could not find bin %s\n\n\n", binlabel ) ;
+      gSystem -> Exit(-1) ;
+
+   } // get_qcdmc_counts
+
+
+  //---------
+
 
 
 

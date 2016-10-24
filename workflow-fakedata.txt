@@ -28,14 +28,14 @@
         outputfiles/hists-v2d-lostlep.root
         outputfiles/hists-v2d-hadtau.root
       output is
-        outputfiles/mc-combine-input-qcd.root
-        outputfiles/mc-combine-input-znunu.root
-        outputfiles/mc-combine-input-lostlep.root
-        outputfiles/mc-combine-input-hadtau.root
-        outputfiles/mc-nbsum-input-qcd.root
-        outputfiles/mc-nbsum-input-znunu.root
-        outputfiles/mc-nbsum-input-lostlep.root
-        outputfiles/mc-nbsum-input-hadtau.root
+        outputfiles/mc-combine-input-qcd.txt
+        outputfiles/mc-combine-input-znunu.txt
+        outputfiles/mc-combine-input-lostlep.txt
+        outputfiles/mc-combine-input-hadtau.txt
+        outputfiles/mc-nbsum-input-qcd.txt
+        outputfiles/mc-nbsum-input-znunu.txt
+        outputfiles/mc-nbsum-input-lostlep.txt
+        outputfiles/mc-nbsum-input-hadtau.txt
       from the command line
         .L run_make_mc_input_files1.c+
         run_make_mc_input_files1()
@@ -43,10 +43,10 @@
  -------
    make_fakedata_input_files1.c
       input is
-        outputfiles/mc-nbsum-input-qcd.root
-        outputfiles/mc-nbsum-input-znunu.root
-        outputfiles/mc-nbsum-input-lostlep.root
-        outputfiles/mc-nbsum-input-hadtau.root
+        outputfiles/mc-nbsum-input-qcd.txt
+        outputfiles/mc-nbsum-input-znunu.txt
+        outputfiles/mc-nbsum-input-lostlep.txt
+        outputfiles/mc-nbsum-input-hadtau.txt
       output is
         outputfiles/mc-nbsum-input-fakedata.txt
       from the command line
