@@ -61,7 +61,7 @@
       if ( strcmp( sample_name, "qcd" ) != 0 ) {
          printf("  This is not qcd.\n") ;
          if ( nb_nj==4 ) {
-            sprintf( fname, "%s/nbsum-stat-syst-%s.txt", iodir, sample_name ) ;
+            sprintf( fname, "error-scaling-files/nbsum-stat-syst-%s.txt", sample_name ) ;
          } else if ( nb_nj==5 ) {
             sprintf( fname, "error-scaling-files/nbsum-stat-syst-%s-withnj2.txt", sample_name ) ;
          } else {
