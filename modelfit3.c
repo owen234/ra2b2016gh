@@ -268,8 +268,8 @@
          myMinuit->GetParameter( parind, val, err ) ;
          double rel_err(0.) ;
          if ( val != 0 ) { rel_err = err/val ; }
-         printf(" %11s  %8.5f +/- %8.5f  (%5.2f)\n", pname, val, err, rel_err ) ;
-         fprintf( ofp, " %12s  %8.5f +/- %8.5f  (%5.2f)\n", pname, val, err, rel_err ) ;
+         printf(" %11s  %8.5f +/- %8.5f  (%4.2f)\n", pname, val, err, rel_err ) ;
+         fprintf( ofp, " %12s  %8.5f +/- %8.5f  (%4.2f)\n", pname, val, err, rel_err ) ;
          fit_Rqcd_HT[hbi] = val ;
          parind++ ;
       } // hbi.
@@ -284,15 +284,15 @@
          if ( nji == njet_bin_to_fix_in_qcd_model_fit ) 
          {
             val = 1; err = 0; rel_err = 0; 
-            printf(" %11s  %6.3f +/- %5.3f  (%5.2f)\n", pname, val, err, rel_err ) ;
-            fprintf( ofp, " %12s  %8.5f +/- %8.5f  (%5.2f)\n", pname, val, err, rel_err ) ;
+            printf(" %11s  %6.3f +/- %5.3f  (%4.2f)\n", pname, val, err, rel_err ) ;
+            fprintf( ofp, " %12s  %8.5f +/- %8.5f  (%4.2f)\n", pname, val, err, rel_err ) ;
          }
          else
          {
          myMinuit->GetParameter( parind, val, err ) ;
          if ( val != 0 ) { rel_err = err/val ; }
-         printf(" %11s  %6.3f +/- %5.3f  (%5.2f)\n", pname, val, err, rel_err ) ;
-         fprintf( ofp, " %12s  %8.5f +/- %8.5f  (%5.2f)\n", pname, val, err, rel_err ) ;
+         printf(" %11s  %6.3f +/- %5.3f  (%4.2f)\n", pname, val, err, rel_err ) ;
+         fprintf( ofp, " %12s  %8.5f +/- %8.5f  (%4.2f)\n", pname, val, err, rel_err ) ;
          fit_SFqcd_njet[nji] = val ;
          parind++ ;
          }

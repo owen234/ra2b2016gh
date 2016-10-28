@@ -24,7 +24,18 @@ void draw_badjet_cat_v3(const char* infile = "outputfiles/syst-2015-v2.root" ) {
       TFile* tf = new TFile( infile, "READ" ) ;
       if ( ! tf -> IsOpen() ) { printf( "\n\n *** Bad input file: %s\n\n", infile ) ; return ; }
 
-      FILE * out_file;
+      FILE * out_file,* out_file_data;
+
+      /// Creating model-pars-data3.txt
+
+      if ( transfer_qcd_parameters("./outputfiles/data-chi2-fit-model-pars.txt","./outputfiles/model-pars-data3.txt") )
+      {
+         out_file_data = fopen ("./outputfiles/model-pars-data3.txt","a");// "a" for append
+      }
+      else
+         out_file_data = fopen ("./outputfiles/model-pars-data3.txt","w");// "w" for write
+
+      /// Creating model-pars-qcdmc3.txt
 
       if ( transfer_qcd_parameters("./outputfiles/qcdmc-chi2-fit-model-pars.txt","./outputfiles/model-pars-qcdmc3.txt") )
       {
@@ -435,7 +446,9 @@ void draw_badjet_cat_v3(const char* infile = "outputfiles/syst-2015-v2.root" ) {
       double rc_val = h_rprime -> GetBinContent(1) ;
       double rc_err = h_rprime -> GetBinError(1) ;
 
-         fprintf( out_file, "Sqcd_mhtc_%3s   1.000000     0.00000  0.00\n", htstr) ;
+         fprintf( out_file     , "Sqcd_mhtc_%3s   1.000000     0.00000  0.00\n", htstr) ;
+         fprintf( out_file_data, "Sqcd_mhtc_%3s   1.000000     0.00000  0.00\n", htstr) ;
+
 
       double store_val = 0, store_rel_err = 0;
       char store_htstr[10];
@@ -463,14 +476,17 @@ void draw_badjet_cat_v3(const char* infile = "outputfiles/syst-2015-v2.root" ) {
 
          if ( dr_val == 0. && bi!=2)
          { 
-            fprintf( out_file, "Sqcd_mht%d_%3s   %3.6f     0.00000  1.00\n", bi-1, htstr,store_val) ;
+            fprintf( out_file     , "Sqcd_mht%d_%3s   %3.6f     %7.5f  1.00\n", bi-1, htstr, store_val, store_val) ;
+            fprintf( out_file_data, "Sqcd_mht%d_%3s   %3.6f     %7.5f  1.00\n", bi-1, htstr, store_val, store_val) ;
+
             printf("===================================================================================================================\n");
             printf("Warning: I automatically set Sqcd_mht%d_%3s = Sqcd_mht%d_%3s and relative error = 1, because Sqcd_mht%d_%3s was equal to zero\n", bi-1, htstr,bi-2, store_htstr, bi-1,htstr);
             printf("===================================================================================================================\n");
 
          }
          else
-            fprintf( out_file, "Sqcd_mht%d_%3s   %3.6f     0.00000  %3.2f\n", bi-1, htstr,dr_val,dr_rel_err) ;
+            fprintf( out_file     , "Sqcd_mht%d_%3s   %3.6f     %7.5f  %3.2f\n", bi-1, htstr,dr_val,dr_total,dr_rel_err) ;
+            fprintf( out_file_data, "Sqcd_mht%d_%3s   %3.6f     %7.5f  %3.2f\n", bi-1, htstr,dr_val,dr_total,dr_rel_err) ;
 
          store_val = dr_val;
          store_rel_err = dr_rel_err;
@@ -499,8 +515,14 @@ void draw_badjet_cat_v3(const char* infile = "outputfiles/syst-2015-v2.root" ) {
    }//ht_level
 
    for ( int nb_count = 0; nb_count < nb_nb; nb_count++)
-         fprintf( out_file, "Sqcd_nb%d        1.000000     0.00000  0.00\n", nb_count) ;
+   {
+         fprintf( out_file     , "Sqcd_nb%d        1.000000     0.00000  0.00\n", nb_count) ;
+         fprintf( out_file_data, "Sqcd_nb%d        1.000000     0.00000  0.00\n", nb_count) ;
+   }
+
    fclose(out_file);
+   fclose(out_file_data);
+
    delete tf;
    } // draw_badjet_cat_v3
 
@@ -524,7 +546,7 @@ bool transfer_qcd_parameters(string filein_name, string fileout_name)
 
         index = line.find("(");
         if (index == std::string::npos) { cout << "Warning: The structure of file " << filein_name << "is not as expected";filein.close();fileout.close(); return 0; }
-        line.replace(line.find('('),line.find(')')-line.find('(')+1,"0.00");
+        line.replace(line.find('('),line.find(')')-line.find('(')+1, line.substr(line.find('(')+1,line.find(')')-line.find('(')-1));
 
         string val_str, name_str;        
         stringstream convert_temp(line);

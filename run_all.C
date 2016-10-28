@@ -19,6 +19,7 @@
 #include "gen_modelfit_input1.c"
 #include "run_modelfit3_on_data.c"
 #include "create_model_ratio_hist1.c"
+#include "gen_combine_input2.c"
 
 void run_all ( TString skim_slim_input_dir = "" )
 
@@ -65,4 +66,5 @@ void run_all ( TString skim_slim_input_dir = "" )
    draw_qcd_ratio_v3();
    draw_badjet_cat_v3();
    create_model_ratio_hist1();
+   gen_combine_input2();
 }

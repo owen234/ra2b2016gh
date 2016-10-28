@@ -565,12 +565,12 @@ void fill_hists_loop_v2d::Loop( bool verb, int nloop )
          int print_bi = bi - nb_ht[1]*tbi_nj ;
          int control_bi = (tbi_nj-1)*nb_ht[1] + tbi_ht ;
          if ( tbi_mht == 1 ) {
-            sprintf( binlabel, "Nj%d-MHTC-HT%d (C%1d)   C%2d", tbi_nj, tbi_ht, tbi_ht, control_bi ) ;
+            sprintf( binlabel, "NJets%d-MHTC-HT%d (C%1d)   C%2d", tbi_nj-1, tbi_ht, tbi_ht, control_bi ) ;
          } else {
             if ( tbi_mht<=3 ) {
-               sprintf( binlabel, "Nj%d-MHT%d-HT%d (%2d)   %2d", tbi_nj, print_bi_mht, tbi_ht, print_bi_htmht, print_bi ) ;
+               sprintf( binlabel, "NJets%d-MHT%d-HT%d (%2d)   %2d", tbi_nj-1, print_bi_mht, tbi_ht, print_bi_htmht, print_bi ) ;
             } else {
-               sprintf( binlabel, "Nj%d-MHT%d-HT%d (%2d)   %2d", tbi_nj, print_bi_mht, tbi_ht+1, print_bi_htmht, print_bi ) ;
+               sprintf( binlabel, "NJets%d-MHT%d-HT%d (%2d)   %2d", tbi_nj-1, print_bi_mht, tbi_ht+1, print_bi_htmht, print_bi ) ;
             }
          }
          //---------
@@ -592,7 +592,7 @@ void fill_hists_loop_v2d::Loop( bool verb, int nloop )
          translate_global_bin( bi, tbi_nj, tbi_nb, tbi_htmht, tbi_ht, tbi_mht ) ;
          char binlabel[100] ;
          //---------
-         // sprintf( binlabel, "Nj%d-MHT%d-HT%d (%2d)   %2d", tbi_nj, tbi_mht, tbi_ht, tbi_htmht, bi ) ;
+         // sprintf( binlabel, "NJets%d-MHT%d-HT%d (%2d)   %2d", tbi_nj-1, tbi_mht, tbi_ht, tbi_htmht, bi ) ;
          //---------
          int print_bi_htmht = tbi_htmht - nb_ht[1] ;
          int print_bi_mht = tbi_mht - 1 ;
@@ -601,12 +601,12 @@ void fill_hists_loop_v2d::Loop( bool verb, int nloop )
          //int control_bi = (tbi_nj-1)*nb_ht[1] + tbi_ht ;
          int control_bi = (tbi_nj-1)*(nb_nb)*(nb_ht[1]) + (tbi_nb-1)*(nb_ht[1]) + tbi_ht ;
          if ( tbi_mht == 1 ) {
-            sprintf( binlabel, "Nj%d-Nb%d-MHTC-HT%d (C%1d)   C%2d  %3d", tbi_nj, print_bi_nb, tbi_ht, tbi_ht, control_bi, bi ) ;
+            sprintf( binlabel, "NJets%d_BTags%d-MHTC-HT%d (C%1d)   C%2d  %3d", tbi_nj-1, print_bi_nb, tbi_ht, tbi_ht, control_bi, bi ) ;
          } else {
             if ( tbi_mht<=3 ) {
-               sprintf( binlabel, "Nj%d-Nb%d-MHT%d-HT%d (%2d)   S%3d  %3d", tbi_nj, print_bi_nb, print_bi_mht, tbi_ht, print_bi_htmht, print_bi, bi ) ;
+               sprintf( binlabel, "NJets%d_BTags%d-MHT%d-HT%d (%2d)   S%3d  %3d", tbi_nj-1, print_bi_nb, print_bi_mht, tbi_ht, print_bi_htmht, print_bi, bi ) ;
             } else {
-               sprintf( binlabel, "Nj%d-Nb%d-MHT%d-HT%d (%2d)   S%3d  %3d", tbi_nj, print_bi_nb, print_bi_mht, tbi_ht+1, print_bi_htmht, print_bi, bi ) ;
+               sprintf( binlabel, "NJets%d_BTags%d-MHT%d-HT%d (%2d)   S%3d  %3d", tbi_nj-1, print_bi_nb, print_bi_mht, tbi_ht+1, print_bi_htmht, print_bi, bi ) ;
             }
          }
          //---------
@@ -629,7 +629,7 @@ void fill_hists_loop_v2d::Loop( bool verb, int nloop )
             for ( int tbi_ht=1; tbi_ht<=(nb_ht[1]); tbi_ht++ ) {
                bi_plot ++ ;
                char binlabel[100] ;
-               sprintf( binlabel, "Nj%d-Nb%d-MHTC-HT%d  C%2d", tbi_nj, tbi_nb-1, tbi_ht, bi_plot ) ;
+               sprintf( binlabel, "NJets%d_BTags%d-MHTC-HT%d  C%2d", tbi_nj-1, tbi_nb-1, tbi_ht, bi_plot ) ;
                hp -> GetXaxis() -> SetBinLabel( bi_plot, binlabel ) ;
             } // tbi_ht
          } // tbi_nb
@@ -650,7 +650,7 @@ void fill_hists_loop_v2d::Loop( bool verb, int nloop )
             for ( int tbi_ht=1; tbi_ht<=(nb_ht[1]); tbi_ht++ ) {
                bi_plot ++ ;
                char binlabel[100] ;
-               sprintf( binlabel, "Nj%d-MHTC-HT%d  C%2d", tbi_nj, tbi_ht, bi_plot ) ;
+               sprintf( binlabel, "NJets%d-MHTC-HT%d  C%2d", tbi_nj-1, tbi_ht, bi_plot ) ;
                hp -> GetXaxis() -> SetBinLabel( bi_plot, binlabel ) ;
             } // tbi_ht
       } // tbi_nj
