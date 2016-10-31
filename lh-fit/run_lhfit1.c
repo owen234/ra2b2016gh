@@ -25,7 +25,11 @@
 #include "THStack.h"
 #include "TLegend.h"
 
+#include <fstream>
+
 #include "histio.c"
+
+#include "../binning.h"
 
 #include <iostream>
 #include <sstream>
@@ -58,15 +62,21 @@
       int fb_qcd_njet_par_ind[10] ;
       int fb_qcd_nb_par_ind[10] ;
 
+      ifstream ifs_qcdmc ;
+
+   void get_qcdmc_counts( const char* binlabel, float& qcdmc_hdp_val, float& qcdmc_hdp_err ) ;
+
   //---------------
 
    void run_lhfit1( const char* wsfile = "outputfiles/ws-lhfit-test.root",
                        float fixed_sig_strength = 0.,
                        bool make_all_plots = true,
                        bool fix_nuisance_pars = false,
-                       bool fix_bg_mu_pars = false
+                       bool fix_bg_mu_pars = false,
+                       const char* qcd_mc_file = "../outputfiles/nbsum-input-qcd.txt"
                       ) {
 
+      setup_bins() ;
       char output_file[10000] ;
 
       char command[10000] ;
@@ -158,14 +168,16 @@
 
 
 
+      int num_model_pars = nb_ht[1] + nb_nj - 1 ;
+      printf("\n\n Number of model pars:  %d HT, %d-1 Nj = %d\n", nb_ht[1], nb_nj, num_model_pars ) ;
 
       TMatrixDSym cov_mat = fitResult -> covarianceMatrix() ;
-      TMatrixDSym cov_mat_modelpars_only(6) ;
+      TMatrixDSym cov_mat_modelpars_only(num_model_pars) ;
       for ( int i=0; i<10; i++ ) {
          printf( "  row %2d : ", i ) ;
          for ( int j=0; j<10; j++ ) {
             printf("  %12.8f  ", cov_mat[i][j] ) ;
-            if ( i < 6 && j < 6 ) {
+            if ( i < num_model_pars && j < num_model_pars ) {
                cov_mat_modelpars_only[i][j] = cov_mat[i][j] ;
             }
          } // j
@@ -174,7 +186,7 @@
 
 
       FILE* ofp_covmat(0x0) ;
-      sprintf( output_file, "%s/kqcd-parameter-fit-covmat.txt", output_dir ) ;
+      sprintf( output_file, "%s/kqcd-parameter-fit-covmat.tex", output_dir ) ;
       if ( (ofp_covmat=fopen( output_file, "w" ))==NULL ) {
          printf("\n\n *** Problem opening %s\n\n", output_file ) ;
          return ;
@@ -185,7 +197,7 @@
 
       RooArgList float_pars_final = fitResult -> floatParsFinal() ;
       RooArgList kqcd_pars ;
-      for ( int pi=0; pi<6; pi++ ) {
+      for ( int pi=0; pi<num_model_pars; pi++ ) {
          TString pname( float_pars_final.at(pi)->GetName() ) ;
          sprintf( model_par_names[pi], "%s", pname.Data() ) ;
          float val = ((RooAbsReal*)float_pars_final.at(pi))->getVal() ;
@@ -199,16 +211,16 @@
       printf("\n\n\n ====== Cov mat of model pars only:\n") ;
       printf("               ") ;
       fprintf( ofp_covmat, "  covmat_columns            " ) ;
-      for ( int i=0; i<6; i++ ) {
+      for ( int i=0; i<num_model_pars; i++ ) {
          printf("  %12s  ", model_par_names[i] ) ;
          fprintf( ofp_covmat, "  %12s  ",  model_par_names[i] ) ;
       } // i
       printf("\n") ;
       fprintf( ofp_covmat, "\n" ) ;
-      for ( int i=0; i<6; i++ ) {
+      for ( int i=0; i<num_model_pars; i++ ) {
          printf( "%12s : ", model_par_names[i] ) ;
          fprintf( ofp_covmat, "  covmat_row%d %12s  ", i+1, model_par_names[i] ) ;
-         for ( int j=0; j<6; j++ ) {
+         for ( int j=0; j<num_model_pars; j++ ) {
              printf("  %12.8f  ", cov_mat_modelpars_only[i][j] ) ;
              fprintf( ofp_covmat, "  %12.8f  ", cov_mat_modelpars_only[i][j] ) ;
          } // j
@@ -221,17 +233,17 @@
 
 
 
-      TVectorD eigen_vals( 6 ) ;
+      TVectorD eigen_vals( num_model_pars ) ;
       TMatrixD eigen_vector_matrix = cov_mat_modelpars_only.EigenVectors( eigen_vals ) ;
 
       printf("\n\n") ;
-      for ( int i=0; i<6; i++ ) {
+      for ( int i=0; i<num_model_pars; i++ ) {
          printf("   Eigen value %d : %12.8f\n", i, eigen_vals[i] ) ;
       } // i
 
       printf("\n\n Eigen vector matrix:\n") ;
-      for ( int i=0; i<6; i++ ) {
-         for ( int j=0; j<6; j++ ) {
+      for ( int i=0; i<num_model_pars; i++ ) {
+         for ( int j=0; j<num_model_pars; j++ ) {
             printf("  %12.8f  ", eigen_vector_matrix[i][j] ) ;
          } // j
          printf("\n" ) ;
@@ -239,14 +251,14 @@
       printf("\n\n") ;
 
       printf("\n\n  Check of eigen vectors:\n") ;
-      for ( int i=0; i<6; i++ ) {
+      for ( int i=0; i<num_model_pars; i++ ) {
          printf("  Eigen value %d : %12.8f\n", i, eigen_vals[i] ) ;
-         TMatrixT<double> eigen_vector_col(6,1) ;
-         TMatrixT<double> eigen_vector_row(1,6) ;
+         TMatrixT<double> eigen_vector_col(num_model_pars,1) ;
+         TMatrixT<double> eigen_vector_row(1,num_model_pars) ;
          double largest_component_val(0.) ;
          int largest_component_ind(-1) ;
          printf("      Eigen vector elements : ") ;
-         for ( int j=0; j<6; j++ ) {
+         for ( int j=0; j<num_model_pars; j++ ) {
             eigen_vector_col(j,0) = eigen_vector_matrix[j][i] ;
             eigen_vector_row(0,j) = eigen_vector_matrix[j][i] ;
             if ( fabs( eigen_vector_matrix[j][i] ) > largest_component_val ) {
@@ -257,15 +269,15 @@
          }
          printf("\n") ;
          printf("   Largest component is %s\n", model_par_names[largest_component_ind] ) ;
-         TMatrixT<double> cm_times_ev(6,1) ;
+         TMatrixT<double> cm_times_ev(num_model_pars,1) ;
          cm_times_ev.Mult( cov_mat_modelpars_only, eigen_vector_col ) ;
          printf("      CM times eigen vector : ") ;
-         for ( int j=0; j<6; j++ ) {
+         for ( int j=0; j<num_model_pars; j++ ) {
             printf( "  %12.8f  ", cm_times_ev(j,0) ) ;
          }
          printf("\n") ;
          printf("      after div  by EV      : ") ;
-         for ( int j=0; j<6; j++ ) {
+         for ( int j=0; j<num_model_pars; j++ ) {
             printf( "  %12.8f  ", cm_times_ev(j,0) / eigen_vals[i] ) ;
          }
          printf("\n") ;
@@ -326,7 +338,7 @@
 
       for ( int pi=0; pi<float_pars_final.getSize(); pi++ ) {
          TString pname( float_pars_final.at(pi)->GetName() ) ;
-         if ( pi < 6 ) sprintf( model_par_names[pi], "%s", pname.Data() ) ;
+         if ( pi < num_model_pars ) sprintf( model_par_names[pi], "%s", pname.Data() ) ;
          TString latex_pname = pname ;
          latex_pname.ReplaceAll("_"," ") ;
          if ( pname.Index( "Kqcd" ) == 0 || pname.Index( "Sqcd" ) == 0 ) {
@@ -387,7 +399,8 @@
       gDirectory -> Delete( "h_*" ) ;
 
 
-      int n_bins_unblind = 2 + 4 + 4 ;
+      /////////////int n_bins_unblind = 2 + 4 + 4 ;
+      int n_bins_unblind = nb_nj-2 + 2*nb_nj ;
 
       TH1F* h_rqcd = new TH1F( "h_rqcd", "Rqcd", n_bins_unblind, 0.5, n_bins_unblind + 0.5 ) ; hist_list.push_back( h_rqcd ) ;
 
@@ -422,10 +435,10 @@
       {
          int bi(1) ;
 
-         for ( int hbi=1; hbi<=3; hbi++ ) {
-            for ( int nji=1; nji<=4; nji++ ) {
+         for ( int hbi=1; hbi<=nb_ht[1]; hbi++ ) {
+            for ( int nji=1; nji<=nb_nj; nji++ ) {
 
-               if ( hbi==1 && nji>2 ) continue ;
+               if ( hbi==1 && nji>(nb_nj-2) ) continue ;
 
                char bin_name[1000] ;
                sprintf( bin_name, "Nj%d-HT%d", nji, hbi ) ;
@@ -796,6 +809,27 @@
 
 
 
+     //--- Read in QCD MC counts, if the file is provided, and include the HDP counts in the tables.
+
+      bool include_qcdmc(false) ;
+      ifs_qcdmc.open( qcd_mc_file ) ;
+      if ( ifs_qcdmc.good() ) {
+         printf("\n\n\n  *** QCD MC file provided.  Will include it in the tables.\n\n\n") ;
+         include_qcdmc = true ;
+      } else {
+         printf("\n\n\n  *** No QCD MC file provided.  Not including it in the tables.\n\n\n") ;
+         include_qcdmc = false ;
+      }
+
+
+
+
+
+
+
+
+
+
       FILE* ofp_qcd_table1(0x0) ;
       sprintf( output_file, "%s/qcd-event-yield-fit-results1.tex", output_dir ) ;
       if ( (ofp_qcd_table1=fopen( output_file, "w" ))==NULL ) {
@@ -817,33 +851,67 @@
          return ;
       }
 
-      fprintf( ofp_qcd_table1, "\\begin{tabular}{|l||c|c|c||c|c|c|}\n" ) ;
-      fprintf( ofp_qcd_table1, "\\hline\n" ) ;
-      fprintf( ofp_qcd_table1, "  &  \\multicolumn{3}{|c||}{  LDP }   &  \\multicolumn{3}{|c|}{ ZL }  \\\\\n" ) ;
-      fprintf( ofp_qcd_table1, " Bin &  Nobs  &  Fit  &  Fit QCD   &  Nobs  &  Fit  &  Fit QCD  \\\\\n" ) ;
-      fprintf( ofp_qcd_table1, "\\hline\n" ) ;
-      fprintf( ofp_qcd_table1, "\\hline\n" ) ;
 
-      fprintf( ofp_qcd_table2, "\\begin{tabular}{|l||c|c|c||c|c|c|}\n" ) ;
-      fprintf( ofp_qcd_table2, "\\hline\n" ) ;
-      fprintf( ofp_qcd_table2, "  &  \\multicolumn{3}{|c||}{  LDP }   &  \\multicolumn{3}{|c|}{ ZL }  \\\\\n" ) ;
-      fprintf( ofp_qcd_table2, " Bin &  Nobs  &  Non-QCD &  Fit QCD   &  Nobs  &  Non-QCD  &  Fit QCD  \\\\\n" ) ;
-      fprintf( ofp_qcd_table2, "\\hline\n" ) ;
-      fprintf( ofp_qcd_table2, "\\hline\n" ) ;
 
-      fprintf( ofp_qcd_table3, "\\begin{tabular}{|l||c|c|c|c|c|}\n" ) ;
-      fprintf( ofp_qcd_table3, "\\hline\n" ) ;
-      fprintf( ofp_qcd_table3, "  &  \\multicolumn{2}{|c||}{  LDP } &    &  \\multicolumn{2}{|c|}{ ZL }  \\\\\n" ) ;
-      fprintf( ofp_qcd_table3, " Bin &  Nobs-NonQCD &  Fit QCD   &  Rqcd  &  Nobs-NonQCD  &  Fit QCD  \\\\\n" ) ;
-      fprintf( ofp_qcd_table3, "\\hline\n" ) ;
-      fprintf( ofp_qcd_table3, "\\hline\n" ) ;
+
+
+      if ( include_qcdmc ) {
+
+         fprintf( ofp_qcd_table1, "\\begin{tabular}{|l||c|c|c||c|c|c||c|}\n" ) ;
+         fprintf( ofp_qcd_table1, "\\hline\n" ) ;
+         fprintf( ofp_qcd_table1, "  &  \\multicolumn{3}{|c||}{  LDP }   &  \\multicolumn{4}{|c|}{ ZL }  \\\\\n" ) ;
+         fprintf( ofp_qcd_table1, " Bin &  Nobs  &  Fit  &  Fit QCD   &  Nobs  &  Fit  &  Fit QCD     & QCD MC \\\\\n" ) ;
+         fprintf( ofp_qcd_table1, "\\hline\n" ) ;
+         fprintf( ofp_qcd_table1, "\\hline\n" ) ;
+
+         fprintf( ofp_qcd_table2, "\\begin{tabular}{|l||c|c|c||c|c|c||c|}\n" ) ;
+         fprintf( ofp_qcd_table2, "\\hline\n" ) ;
+         fprintf( ofp_qcd_table2, "  &  \\multicolumn{3}{|c||}{  LDP }   &  \\multicolumn{4}{|c|}{ ZL }  \\\\\n" ) ;
+         fprintf( ofp_qcd_table2, " Bin &  Nobs  &  Non-QCD &  Fit QCD   &  Nobs  &  Non-QCD  &  Fit QCD     & QCD MC \\\\\n" ) ;
+         fprintf( ofp_qcd_table2, "\\hline\n" ) ;
+         fprintf( ofp_qcd_table2, "\\hline\n" ) ;
+
+         fprintf( ofp_qcd_table3, "\\begin{tabular}{|l||c|c|c|c|c||c|}\n" ) ;
+         fprintf( ofp_qcd_table3, "\\hline\n" ) ;
+         fprintf( ofp_qcd_table3, "  &  \\multicolumn{2}{|c||}{  LDP } &    &  \\multicolumn{3}{|c|}{ ZL }  \\\\\n" ) ;
+         fprintf( ofp_qcd_table3, " Bin &  Nobs-NonQCD &  Fit QCD   &  Rqcd  &  Nobs-NonQCD  &  Fit QCD     & QCD MC \\\\\n" ) ;
+         fprintf( ofp_qcd_table3, "\\hline\n" ) ;
+         fprintf( ofp_qcd_table3, "\\hline\n" ) ;
+
+      } else {
+
+         fprintf( ofp_qcd_table1, "\\begin{tabular}{|l||c|c|c||c|c|c|}\n" ) ;
+         fprintf( ofp_qcd_table1, "\\hline\n" ) ;
+         fprintf( ofp_qcd_table1, "  &  \\multicolumn{3}{|c||}{  LDP }   &  \\multicolumn{3}{|c|}{ ZL }  \\\\\n" ) ;
+         fprintf( ofp_qcd_table1, " Bin &  Nobs  &  Fit  &  Fit QCD   &  Nobs  &  Fit  &  Fit QCD  \\\\\n" ) ;
+         fprintf( ofp_qcd_table1, "\\hline\n" ) ;
+         fprintf( ofp_qcd_table1, "\\hline\n" ) ;
+
+         fprintf( ofp_qcd_table2, "\\begin{tabular}{|l||c|c|c||c|c|c|}\n" ) ;
+         fprintf( ofp_qcd_table2, "\\hline\n" ) ;
+         fprintf( ofp_qcd_table2, "  &  \\multicolumn{3}{|c||}{  LDP }   &  \\multicolumn{3}{|c|}{ ZL }  \\\\\n" ) ;
+         fprintf( ofp_qcd_table2, " Bin &  Nobs  &  Non-QCD &  Fit QCD   &  Nobs  &  Non-QCD  &  Fit QCD  \\\\\n" ) ;
+         fprintf( ofp_qcd_table2, "\\hline\n" ) ;
+         fprintf( ofp_qcd_table2, "\\hline\n" ) ;
+
+         fprintf( ofp_qcd_table3, "\\begin{tabular}{|l||c|c|c|c|c|}\n" ) ;
+         fprintf( ofp_qcd_table3, "\\hline\n" ) ;
+         fprintf( ofp_qcd_table3, "  &  \\multicolumn{2}{|c||}{  LDP } &    &  \\multicolumn{2}{|c|}{ ZL }  \\\\\n" ) ;
+         fprintf( ofp_qcd_table3, " Bin &  Nobs-NonQCD &  Fit QCD   &  Rqcd  &  Nobs-NonQCD  &  Fit QCD  \\\\\n" ) ;
+         fprintf( ofp_qcd_table3, "\\hline\n" ) ;
+         fprintf( ofp_qcd_table3, "\\hline\n" ) ;
+
+      }
 
       for ( int bi=1; bi<=n_bins_unblind; bi++ ) {
 
          char bin_name[100] ;
          sprintf( bin_name, "%s", h_nobs_ldp -> GetXaxis() -> GetBinLabel( bi ) ) ;
+         int lbn ;
+         char short_bin_name[100] ;
+         sscanf( bin_name, "%s %d", short_bin_name, &lbn ) ;
 
-         fprintf( ofp_qcd_table1,  " %20s &  $%7.0f$  &  $%7.1f$  &  $%7.1f \\pm %5.1f$ &  $%7.0f$  &  $%7.1f$  &  $%7.1f \\pm %5.1f$  \\\\\n",
+         fprintf( ofp_qcd_table1,  " %20s &  $%7.0f$  &  $%7.1f$  &  $%7.1f \\pm %5.1f$ &  $%7.0f$  &  $%7.1f$  &  $%7.1f \\pm %5.1f$  ",
               bin_name,
               h_nobs_ldp -> GetBinContent(bi),
               h_model_ldp -> GetBinContent(bi),
@@ -852,7 +920,7 @@
               h_model_zl -> GetBinContent(bi),
               h_qcd_model_zl -> GetBinContent(bi),  h_qcd_model_zl -> GetBinError(bi) ) ;
 
-         fprintf( ofp_qcd_table2,  " %20s &  $%7.0f$  &  $%7.1f \\pm %5.1f$  &  $%7.1f \\pm %5.1f$ &  $%7.0f$  &  $%7.1f \\pm %5.1f$  &  $%7.1f \\pm %5.1f$  \\\\\n",
+         fprintf( ofp_qcd_table2,  " %20s &  $%7.0f$  &  $%7.1f \\pm %5.1f$  &  $%7.1f \\pm %5.1f$ &  $%7.0f$  &  $%7.1f \\pm %5.1f$  &  $%7.1f \\pm %5.1f$  ",
               bin_name,
               h_nobs_ldp -> GetBinContent(bi),
               h_nonqcd_ldp -> GetBinContent(bi),  h_nonqcd_ldp -> GetBinError(bi),
@@ -861,13 +929,25 @@
               h_nonqcd_zl -> GetBinContent(bi),  h_nonqcd_zl -> GetBinError(bi),
               h_qcd_model_zl -> GetBinContent(bi),  h_qcd_model_zl -> GetBinError(bi) ) ;
 
-         fprintf( ofp_qcd_table3,  " %20s &  $%7.1f \\pm %5.1f$  &  $%7.1f \\pm %5.1f$ &    $%5.3f \\pm %5.3f$  &  $%7.1f \\pm %5.1f$  &  $%7.1f \\pm %5.1f$  \\\\\n",
+         fprintf( ofp_qcd_table3,  " %20s &  $%7.1f \\pm %5.1f$  &  $%7.1f \\pm %5.1f$ &    $%5.3f \\pm %5.3f$  &  $%7.1f \\pm %5.1f$  &  $%7.1f \\pm %5.1f$  ",
               bin_name,
               h_nonqcdsub_ldp -> GetBinContent(bi),  h_nonqcdsub_ldp -> GetBinError(bi),
               h_qcd_model_ldp -> GetBinContent(bi),  h_qcd_model_ldp -> GetBinError(bi),
               h_rqcd -> GetBinContent(bi),          h_rqcd -> GetBinError(bi),
               h_nonqcdsub_zl -> GetBinContent(bi),  h_nonqcdsub_zl -> GetBinError(bi),
               h_qcd_model_zl -> GetBinContent(bi),  h_qcd_model_zl -> GetBinError(bi) ) ;
+
+         if ( include_qcdmc) {
+            float qcdmc_hdp_val(0.), qcdmc_hdp_err(0.) ;
+            get_qcdmc_counts( short_bin_name, qcdmc_hdp_val, qcdmc_hdp_err ) ;
+            fprintf( ofp_qcd_table1, "  &  $%5.1f \\pm %5.1f$  \\\\\n", qcdmc_hdp_val, qcdmc_hdp_err ) ;
+            fprintf( ofp_qcd_table2, "  &  $%5.1f \\pm %5.1f$  \\\\\n", qcdmc_hdp_val, qcdmc_hdp_err ) ;
+            fprintf( ofp_qcd_table3, "  &  $%5.1f \\pm %5.1f$  \\\\\n", qcdmc_hdp_val, qcdmc_hdp_err ) ;
+         } else {
+            fprintf( ofp_qcd_table1, "  \\\\\n" ) ;
+            fprintf( ofp_qcd_table2, "  \\\\\n" ) ;
+            fprintf( ofp_qcd_table3, "  \\\\\n" ) ;
+         }
 
          if ( n_bins_unblind==55 && bi%11 == 0 && bi<55 ) fprintf( ofp_qcd_table1,  " \\hline\n" ) ;
          if ( n_bins_unblind==55 && bi%11 == 0 && bi<55 ) fprintf( ofp_qcd_table2,  " \\hline\n" ) ;
@@ -1089,7 +1169,8 @@
       double kqcd_njet_val = 1. ;
       double kqcd_njet_err = 0. ;
       RooRealVar* rrv_kqcd_njet(0x0) ;
-      if ( nji > 1 ) {
+      ////////////////////////if ( nji > 1 )
+      if ( nji != (njet_bin_to_fix_in_qcd_model_fit+1) ) {
          rrv_kqcd_njet = (RooRealVar*) ral_kqcd_pars.find( kqcd_njet_name ) ;
          if ( rrv_kqcd_njet == 0x0 ) {
             char pname[100] ;
@@ -1121,7 +1202,8 @@
       pd_row_vec(0,0) = Rqcd_val / kqcd_ht_val ;
       cov_mat(0,0) = kqcd_ht_err * kqcd_ht_err ;
 
-      if ( nji > 1 ) {
+      ////////if ( nji > 1 ) {
+      if ( nji != (njet_bin_to_fix_in_qcd_model_fit+1) ) {
     //--- Terms for Njet par.
          pd_col_vec(1,0) = Rqcd_val / kqcd_njet_val ;
          pd_row_vec(0,1) = Rqcd_val / kqcd_njet_val ;
@@ -1438,6 +1520,44 @@
    } // draw_pull
 
   //---------
+
+
+   void get_qcdmc_counts( const char* binlabel, float& qcdmc_hdp_val, float& qcdmc_hdp_err ) {
+
+      qcdmc_hdp_val = 0. ;
+      qcdmc_hdp_err = 0. ;
+
+      ifs_qcdmc.seekg(0) ;
+
+      if ( !ifs_qcdmc.good() ) {
+         printf("\n\n *** get_qcdmc_counts : bad input file.\n\n") ;
+         gSystem -> Exit(-1) ;
+      }
+
+      while ( ifs_qcdmc.good() ) {
+         TString line ;
+         line.ReadLine( ifs_qcdmc ) ;
+         char line_binlabel[100] ;
+         float line_ldp_val(0.) ;
+         float line_ldp_err(0.) ;
+         float line_hdp_val(0.) ;
+         float line_hdp_err(0.) ;
+         sscanf( line.Data(), "%s %f +/- %f  %f +/- %f", line_binlabel, &line_ldp_val, &line_ldp_err, &line_hdp_val, &line_hdp_err ) ;
+         if ( strcmp( line_binlabel, binlabel ) == 0 ) {
+            qcdmc_hdp_val = line_hdp_val ;
+            qcdmc_hdp_err = line_hdp_err ;
+            return ;
+         }
+      }
+
+      printf("\n\n *** get_qcdmc_counts : could not find bin %s\n\n\n", binlabel ) ;
+      gSystem -> Exit(-1) ;
+
+   } // get_qcdmc_counts
+
+
+  //---------
+
 
 
 

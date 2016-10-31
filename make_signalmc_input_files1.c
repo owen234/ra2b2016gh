@@ -1,6 +1,20 @@
 
+#ifndef make_signalmc_input_files1_c
+#define make_signalmc_input_files1_c
+
 #include "TFile.h"
+#include "TDirectory.h"
 #include "TH1F.h"
+#include "TPad.h"
+#include "TStyle.h"
+#include "TString.h"
+#include "TSystem.h"
+
+#include <fstream>
+
+#include "binning.h"
+
+#include "histio.c"
 
 
    void make_signalmc_input_files1( const char* input_root_file = "outputfiles/hists-v2d-T1bbbbH.root",
@@ -8,6 +22,7 @@
                                     const char* nbsum_text_file = "outputfiles/nbsum-input-T1bbbbH.txt"
                                ) {
 
+      setup_bins();
       gDirectory -> Delete( "h*" ) ;
 
       TFile* tf = new TFile( input_root_file, "read" ) ;
@@ -36,15 +51,10 @@
       TH1F* h_hdp = (TH1F*) tf -> Get( "h_hdp" ) ;
       if ( h_hdp == 0x0 ) { printf("\n\n *** Missing h_hdp\n\n") ; return ; }
 
-      int nb_nj(4) ;
-      int nb_nb(4) ;
-      int nb_htmht(13) ;
-      int nb_ht(3) ;
-
       int bi_hist(0) ;
 
 
-      for ( int bi_ht=1; bi_ht<=nb_ht; bi_ht++ ) {
+      for ( int bi_ht=1; bi_ht<=nb_ht[1]; bi_ht++ ) {
          for ( int bi_nj=1; bi_nj<=nb_nj; bi_nj++ ) {
 
             double ldp_nbsum_val(0.) ;
@@ -167,4 +177,4 @@
    } // make_signalmc_input_files1
 
 
-
+#endif

@@ -48,6 +48,7 @@
          printf( "\n\n *** Problem opening nbsum output file: %s\n\n", fname ) ;
          return ;
       }
+      printf("\n Creating output file : %s\n\n", fname ) ;
 
      ////--- Have to wait until the other BG teams give new inputs with Njets=2 for this part
 
@@ -56,10 +57,20 @@
 ///   ifs_combine_stat_syst.open( fname ) ;
 ///   if ( !ifs_combine_stat_syst.good() ) { printf("\n\n *** Can't open %s\n\n", fname ) ; return ; }
 
-///   ifstream ifs_nbsum_stat_syst ;
-///   sprintf( fname, "%s/nbsum-stat-syst-%s.txt", iodir, sample_name ) ;
-///   ifs_nbsum_stat_syst.open( fname ) ;
-///   if ( !ifs_nbsum_stat_syst.good() ) { printf("\n\n *** Can't open %s\n\n", fname ) ; return ; }
+      ifstream ifs_nbsum_stat_syst ;
+      if ( strcmp( sample_name, "qcd" ) != 0 ) {
+         printf("  This is not qcd.\n") ;
+         if ( nb_nj==4 ) {
+            sprintf( fname, "error-scaling-files/nbsum-stat-syst-%s.txt", sample_name ) ;
+         } else if ( nb_nj==5 ) {
+            sprintf( fname, "error-scaling-files/nbsum-stat-syst-%s-withnj2.txt", sample_name ) ;
+         } else {
+            printf("\n\n *** I can't do nb_nj=%d\n\n", nb_nj ) ;
+         }
+         printf("  Opening error scaling file: %s\n", fname ) ;
+         ifs_nbsum_stat_syst.open( fname ) ;
+         if ( !ifs_nbsum_stat_syst.good() ) { printf("\n\n *** Can't open %s\n\n", fname ) ; return ; }
+      }
 
 
       TH1F* h_ldp = get_hist( "h_ldp" ) ;
@@ -201,11 +212,13 @@
              float hdp_stat_over_sqrtn = 0.7 ; // guess until input below is ready including Njets=2.
              float hdp_syst_over_n = 0.15 ;  // guess until input below is ready including Njets=2.
 
-    //////  line.ReadLine( ifs_nbsum_stat_syst ) ;
-    //////  char csslabel1[100] ;
-    //////  float ldp_stat_over_sqrtn(1.), ldp_syst_over_n(1.),   hdp_stat_over_sqrtn(1.), hdp_syst_over_n(1.) ;
-    //////  sscanf( line.Data(), " %s  %f %f  %f %f", csslabel1,
-    //////    &ldp_stat_over_sqrtn, &ldp_syst_over_n, &hdp_stat_over_sqrtn, &hdp_syst_over_n ) ;
+             if ( strcmp( sample_name, "qcd" ) != 0 ) {
+                line.ReadLine( ifs_nbsum_stat_syst ) ;
+                char csslabel1[100] ;
+                sscanf( line.Data(), " %s  %f %f  %f %f", csslabel1,
+                  &ldp_stat_over_sqrtn, &ldp_syst_over_n, &hdp_stat_over_sqrtn, &hdp_syst_over_n ) ;
+                printf(" hdp_stat_over_sqrtn = %.3f ,  hdp_syst_over_n = %.3f\n", hdp_stat_over_sqrtn, hdp_syst_over_n ) ;
+             }
 
             double ldp_nbsum_stat_err = ldp_stat_over_sqrtn * sqrt( ldp_nbsum_val ) ;
             double ldp_nbsum_syst_err = ldp_syst_over_n * ldp_nbsum_val  ;

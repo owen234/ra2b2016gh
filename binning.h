@@ -57,6 +57,10 @@ using namespace std ;
    int   no_bin_bjet_w_mhtc[10]{};
    int   no_bin_njet_w_mhtc[10]{};
 
+   bool gbi_array_ready(false) ;
+   int gbi_with_mhtc[6][5][14] ;
+
+   int global_bin_with_mhtc( int nji, int nbi, int htmhti ) ;
 
 //=====================================================================================================
 
@@ -212,5 +216,38 @@ void htmht_bin_to_ht_mht_bins(int bin_htmht, int& bin_ht, int& bin_mht)
    if ( bin_htmht ==12 ) { bin_ht = 2; bin_mht = 5; }
    if ( bin_htmht ==13 ) { bin_ht = 3; bin_mht = 5; }
 }
+//=========================================
+
+int global_bin_with_mhtc( int arg_nji, int arg_nbi, int arg_htmhti ) {
+
+   if ( !gbi_array_ready ) {
+      int gbi(0) ;
+      for ( int nji=1; nji<=nb_nj; nji++ ) {
+         for ( int nbi=1; nbi<=nb_nb; nbi ++ ) {
+            for ( int htmhti=1; htmhti<=nb_htmht; htmhti++ ) {
+               int hti, mhti ;
+               htmht_bin_to_ht_mht_bins( htmhti, hti, mhti ) ;
+               bool excluded = exclude_this_bin( nji-1, nbi-1, hti-1, mhti-1 ) ;
+               if ( !excluded ) {
+                  gbi++ ;
+                  gbi_with_mhtc[nji][nbi][htmhti] = gbi ;
+               } else {
+                  gbi_with_mhtc[nji][nbi][htmhti] = -1 ;
+               }
+            } //htmhti
+         } // nbi
+      } // mhi
+      gbi_array_ready = true ;
+   }
+
+   return gbi_with_mhtc[arg_nji][arg_nbi][arg_htmhti] ;
+
+} // global_bin_with_mhtc
+
+//=========================================
+
+
+
+
 
 #endif

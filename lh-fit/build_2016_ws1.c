@@ -20,6 +20,8 @@
 #include "RooProdPdfLogSum.h"
 #include "RooPoissonLogEval.h"
 
+#include "../binning.h"
+
 #include <fstream>
 
    using namespace RooFit ;
@@ -50,6 +52,7 @@
                           ) {
 
 
+      setup_bins() ;
       bool no_rounding(true) ;
 
       char pname[100] ;
@@ -102,10 +105,23 @@
       rv_qcd_kht[2] = new RooRealVar( "Kqcd_ht2", "Kqcd_ht2", 0.03, 0., 5. ) ;
       rv_qcd_kht[3] = new RooRealVar( "Kqcd_ht3", "Kqcd_ht3", 0.02, 0., 5. ) ;
 
-      rv_qcd_snjet[1] = new RooRealVar( "Sqcd_njet1", "Sqcd_njet1", 1.0, 0., 2. ) ; ((RooRealVar*) rv_qcd_snjet[1]) -> setConstant( kTRUE ) ;
-      rv_qcd_snjet[2] = new RooRealVar( "Sqcd_njet2", "Sqcd_njet2",  1.9, 0., 10. ) ;
-      rv_qcd_snjet[3] = new RooRealVar( "Sqcd_njet3", "Sqcd_njet3",  3.2, 0., 20. ) ;
-      rv_qcd_snjet[4] = new RooRealVar( "Sqcd_njet4", "Sqcd_njet4", 10.0, 0., 40. ) ;
+      printf("\n Njet parameters:\n") ;
+      for ( int bi=1; bi<=nb_nj; bi++ ) {
+         char pname[100] ;
+         sprintf( pname, "Sqcd_njet%d", bi ) ;
+         rv_qcd_snjet[bi] = new RooRealVar( pname, pname, 1.0, 0., 40. ) ;
+         printf(" %s ", pname ) ;
+         if ( bi == (njet_bin_to_fix_in_qcd_model_fit+1) ) {
+            ((RooRealVar*) rv_qcd_snjet[bi]) -> setConstant( kTRUE ) ;
+            printf(" fixed to 1\n") ;
+         } else {
+            printf("\n") ;
+         }
+      }
+      ///////////// rv_qcd_snjet[1] = new RooRealVar( "Sqcd_njet1", "Sqcd_njet1", 1.0, 0., 2. ) ; ((RooRealVar*) rv_qcd_snjet[1]) -> setConstant( kTRUE ) ;
+      ///////////// rv_qcd_snjet[2] = new RooRealVar( "Sqcd_njet2", "Sqcd_njet2",  1.9, 0., 10. ) ;
+      ///////////// rv_qcd_snjet[3] = new RooRealVar( "Sqcd_njet3", "Sqcd_njet3",  3.2, 0., 20. ) ;
+      ///////////// rv_qcd_snjet[4] = new RooRealVar( "Sqcd_njet4", "Sqcd_njet4", 10.0, 0., 40. ) ;
 
 
 
@@ -345,7 +361,7 @@
 
 
         //-- skip the garbage bins in the likelihood.
-         if ( fb_hbi==1 && fb_nji>2 ) continue ;
+         if ( fb_hbi==1 && fb_nji>(nb_nj-2) ) continue ;
 
 
          sprintf( pname, "pdf_ldp_%s", bin_name ) ;
