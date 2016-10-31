@@ -5,30 +5,12 @@
 #include "TPad.h"
 #include "TStyle.h"
 #include <fstream>
-
+#include <iostream>
 #include "binning.h"
 #include "histio.c"
+#include "read_pars.h"
 
-      float par_val_ht[10] ;
-      float par_err_ht_fit[10] ;
-      float par_err_ht_syst[10] ;
-
-      float par_val_njet[10] ;
-      float par_err_njet_fit[10] ;
-      float par_err_njet_syst[10] ;
-
-      float par_val_ht_mht[10][10] ;
-      float par_err_ht_mht[10][10] ;
-
-      float par_val_nb[10] ;
-      float par_err_nb[10] ;
-
-
-   void get_par( ifstream& ifs, const char* pname, float& val, float& err1, float& err2 ) ;
-   void set_ht_and_mht_ind_from_htmht_ind( int bi_htmht, int& bi_ht, int& bi_mht ) ;
-   void read_pars( const char* model_pars_file ) ;
-   TH1F* get_hist( const char* hname ) ;
-
+   TH1F* get_hist( const char* hname );
 
    void create_model_ratio_hist1( const char* model_pars_file = "outputfiles/model-pars-qcdmc3.txt",
                                   const char* qcd_ratio_file = "outputfiles/qcdmc-ratio-v3.root" ) {
@@ -54,7 +36,7 @@
                bi_hist++ ;
 
                int bi_ht, bi_mht ;
-               set_ht_and_mht_ind_from_htmht_ind( bi_htmht, bi_ht, bi_mht ) ;
+               htmht_bin_to_ht_and_mht_bins( bi_htmht, bi_ht, bi_mht ) ;
 
                char label[100] ;
                sprintf( label, " %3d Nj%d-Nb%d-MHT%d-HT%d (%d)", bi_hist, bi_nj, bi_nb-1, bi_mht-1, bi_ht, bi_htmht-3 ) ;
@@ -140,131 +122,6 @@
 
    } // create_model_ratio_hist1
 
-  //=======================================================================================
-
-      void read_pars( const char* model_pars_file ) {
-
-         ifstream ifs_model_pars ;
-         ifs_model_pars.open( model_pars_file ) ;
-         if ( !ifs_model_pars.good() ) { printf("\n\n *** Problem opening %s\n\n", model_pars_file ) ; gSystem->Exit(-1) ; }
-
-         float val, err1, err2 ;
-         char pname[100] ;
-
-       //---
-
-         for ( int bi_ht=1; bi_ht<=nBinsHT; bi_ht++ ) 
-         {
-         sprintf( pname, "Kqcd_HT%d",bi_ht ) ;
-         get_par( ifs_model_pars, pname, val, err1, err2 ) ;
-         par_val_ht     [bi_ht] = val ;
-         par_err_ht_fit [bi_ht] = err1 ;
-         par_err_ht_syst[bi_ht] = val*err2 ;
-         printf("   Read %s : %.4f %.4f %.4f\n", pname, val, err1, err2 ) ;
-
-         }
-       //---
-         for ( int bi_nj=1; bi_nj<=nb_nj; bi_nj++ )  
-         {
-         sprintf( pname, "Sqcd_njet%d",bi_nj ) ;
-         get_par( ifs_model_pars, pname, val, err1, err2 ) ;
-         par_val_njet     [bi_nj] = val ;
-         par_err_njet_fit [bi_nj] = err1 ;
-         par_err_njet_syst[bi_nj] = val*err2 ;
-         printf("   Read %s : %.4f %.4f %.4f\n", pname, val, err1, err2 ) ;
-
-         }
-
-
-       //---
-         for ( int bi_ht =1; bi_ht<=nBinsHT; bi_ht++ )
-         for ( int bi_mht=0; bi_mht<nb_mht; bi_mht++ )
-         {
-         char ht_level [10], mhtc[10] = "c";
-         if ( bi_ht == 1 ) strcpy(ht_level, "hth");
-         if ( bi_ht == 2 ) strcpy(ht_level, "htm");
-         if ( bi_ht == 3 ) strcpy(ht_level, "htl");
-
-         if ( bi_ht == 3 && bi_mht > 2 ) continue;
-
-         if ( bi_mht == 0 ) sprintf( pname, "Sqcd_mht%s_%s",mhtc  , ht_level ) ;
-         else               sprintf( pname, "Sqcd_mht%d_%s",bi_mht, ht_level ) ;
-
-         get_par( ifs_model_pars, pname, val, err1, err2 ) ;
-         par_val_ht_mht[nBinsHT - bi_ht + 1][bi_mht+1] = val ;
-         par_err_ht_mht[nBinsHT - bi_ht + 1][bi_mht+1] = sqrt( err1*err1 + val*val*err2*err2 ) ;
-         printf("   Read %s : %.4f %.4f %.4f\n", pname, val, err1, err2 ) ;
-         }
-       //---
-
-         for ( int bi_nb=0; bi_nb<nb_nb; bi_nb++ )
-         {
-         sprintf( pname, "Sqcd_nb%d",bi_nb ) ;
-         get_par( ifs_model_pars, pname, val, err1, err2 ) ;
-         par_val_nb[bi_nb+1] = val ;
-         par_err_nb[bi_nb+1] = sqrt( err1*err1 + val*val*err2*err2 ) ;
-         printf("   Read %s : %.4f %.4f %.4f\n", pname, val, err1, err2 ) ;
-         }
-      } // read_pars
-
-  //=======================================================================================
-
-   void set_ht_and_mht_ind_from_htmht_ind( int bi_htmht, int& bi_ht, int& bi_mht ) {
-
-      if ( bi_htmht < 1 || bi_htmht > 13 ) {
-         printf("\n\n wtf???\n\n") ;
-         gSystem -> Exit(-1) ;
-      }
-
-      if ( bi_htmht == 1 ) { bi_ht = 1; bi_mht = 1; }
-      if ( bi_htmht == 2 ) { bi_ht = 2; bi_mht = 1; }
-      if ( bi_htmht == 3 ) { bi_ht = 3; bi_mht = 1; }
-
-      if ( bi_htmht == 4 ) { bi_ht = 1; bi_mht = 2; }
-      if ( bi_htmht == 5 ) { bi_ht = 2; bi_mht = 2; }
-      if ( bi_htmht == 6 ) { bi_ht = 3; bi_mht = 2; }
-
-      if ( bi_htmht == 7 ) { bi_ht = 1; bi_mht = 3; }
-      if ( bi_htmht == 8 ) { bi_ht = 2; bi_mht = 3; }
-      if ( bi_htmht == 9 ) { bi_ht = 3; bi_mht = 3; }
-
-      if ( bi_htmht ==10 ) { bi_ht = 2; bi_mht = 4; }
-      if ( bi_htmht ==11 ) { bi_ht = 3; bi_mht = 4; }
-
-      if ( bi_htmht ==12 ) { bi_ht = 2; bi_mht = 5; }
-      if ( bi_htmht ==13 ) { bi_ht = 3; bi_mht = 5; }
-
-   } // set_ht_and_mht_ind_from_htmht_ind
-
-  //=======================================================================================
-
-   void get_par( ifstream& ifs, const char* pname, float& val, float& err1, float& err2 ) {
-
-      val = 0. ;
-      err1 = 0. ;
-      err2 = 0. ;
-
-      ifs.seekg(0) ;
-
-      TString line ;
-      while ( ifs.good() ) {
-         line.ReadLine( ifs ) ;
-         char line_parname[100] ;
-         float line_val, line_err1, line_err2 ;
-         sscanf( line.Data(), "%s  %f %f %f", line_parname, &line_val, &line_err1, &line_err2 ) ;
-         if ( strcmp( line_parname, pname ) == 0 ) {
-            val = line_val ;
-            err1 = line_err1 ;
-            err2 = line_err2 ;
-            return ;
-         }
-      }
-//      std::cout << line_parname << ":" << pname << std::endl;
-      printf("\n\n *** get_par : Failed to find parameter %s\n\n", pname ) ;
-      gSystem -> Exit(-1) ;
-
-   } // get_par
-//===============================================================================
 
 #ifndef get_hist_
 #define get_hist_
