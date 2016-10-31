@@ -63,7 +63,7 @@
          parind ++ ;
       } // hbi.
       for ( int nji=0; nji<nb_nj; nji++ ) {
-         if ( nji == njet_bin_to_fix_in_qcd_model_fit ) {
+         if ( nji == njet_bin_to_be_fixed_in_qcd_model_fit ) {
             fit_SFqcd_njet[nji] = 1.0 ;
          } else {
             fit_SFqcd_njet[nji] = par[parind] ;
@@ -175,7 +175,7 @@
          parind++ ;
       } // hbi.
       for ( int nji=0; nji<nb_nj; nji++ ) {
-         if (nji == njet_bin_to_fix_in_qcd_model_fit ) continue;
+         if (nji == njet_bin_to_be_fixed_in_qcd_model_fit ) continue;
          char pname[1000] ;
          sprintf( pname, "SFqcd_njet%d", nji+1 ) ;
          myMinuit->mnparm( parind, pname, 1.0, 0.10, 0., 90., ierflg ) ;
@@ -281,7 +281,7 @@
          sprintf( pname, "Sqcd_njet%d", nji+1 ) ;
          double rel_err(0.) ;
 
-         if ( nji == njet_bin_to_fix_in_qcd_model_fit ) 
+         if ( nji == njet_bin_to_be_fixed_in_qcd_model_fit ) 
          {
             val = 1; err = 0; rel_err = 0; 
             printf(" %11s  %6.3f +/- %5.3f  (%4.2f)\n", pname, val, err, rel_err ) ;

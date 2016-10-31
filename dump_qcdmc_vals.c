@@ -1,16 +1,19 @@
+#ifndef dump_qcdmc_vals_c
+#define dump_qcdmc_vals_c
 
-
+#include "TSystem.h"
 
 #include "histio.c"
-
+#include "binning.h"
 
    void dump_qcdmc_vals(
          const char* infile = "outputfiles/hists-v2d-qcd.root",
          const char* outfile = "outputfiles/qcdmc-counts.txt"
          ) {
 
+      setup_bins();
+      
       gDirectory -> Delete( "h*" ) ;
-
       loadHist( infile ) ;
 
       TH1F* h_ldp = (TH1F*) gDirectory -> FindObject( "h_ldp" ) ;
@@ -26,14 +29,10 @@
       }
 
 
-      int nb_nj(4) ;
-      int nb_nb(4) ;
-      int nb_htmht(13) ;
-      int nb_ht(3) ;
-
       int bi_hist(0) ;
       int bi_control(0) ;
       int bi_search(0) ;
+
       for ( int bi_nj=1; bi_nj<=nb_nj; bi_nj++ ) {
          for ( int bi_nb=1; bi_nb<=nb_nb; bi_nb++ ) {
             for ( int bi_htmht=1; bi_htmht<=nb_htmht; bi_htmht++ ) {
@@ -45,25 +44,9 @@
                   bi_search ++ ;
                }
 
-               int bi_ht, bi_mht ;
+               int bi_ht = 0 , bi_mht = 0 ;
 
-               if ( bi_htmht == 1 ) { bi_ht = 1; bi_mht = 1; }
-               if ( bi_htmht == 2 ) { bi_ht = 2; bi_mht = 1; }
-               if ( bi_htmht == 3 ) { bi_ht = 3; bi_mht = 1; }
-
-               if ( bi_htmht == 4 ) { bi_ht = 1; bi_mht = 2; }
-               if ( bi_htmht == 5 ) { bi_ht = 2; bi_mht = 2; }
-               if ( bi_htmht == 6 ) { bi_ht = 3; bi_mht = 2; }
-
-               if ( bi_htmht == 7 ) { bi_ht = 1; bi_mht = 3; }
-               if ( bi_htmht == 8 ) { bi_ht = 2; bi_mht = 3; }
-               if ( bi_htmht == 9 ) { bi_ht = 3; bi_mht = 3; }
-
-               if ( bi_htmht ==10 ) { bi_ht = 2; bi_mht = 4; }
-               if ( bi_htmht ==11 ) { bi_ht = 3; bi_mht = 4; }
-
-               if ( bi_htmht ==12 ) { bi_ht = 2; bi_mht = 5; }
-               if ( bi_htmht ==13 ) { bi_ht = 3; bi_mht = 5; }
+               htmht_bin_to_ht_and_mht_bins ( bi_htmht, bi_ht, bi_mht );
 
                char mhtchar[10] ;
                if ( bi_mht == 1 ) {
@@ -102,6 +85,4 @@
 
    } // dump_qcdmc_vals
 
-
-
-
+#endif
