@@ -20,13 +20,15 @@
 using std::vector ;
 
 
-  void doSkimSlim( const char* infile_name, const char* outdir = "", bool doSkim = true, bool doSlim = true  ) {
+  void doSkimSlim( const char* infile_name, const char* outdir = "", bool doSkim = true, bool doSlim = true, bool blind=false  ) {
 
       printf("\n\n") ;
       printf("  doSkimSlim : input file : %s\n", infile_name ) ;
       printf("  doSkimSlim : output dir : %s\n", outdir ) ;
       if ( doSkim ) printf("  skimming\n" ) ;
       if ( doSlim ) printf("  slimming\n" ) ;
+      if ( blind ) printf("\n\n\n blinding HDP, MHT>300\n\n") ;
+      int nblindskip(0) ;
 
       if ( !TClassTable::GetDict("TLorentzVector")) {
          printf("\n\n Loading library for TLorentzVector.\n\n") ;
@@ -247,9 +249,21 @@ using std::vector ;
 
       bool pass_pfmet100_trig ;
       outReducedTree -> Branch( "pass_pfmet100_trig", &pass_pfmet100_trig, "pass_pfmet100_trig/B" ) ;
-
       bool pass_pfmetnomu100_trig ;
       outReducedTree -> Branch( "pass_pfmetnomu100_trig", &pass_pfmetnomu100_trig, "pass_pfmetnomu100_trig/B" ) ;
+
+      bool pass_pfmet110_trig ;
+      outReducedTree -> Branch( "pass_pfmet110_trig", &pass_pfmet110_trig, "pass_pfmet110_trig/B" ) ;
+      bool pass_pfmetnomu110_trig ;
+      outReducedTree -> Branch( "pass_pfmetnomu110_trig", &pass_pfmetnomu110_trig, "pass_pfmetnomu110_trig/B" ) ;
+
+      bool pass_pfmet120_trig ;
+      outReducedTree -> Branch( "pass_pfmet120_trig", &pass_pfmet120_trig, "pass_pfmet120_trig/B" ) ;
+      bool pass_pfmetnomu120_trig ;
+      outReducedTree -> Branch( "pass_pfmetnomu120_trig", &pass_pfmetnomu120_trig, "pass_pfmetnomu120_trig/B" ) ;
+
+
+
 
       bool pass_ht300_met100_trig ;
       outReducedTree -> Branch( "pass_ht300_met100_trig", &pass_ht300_met100_trig, "pass_ht300_met100_trig/B" ) ;
@@ -266,6 +280,13 @@ using std::vector ;
 
 
 
+      int counter_pass_pfmet100(0) ;
+      int counter_pass_pfmet110(0) ;
+      int counter_pass_pfmet120(0) ;
+
+      int counter_pass_pfmetnomu100(0) ;
+      int counter_pass_pfmetnomu110(0) ;
+      int counter_pass_pfmetnomu120(0) ;
 
 
      //--- Loop over the events.
@@ -357,6 +378,11 @@ using std::vector ;
          inLDP = true ;
          if ( DeltaPhi1 > 0.5 && DeltaPhi2 > 0.5 && DeltaPhi3 > 0.3 && DeltaPhi4 > 0.3 ) inLDP = false ;
 
+         if ( blind && MHT>300 && !inLDP ) {
+            nblindskip++ ;
+            continue ;
+         }
+
          hasHadTau = false ;
          if ( GenTau_GenTauHad != 0x0 ) {
             for ( unsigned long ti=0; ti<GenTau_GenTauHad->size(); ti++ ) {
@@ -367,6 +393,10 @@ using std::vector ;
 
          pass_pfmet100_trig = false ;
          pass_pfmetnomu100_trig = false ;
+         pass_pfmet110_trig = false ;
+         pass_pfmetnomu110_trig = false ;
+         pass_pfmet120_trig = false ;
+         pass_pfmetnomu120_trig = false ;
          pass_ht300_met100_trig = false ;
          pass_ht800_trig = false ;
          pass_ht900_trig = false ;
@@ -374,13 +404,23 @@ using std::vector ;
             TString tname( TriggerNames->at(ti).c_str() ) ;
             int tstatus = TriggerPass->at(ti) ;
             if ( tname.Contains( "HLT_PFMET100_PFMHT100_IDTight_v" ) && tstatus > 0 ) pass_pfmet100_trig = true ;
+            if ( tname.Contains( "HLT_PFMET110_PFMHT110_IDTight_v" ) && tstatus > 0 ) pass_pfmet110_trig = true ;
+            if ( tname.Contains( "HLT_PFMET120_PFMHT120_IDTight_v" ) && tstatus > 0 ) pass_pfmet120_trig = true ;
             if ( tname.Contains( "HLT_PFMETNoMu100_PFMHTNoMu100_IDTight_v" ) && tstatus > 0 ) pass_pfmetnomu100_trig = true ;
+            if ( tname.Contains( "HLT_PFMETNoMu110_PFMHTNoMu110_IDTight_v" ) && tstatus > 0 ) pass_pfmetnomu110_trig = true ;
+            if ( tname.Contains( "HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_v" ) && tstatus > 0 ) pass_pfmetnomu120_trig = true ;
             if ( tname.Contains( "HLT_PFHT300_PFMET100_v" ) && tstatus > 0 ) pass_ht300_met100_trig = true ;
             if ( tname.Contains( "HLT_PFHT800_v" ) && tstatus > 0 ) pass_ht800_trig = true ;
             if ( tname.Contains( "HLT_PFHT900_v" ) && tstatus > 0 ) pass_ht900_trig = true ;
             //////printf("  %3lu : %2d %s\n", ti, tstatus, tname.Data() ) ;
          } // ti
          
+         if ( pass_pfmet100_trig ) counter_pass_pfmet100++ ;
+         if ( pass_pfmet110_trig ) counter_pass_pfmet110++ ;
+         if ( pass_pfmet120_trig ) counter_pass_pfmet120++ ;
+         if ( pass_pfmetnomu100_trig ) counter_pass_pfmetnomu100++ ;
+         if ( pass_pfmetnomu110_trig ) counter_pass_pfmetnomu110++ ;
+         if ( pass_pfmetnomu120_trig ) counter_pass_pfmetnomu120++ ;
 
 
          outReducedTree->Fill() ;
@@ -402,6 +442,19 @@ using std::vector ;
       outReducedTree->AutoSave() ;
 
       delete outfile ;
+
+      printf("\n\n") ;
+      printf("  Number passed pfmet100         :  %10d\n", counter_pass_pfmet100 ) ;
+      printf("  Number passed pfmet110         :  %10d\n", counter_pass_pfmet110 ) ;
+      printf("  Number passed pfmet120         :  %10d\n", counter_pass_pfmet120 ) ;
+      printf("  Number passed pfmetnomu100     :  %10d\n", counter_pass_pfmetnomu100 ) ;
+      printf("  Number passed pfmetnomu110     :  %10d\n", counter_pass_pfmetnomu110 ) ;
+      printf("  Number passed pfmetnomu120     :  %10d\n", counter_pass_pfmetnomu120 ) ;
+      printf("\n\n") ;
+
+      if ( blind ) printf("\n\n Skipped %d events due to blinding.\n\n", nblindskip ) ;
+
+
 
   }
 

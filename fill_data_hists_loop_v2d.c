@@ -201,7 +201,8 @@ void fill_data_hists_loop_v2d::Loop( bool verb, int nloop )
       if ( ! BadChargedCandidateFilter ) isjunk = true ;  // **** new for v9
       if ( ! BadPFMuonFilter ) isjunk = true ;  // **** new for v9
 
-      if ( !(pass_pfmet100_trig||pass_pfmetnomu100_trig) ) isjunk = true ;
+      /////////if ( !(pass_pfmet100_trig||pass_pfmetnomu100_trig) ) isjunk = true ;
+      if ( !(pass_pfmet100_trig||pass_pfmetnomu100_trig || pass_pfmet110_trig||pass_pfmetnomu110_trig || pass_pfmet120_trig||pass_pfmetnomu120_trig) ) isjunk = true ;
 
 
   /// if ( RunNum==274344 && LumiBlockNum==615 && EvtNum==953880058 ) {
