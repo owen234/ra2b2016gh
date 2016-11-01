@@ -231,6 +231,14 @@
                   if ( total_syst_err_highdphi ) hdp_syst_over_n = total_syst_err_highdphi / hdp_val ;
                }
 
+            //**** TEMPORARY CORRECTIONS.  REMOVE THESE SOON!!!***********************
+               ldp_val = ldp_val / 1.51 ;
+               ldp_hist_err = ldp_hist_err / 1.51 ;
+               total_syst_err_lowdphi = total_syst_err_lowdphi / 1.51 ;
+               hdp_val = hdp_val / 1.51 ;
+               hdp_hist_err = hdp_hist_err / 1.51 ;
+               total_syst_err_highdphi = total_syst_err_highdphi / 1.51 ;
+            //************************************************************************
                printf(               "%s      %8.1f +/- %5.1f +/- %5.1f         %8.1f +/- %5.1f +/- %5.1f\n",
                    label,    ldp_val, ldp_hist_err, total_syst_err_lowdphi,   hdp_val, hdp_hist_err, total_syst_err_highdphi ) ;
 
@@ -351,6 +359,15 @@
                hdp_syst_over_n =  total_syst_err_highdphi / nbsum_highdphi_val  ;
                hdp_stat_over_sqrtn = 1. ;
             }
+
+            //**** TEMPORARY CORRECTIONS.  REMOVE THESE SOON!!!***********************
+            nbsum_lowdphi_val = nbsum_lowdphi_val / 1.51 ;
+            nbsum_lowdphi_err2 = nbsum_lowdphi_err2 / 1.51 ;
+            total_syst_err_lowdphi = total_syst_err_lowdphi / 1.51 ;
+            nbsum_highdphi_val = nbsum_highdphi_val / 1.51 ;
+            nbsum_highdphi_err2 = nbsum_highdphi_err2 / 1.51 ;
+            total_syst_err_highdphi = total_syst_err_highdphi / 1.51 ;
+            //************************************************************************
             printf( "   Nj%d-HT%d   %8.1f +/- %5.1f +/- %5.1f  (%6.3f)      %8.1f +/- %5.1f +/- %5.1f  (%6.3f)\n", bi_nj, bi_ht,
                   nbsum_lowdphi_val, sqrt(nbsum_lowdphi_err2), total_syst_err_lowdphi,  ldp_syst_over_n,
                   nbsum_highdphi_val, sqrt(nbsum_highdphi_err2), total_syst_err_highdphi,  hdp_syst_over_n ) ;
