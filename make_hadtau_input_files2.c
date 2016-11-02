@@ -8,7 +8,7 @@
 #include "binning.h"
 #include "get_hist.h"
 
-   void make_hadtau_input_files2( const char* input_root_file  = "non-qcd-inputs-fall16a/ARElog83_24.5ifb_HadTauEstimation_data_SingleMuon_V10_.root",
+   void make_hadtau_input_files2( const char* input_root_file  = "non-qcd-inputs-fall16a/HadTauEstimation_data_formatted.root",
                                   const char* output_text_file = "outputfiles/combine-input-hadtau.txt",
                                   const char* nbsum_text_file  = "outputfiles/nbsum-input-hadtau.txt"
                                ) {
@@ -54,9 +54,9 @@
       }
 
 
-      TH1* h_pred_lowdphi = get_hist( tf_input, "QCD_Low" ) ;
+      TH1* h_pred_lowdphi = get_hist( tf_input, "QCDBin_LowDphi_nominal" ) ;
 
-      TH1* h_pred_highdphi = get_hist( tf_input, "QCD_Up" ) ;
+      TH1* h_pred_highdphi = get_hist( tf_input, "QCDBin_HiDphi_nominal" ) ;
 
 
 
@@ -67,86 +67,86 @@
       int n_systerr(0) ;
 
       {
-//       int si(0) ;
+         int si(0) ;
 
-//       h_systerr_lowdphi[si]  = get_hist( tf_input, "QCDBin_LowDphi_closureUncertainty" ) ;
-//       h_systerr_highdphi[si] = get_hist( tf_input, "QCDBin_HiDphi_closureUncertainty" ) ;
-//       sprintf( systerr_name[si], "Closure" ) ;
-//       si++ ;
+         h_systerr_lowdphi[si]  = get_hist( tf_input, "QCDBin_LowDphi_closureUncertainty" ) ;
+         h_systerr_highdphi[si] = get_hist( tf_input, "QCDBin_HiDphi_closureUncertainty" ) ;
+         sprintf( systerr_name[si], "Closure" ) ;
+         si++ ;
 
-//   //----------
+     //----------
 
-//       h_systerr_lowdphi[si]  = get_hist( tf_input, "QCDBin_LowDphi_BMistagUp" ) ;
-//       h_systerr_highdphi[si] = get_hist( tf_input, "QCDBin_HiDphi_BMistagUp" ) ;
-//       sprintf( systerr_name[si], "Btag" ) ;
-//       si++ ;
+         h_systerr_lowdphi[si]  = get_hist( tf_input, "QCDBin_LowDphi_BMistagUp" ) ;
+         h_systerr_highdphi[si] = get_hist( tf_input, "QCDBin_HiDphi_BMistagUp" ) ;
+         sprintf( systerr_name[si], "Btag" ) ;
+         si++ ;
 
-//       h_systerr_lowdphi[si]  = get_hist( tf_input, "QCDBin_LowDphi_MuRecoSysUp" ) ;
-//       h_systerr_highdphi[si] = get_hist( tf_input, "QCDBin_HiDphi_MuRecoSysUp" ) ;
-//       sprintf( systerr_name[si], "MuRecoSys" ) ;
-//       si++ ;
+         h_systerr_lowdphi[si]  = get_hist( tf_input, "QCDBin_LowDphi_MuRecoSysUp" ) ;
+         h_systerr_highdphi[si] = get_hist( tf_input, "QCDBin_HiDphi_MuRecoSysUp" ) ;
+         sprintf( systerr_name[si], "MuRecoSys" ) ;
+         si++ ;
 
-//       h_systerr_lowdphi[si]  = get_hist( tf_input, "QCDBin_LowDphi_MuIsoSysUp" ) ;
-//       h_systerr_highdphi[si] = get_hist( tf_input, "QCDBin_HiDphi_MuIsoSysUp" ) ;
-//       sprintf( systerr_name[si], "MuIsoSys" ) ;
-//       si++ ;
+         h_systerr_lowdphi[si]  = get_hist( tf_input, "QCDBin_LowDphi_MuIsoSysUp" ) ;
+         h_systerr_highdphi[si] = get_hist( tf_input, "QCDBin_HiDphi_MuIsoSysUp" ) ;
+         sprintf( systerr_name[si], "MuIsoSys" ) ;
+         si++ ;
 
-//       h_systerr_lowdphi[si]  = get_hist( tf_input, "QCDBin_LowDphi_MuRecoIsoUp" ) ;
-//       h_systerr_highdphi[si] = get_hist( tf_input, "QCDBin_HiDphi_MuRecoIsoUp" ) ;
-//       sprintf( systerr_name[si], "MuRecoIso" ) ;
-//       si++ ;
+         h_systerr_lowdphi[si]  = get_hist( tf_input, "QCDBin_LowDphi_MuRecoIsoUp" ) ;
+         h_systerr_highdphi[si] = get_hist( tf_input, "QCDBin_HiDphi_MuRecoIsoUp" ) ;
+         sprintf( systerr_name[si], "MuRecoIso" ) ;
+         si++ ;
 
-//       h_systerr_lowdphi[si]  = get_hist( tf_input, "QCDBin_LowDphi_JECSysUp" ) ;
-//       h_systerr_highdphi[si] = get_hist( tf_input, "QCDBin_HiDphi_JECSysUp" ) ;
-//       sprintf( systerr_name[si], "JEC" ) ;
-//       si++ ;
+         h_systerr_lowdphi[si]  = get_hist( tf_input, "QCDBin_LowDphi_JECSysUp" ) ;
+         h_systerr_highdphi[si] = get_hist( tf_input, "QCDBin_HiDphi_JECSysUp" ) ;
+         sprintf( systerr_name[si], "JEC" ) ;
+         si++ ;
 
-//       h_systerr_lowdphi[si]  = get_hist( tf_input, "QCDBin_LowDphi_MTSysUp" ) ;
-//       h_systerr_highdphi[si] = get_hist( tf_input, "QCDBin_HiDphi_MTSysUp" ) ;
-//       sprintf( systerr_name[si], "MT" ) ;
-//       si++ ;
+         h_systerr_lowdphi[si]  = get_hist( tf_input, "QCDBin_LowDphi_MTSysUp" ) ;
+         h_systerr_highdphi[si] = get_hist( tf_input, "QCDBin_HiDphi_MTSysUp" ) ;
+         sprintf( systerr_name[si], "MT" ) ;
+         si++ ;
 
-//       h_systerr_lowdphi[si]  = get_hist( tf_input, "QCDBin_LowDphi_MtEffStat" ) ;
-//       h_systerr_highdphi[si] = get_hist( tf_input, "QCDBin_HiDphi_MtEffStat" ) ;
-//       sprintf( systerr_name[si], "MtEffStat" ) ;
-//       si++ ;
+         h_systerr_lowdphi[si]  = get_hist( tf_input, "QCDBin_LowDphi_MtEffStat" ) ;
+         h_systerr_highdphi[si] = get_hist( tf_input, "QCDBin_HiDphi_MtEffStat" ) ;
+         sprintf( systerr_name[si], "MtEffStat" ) ;
+         si++ ;
 
-//       h_systerr_lowdphi[si]  = get_hist( tf_input, "QCDBin_LowDphi_IsoTrkVetoEffUncertaintySys" ) ;
-//       h_systerr_highdphi[si] = get_hist( tf_input, "QCDBin_HiDphi_IsoTrkVetoEffUncertaintySys" ) ;
-//       sprintf( systerr_name[si], "IsoTrkVetoSys" ) ;
-//       si++ ;
+         h_systerr_lowdphi[si]  = get_hist( tf_input, "QCDBin_LowDphi_IsoTrkVetoEffUncertaintySys" ) ;
+         h_systerr_highdphi[si] = get_hist( tf_input, "QCDBin_HiDphi_IsoTrkVetoEffUncertaintySys" ) ;
+         sprintf( systerr_name[si], "IsoTrkVetoSys" ) ;
+         si++ ;
 
-//       h_systerr_lowdphi[si]  = get_hist( tf_input, "QCDBin_LowDphi_AccStat" ) ;
-//       h_systerr_highdphi[si] = get_hist( tf_input, "QCDBin_HiDphi_AccStat" ) ;
-//       sprintf( systerr_name[si], "AccStat" ) ;
-//       si++ ;
+         h_systerr_lowdphi[si]  = get_hist( tf_input, "QCDBin_LowDphi_AccStat" ) ;
+         h_systerr_highdphi[si] = get_hist( tf_input, "QCDBin_HiDphi_AccStat" ) ;
+         sprintf( systerr_name[si], "AccStat" ) ;
+         si++ ;
 
-//       h_systerr_lowdphi[si]  = get_hist( tf_input, "QCDBin_LowDphi_AccSysPDFUp" ) ;
-//       h_systerr_highdphi[si] = get_hist( tf_input, "QCDBin_HiDphi_AccSysPDFUp" ) ;
-//       sprintf( systerr_name[si], "AccSysPDF" ) ;
-//       si++ ;
+         h_systerr_lowdphi[si]  = get_hist( tf_input, "QCDBin_LowDphi_AccSysPDFUp" ) ;
+         h_systerr_highdphi[si] = get_hist( tf_input, "QCDBin_HiDphi_AccSysPDFUp" ) ;
+         sprintf( systerr_name[si], "AccSysPDF" ) ;
+         si++ ;
 
-//       h_systerr_lowdphi[si]  = get_hist( tf_input, "QCDBin_LowDphi_AccSysScaleUp" ) ;
-//       h_systerr_highdphi[si] = get_hist( tf_input, "QCDBin_HiDphi_AccSysScaleUp" ) ;
-//       sprintf( systerr_name[si], "AccSysScale" ) ;
-//       si++ ;
+         h_systerr_lowdphi[si]  = get_hist( tf_input, "QCDBin_LowDphi_AccSysScaleUp" ) ;
+         h_systerr_highdphi[si] = get_hist( tf_input, "QCDBin_HiDphi_AccSysScaleUp" ) ;
+         sprintf( systerr_name[si], "AccSysScale" ) ;
+         si++ ;
 
-//       h_systerr_lowdphi[si]  = get_hist( tf_input, "QCDBin_LowDphi_MuFromTauStat" ) ;
-//       h_systerr_highdphi[si] = get_hist( tf_input, "QCDBin_HiDphi_MuFromTauStat" ) ;
-//       sprintf( systerr_name[si], "MuFromTauStat" ) ;
-//       si++ ;
+         h_systerr_lowdphi[si]  = get_hist( tf_input, "QCDBin_LowDphi_MuFromTauStat" ) ;
+         h_systerr_highdphi[si] = get_hist( tf_input, "QCDBin_HiDphi_MuFromTauStat" ) ;
+         sprintf( systerr_name[si], "MuFromTauStat" ) ;
+         si++ ;
 
-//       h_systerr_lowdphi[si]  = get_hist( tf_input, "QCDBin_LowDphi_DileptonUncertainty" ) ;
-//       h_systerr_highdphi[si] = get_hist( tf_input, "QCDBin_HiDphi_DileptonUncertainty" ) ;
-//       sprintf( systerr_name[si], "Dilepton" ) ;
-//       si++ ;
+         h_systerr_lowdphi[si]  = get_hist( tf_input, "QCDBin_LowDphi_DileptonUncertainty" ) ;
+         h_systerr_highdphi[si] = get_hist( tf_input, "QCDBin_HiDphi_DileptonUncertainty" ) ;
+         sprintf( systerr_name[si], "Dilepton" ) ;
+         si++ ;
 
-//       h_systerr_lowdphi[si]  = get_hist( tf_input, "QCDBin_LowDphi_TrigEffUncertainty" ) ;
-//       h_systerr_highdphi[si] = get_hist( tf_input, "QCDBin_HiDphi_TrigEffUncertainty" ) ;
-//       sprintf( systerr_name[si], "TrigEff" ) ;
-//       si++ ;
+         h_systerr_lowdphi[si]  = get_hist( tf_input, "QCDBin_LowDphi_TrigEffUncertainty" ) ;
+         h_systerr_highdphi[si] = get_hist( tf_input, "QCDBin_HiDphi_TrigEffUncertainty" ) ;
+         sprintf( systerr_name[si], "TrigEff" ) ;
+         si++ ;
 
-//       n_systerr = si ;
+         n_systerr = si ;
       }
 
 

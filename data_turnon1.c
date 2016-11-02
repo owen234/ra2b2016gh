@@ -24,12 +24,25 @@
       TCanvas* can = new TCanvas( "can_data_turnon1", "Data trigger efficiency", 900, 800 ) ;
 
      //-----------
-      ch_ht.Add("fnal-prod-v9-skims-slimmed/tree_LDP/tree_JetHT_2016B-slimskim.root") ;
-      ch_ht.Add("fnal-prod-v9-skims-slimmed/tree_LDP/tree_JetHT_2016C-slimskim.root") ;
-      ch_ht.Add("fnal-prod-v9-skims-slimmed/tree_LDP/tree_JetHT_2016D-slimskim.root") ;
-      ch_met.Add("fnal-prod-v9-skims-slimmed/tree_LDP/tree_MET_2016B-slimskim.root") ;
-      ch_met.Add("fnal-prod-v9-skims-slimmed/tree_LDP/tree_MET_2016C-slimskim.root") ;
-      ch_met.Add("fnal-prod-v9-skims-slimmed/tree_LDP/tree_MET_2016D-slimskim.root") ;
+   // ch_ht.Add("fnal-prod-v9-skims-slimmed/tree_LDP/tree_JetHT_2016B-slimskim.root") ;
+   // ch_ht.Add("fnal-prod-v9-skims-slimmed/tree_LDP/tree_JetHT_2016C-slimskim.root") ;
+   // ch_ht.Add("fnal-prod-v9-skims-slimmed/tree_LDP/tree_JetHT_2016D-slimskim.root") ;
+   // ch_met.Add("fnal-prod-v9-skims-slimmed/tree_LDP/tree_MET_2016B-slimskim.root") ;
+   // ch_met.Add("fnal-prod-v9-skims-slimmed/tree_LDP/tree_MET_2016C-slimskim.root") ;
+   // ch_met.Add("fnal-prod-v9-skims-slimmed/tree_LDP/tree_MET_2016D-slimskim.root") ;
+     //-----------
+      ch_ht.Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_JetHT_2016B-slimskim.root") ;
+      ch_ht.Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_JetHT_2016C-slimskim.root") ;
+      ch_ht.Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_JetHT_2016D-slimskim.root") ;
+      ch_ht.Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_JetHT_2016E-slimskim.root") ;
+      ch_ht.Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_JetHT_2016F-slimskim.root") ;
+      ch_ht.Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_JetHT_2016G-slimskim.root") ;
+      ch_met.Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_MET_2016B-slimskim.root") ;
+      ch_met.Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_MET_2016C-slimskim.root") ;
+      ch_met.Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_MET_2016D-slimskim.root") ;
+      ch_met.Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_MET_2016E-slimskim.root") ;
+      ch_met.Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_MET_2016F-slimskim.root") ;
+      ch_met.Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_MET_2016G-slimskim.root") ;
      //-----------
 
 
@@ -53,7 +66,8 @@
 
          ch_ht.Draw("MHT>>h_mht_nj"+nj_str+"_denom","HBHEIsoNoiseFilter == 1 && HBHENoiseFilter == 1 && eeBadScFilter == 1 && EcalDeadCellTriggerPrimitiveFilter == 1 && NVtx > 0 && JetID &&  HT>900 && (MET>100 && CaloMET>80 && MET/CaloMET<5) && pass_ht800_trig && NJets >= "+ nj_cut_low_str + " && NJets < " + nj_cut_high_str) ;
          can -> Update() ; can -> Draw() ;
-         ch_met.Draw("MHT>>h_mht_nj"+nj_str+"_numer", "HBHEIsoNoiseFilter == 1 && HBHENoiseFilter == 1 && eeBadScFilter == 1 && EcalDeadCellTriggerPrimitiveFilter == 1 && NVtx > 0 && JetID && HT>900 && (MET>100 && CaloMET>80 && MET/CaloMET<5) && pass_ht800_trig && (pass_pfmet100_trig||pass_pfmetnomu100_trig) && NJets >= "+ nj_cut_low_str + " && NJets < " + nj_cut_high_str ) ;
+         /////ch_met.Draw("MHT>>h_mht_nj"+nj_str+"_numer", "HBHEIsoNoiseFilter == 1 && HBHENoiseFilter == 1 && eeBadScFilter == 1 && EcalDeadCellTriggerPrimitiveFilter == 1 && NVtx > 0 && JetID && HT>900 && (MET>100 && CaloMET>80 && MET/CaloMET<5) && pass_ht800_trig && (pass_pfmet100_trig||pass_pfmetnomu100_trig) && NJets >= "+ nj_cut_low_str + " && NJets < " + nj_cut_high_str ) ;
+         ch_met.Draw("MHT>>h_mht_nj"+nj_str+"_numer", "HBHEIsoNoiseFilter == 1 && HBHENoiseFilter == 1 && eeBadScFilter == 1 && EcalDeadCellTriggerPrimitiveFilter == 1 && NVtx > 0 && JetID && HT>900 && (MET>100 && CaloMET>80 && MET/CaloMET<5) && pass_ht800_trig && (pass_pfmet100_trig||pass_pfmetnomu100_trig || pass_pfmet110_trig||pass_pfmetnomu110_trig || pass_pfmet120_trig||pass_pfmetnomu120_trig) && NJets >= "+ nj_cut_low_str + " && NJets < " + nj_cut_high_str ) ;
          can -> Update() ; can -> Draw() ;
 
          add_overflow( denom_h_mht_nj[nj] ) ;

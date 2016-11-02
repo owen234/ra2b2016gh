@@ -1,6 +1,8 @@
 #ifndef binning_h
 #define binning_h
 
+#include <iostream>
+
 //
 //  Organizing principles of binning.
 //

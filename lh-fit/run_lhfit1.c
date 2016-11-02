@@ -1170,7 +1170,7 @@
       double kqcd_njet_err = 0. ;
       RooRealVar* rrv_kqcd_njet(0x0) ;
       ////////////////////////if ( nji > 1 )
-      if ( nji != (njet_bin_to_fix_in_qcd_model_fit+1) ) {
+      if ( nji != (njet_bin_to_be_fixed_in_qcd_model_fit+1) ) {
          rrv_kqcd_njet = (RooRealVar*) ral_kqcd_pars.find( kqcd_njet_name ) ;
          if ( rrv_kqcd_njet == 0x0 ) {
             char pname[100] ;
@@ -1203,7 +1203,7 @@
       cov_mat(0,0) = kqcd_ht_err * kqcd_ht_err ;
 
       ////////if ( nji > 1 ) {
-      if ( nji != (njet_bin_to_fix_in_qcd_model_fit+1) ) {
+      if ( nji != (njet_bin_to_be_fixed_in_qcd_model_fit+1) ) {
     //--- Terms for Njet par.
          pd_col_vec(1,0) = Rqcd_val / kqcd_njet_val ;
          pd_row_vec(0,1) = Rqcd_val / kqcd_njet_val ;

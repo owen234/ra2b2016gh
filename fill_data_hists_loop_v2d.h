@@ -87,6 +87,10 @@ public :
    Char_t          hasHadTau;
    Char_t          pass_pfmet100_trig;
    Char_t          pass_pfmetnomu100_trig;
+   Char_t          pass_pfmet110_trig;
+   Char_t          pass_pfmetnomu110_trig;
+   Char_t          pass_pfmet120_trig;
+   Char_t          pass_pfmetnomu120_trig;
    Char_t          pass_ht300_met100_trig;
    Char_t          pass_ht800_trig;
    Char_t          pass_ht900_trig;
@@ -136,6 +140,10 @@ public :
    TBranch        *b_hasHadTau;   //!
    TBranch        *b_pass_pfmet100_trig;   //!
    TBranch        *b_pass_pfmetnomu100_trig;   //!
+   TBranch        *b_pass_pfmet110_trig;   //!
+   TBranch        *b_pass_pfmetnomu110_trig;   //!
+   TBranch        *b_pass_pfmet120_trig;   //!
+   TBranch        *b_pass_pfmetnomu120_trig;   //!
    TBranch        *b_pass_ht300_met100_trig;   //!
    TBranch        *b_pass_ht800_trig;   //!
    TBranch        *b_pass_ht900_trig;   //!
@@ -183,12 +191,25 @@ fill_data_hists_loop_v2d::fill_data_hists_loop_v2d(TTree *tree, const char* samp
    // chain->Add("fnal-prod-v9-skims-slimmed/tree_signal/tree_MET_2016B-slimskim.root/tree");
    // chain->Add("fnal-prod-v9-skims-slimmed/tree_signal/tree_MET_2016C-slimskim.root/tree");
      //----------
-      chain->Add("fnal-prod-v9-skims-slimmed/tree_LDP/tree_MET_2016B-slimskim.root/tree");
-      chain->Add("fnal-prod-v9-skims-slimmed/tree_LDP/tree_MET_2016C-slimskim.root/tree");
-      chain->Add("fnal-prod-v9-skims-slimmed/tree_LDP/tree_MET_2016D-slimskim.root/tree");
-      chain->Add("fnal-prod-v9-skims-slimmed/tree_signal/tree_MET_2016B-slimskim.root/tree");
-      chain->Add("fnal-prod-v9-skims-slimmed/tree_signal/tree_MET_2016C-slimskim.root/tree");
-      chain->Add("fnal-prod-v9-skims-slimmed/tree_signal/tree_MET_2016D-slimskim.root/tree");
+   // chain->Add("fnal-prod-v9-skims-slimmed/tree_LDP/tree_MET_2016B-slimskim.root/tree");
+   // chain->Add("fnal-prod-v9-skims-slimmed/tree_LDP/tree_MET_2016C-slimskim.root/tree");
+   // chain->Add("fnal-prod-v9-skims-slimmed/tree_LDP/tree_MET_2016D-slimskim.root/tree");
+   // chain->Add("fnal-prod-v9-skims-slimmed/tree_signal/tree_MET_2016B-slimskim.root/tree");
+   // chain->Add("fnal-prod-v9-skims-slimmed/tree_signal/tree_MET_2016C-slimskim.root/tree");
+   // chain->Add("fnal-prod-v9-skims-slimmed/tree_signal/tree_MET_2016D-slimskim.root/tree");
+     //----------
+      chain->Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_MET_2016B-slimskim.root/tree");
+      chain->Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_MET_2016C-slimskim.root/tree");
+      chain->Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_MET_2016D-slimskim.root/tree");
+      chain->Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_MET_2016E-slimskim.root/tree");
+      chain->Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_MET_2016F-slimskim.root/tree");
+      chain->Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_MET_2016G-slimskim.root/tree");
+      chain->Add("fnal-prod-v10-skims-slimmed/tree_signal/tree_MET_2016B-slimskim.root/tree");
+      chain->Add("fnal-prod-v10-skims-slimmed/tree_signal/tree_MET_2016C-slimskim.root/tree");
+      chain->Add("fnal-prod-v10-skims-slimmed/tree_signal/tree_MET_2016D-slimskim.root/tree");
+      chain->Add("fnal-prod-v10-skims-slimmed/tree_signal/tree_MET_2016E-slimskim.root/tree");
+      chain->Add("fnal-prod-v10-skims-slimmed/tree_signal/tree_MET_2016F-slimskim.root/tree");
+      chain->Add("fnal-prod-v10-skims-slimmed/tree_signal/tree_MET_2016G-slimskim.root/tree");
      //----------
       tree = chain;
 #endif // SINGLE_TREE
@@ -293,6 +314,10 @@ void fill_data_hists_loop_v2d::Init(TTree *tree)
    fChain->SetBranchAddress("hasHadTau", &hasHadTau, &b_hasHadTau);
    fChain->SetBranchAddress("pass_pfmet100_trig", &pass_pfmet100_trig, &b_pass_pfmet100_trig);
    fChain->SetBranchAddress("pass_pfmetnomu100_trig", &pass_pfmetnomu100_trig, &b_pass_pfmetnomu100_trig);
+   fChain->SetBranchAddress("pass_pfmet110_trig", &pass_pfmet110_trig, &b_pass_pfmet110_trig);
+   fChain->SetBranchAddress("pass_pfmetnomu110_trig", &pass_pfmetnomu110_trig, &b_pass_pfmetnomu110_trig);
+   fChain->SetBranchAddress("pass_pfmet120_trig", &pass_pfmet120_trig, &b_pass_pfmet120_trig);
+   fChain->SetBranchAddress("pass_pfmetnomu120_trig", &pass_pfmetnomu120_trig, &b_pass_pfmetnomu120_trig);
    fChain->SetBranchAddress("pass_ht300_met100_trig", &pass_ht300_met100_trig, &b_pass_ht300_met100_trig);
    fChain->SetBranchAddress("pass_ht800_trig", &pass_ht800_trig, &b_pass_ht800_trig);
    fChain->SetBranchAddress("pass_ht900_trig", &pass_ht900_trig, &b_pass_ht900_trig);

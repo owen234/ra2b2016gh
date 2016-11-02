@@ -111,7 +111,7 @@
          sprintf( pname, "Sqcd_njet%d", bi ) ;
          rv_qcd_snjet[bi] = new RooRealVar( pname, pname, 1.0, 0., 40. ) ;
          printf(" %s ", pname ) ;
-         if ( bi == (njet_bin_to_fix_in_qcd_model_fit+1) ) {
+         if ( bi == (njet_bin_to_be_fixed_in_qcd_model_fit+1) ) {
             ((RooRealVar*) rv_qcd_snjet[bi]) -> setConstant( kTRUE ) ;
             printf(" fixed to 1\n") ;
          } else {
