@@ -474,7 +474,7 @@ void gen_combine_input2(
       TLegend* legend = new TLegend( 0.80, 0.80, 0.95, 0.95 ) ;
 
       for ( int bg = 0; bg < 4; bg++)
-         if ( bg != 3 ) hstack_ldp_all -> Add( h_ldp_all_bg[0] ) ;
+         if ( bg != 3 ) hstack_ldp_all -> Add( h_ldp_all_bg[bg] ) ;
 
       h_ldp_all_bg[0] -> SetFillColor( kBlue-10 ) ;
       h_ldp_all_bg[1] -> SetFillColor( kCyan-10 ) ;
@@ -515,7 +515,7 @@ void gen_combine_input2(
  	 can_ht = new TCanvas( "can_ht"+ht_str, "HT"+ht_str+" bins", 1200, 500 ) ;
 
 	 for ( int bg = 0; bg < 4; bg++)
-            hstack_ldp_ht[bi_ht] -> Add( h_ldp_ht_bg[bi_ht][bg] ) ;
+            if ( bg != 3 ) hstack_ldp_ht[bi_ht] -> Add( h_ldp_ht_bg[bi_ht][bg] ) ;
 
 	 h_ldp_ht_bg[bi_ht][0] -> SetFillColor( kBlue-10 ) ;
          h_ldp_ht_bg[bi_ht][1] -> SetFillColor( kCyan-10 ) ;

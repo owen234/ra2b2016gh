@@ -2,6 +2,7 @@
 #define binning_h
 
 #include <iostream>
+#include "TSystem.h"
 
 //
 //  Organizing principles of binning.

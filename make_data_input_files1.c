@@ -73,11 +73,11 @@
                if ( bi_htmht == 8 ) { bi_ht = 2; bi_mht = 3; }
                if ( bi_htmht == 9 ) { bi_ht = 3; bi_mht = 3; }
 
-               if ( bi_htmht ==10 ) { bi_ht = 1; bi_mht = 4; }
-               if ( bi_htmht ==11 ) { bi_ht = 2; bi_mht = 4; }
+               if ( bi_htmht ==10 ) { bi_ht = 2; bi_mht = 4; }
+               if ( bi_htmht ==11 ) { bi_ht = 3; bi_mht = 4; }
 
-               if ( bi_htmht ==12 ) { bi_ht = 1; bi_mht = 5; }
-               if ( bi_htmht ==13 ) { bi_ht = 2; bi_mht = 5; }
+               if ( bi_htmht ==12 ) { bi_ht = 2; bi_mht = 5; }
+               if ( bi_htmht ==13 ) { bi_ht = 3; bi_mht = 5; }
 
                if ( bi_mht == 1 ) {
                   bi_control ++ ;
