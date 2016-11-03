@@ -8,6 +8,12 @@
 #include "binning.h"
 #include "get_hist.h"
 
+   bool  hadtau_gbi_array_ready(false) ;
+   int   hadtau_gbi_with_mhtc[6][5][14] ;
+   int hadtau_global_bin_with_mhtc( int nji, int nbi, int htmhti ) ;
+
+   //------
+
    void make_hadtau_input_files2( const char* input_root_file  = "non-qcd-inputs-fall16a/HadTauEstimation_data_formatted.root",
                                   const char* output_text_file = "outputfiles/combine-input-hadtau.txt",
                                   const char* nbsum_text_file  = "outputfiles/nbsum-input-hadtau.txt"
@@ -159,7 +165,13 @@
          for ( int bi_nb=1; bi_nb<=nb_nb; bi_nb++ ) {
             for ( int bi_htmht=1; bi_htmht<=nb_htmht; bi_htmht++ ) {
 
-               int bi_hist = global_bin_with_mhtc( bi_nj, bi_nb, bi_htmht ) ;
+               int bi_hist = hadtau_global_bin_with_mhtc( bi_nj, bi_nb, bi_htmht ) ;
+               if ( bi_hist > 0 ) {
+                  int hbl_nj, hbl_nb, hbl_mht, hbl_htmht ;
+                  sscanf( h_pred_lowdphi->GetXaxis()->GetBinLabel( bi_hist ), "NJets%d_BTags%d_MHT%d_HT%d", &hbl_nj, &hbl_nb, &hbl_mht, &hbl_htmht ) ;
+                  if ( bi_nj != (hbl_nj+1) ) { printf("\n\n*** Inconsistent Njets.  %d != %d\n", bi_nj, hbl_nj+1) ; gSystem -> Exit(-1) ; }
+                  if ( bi_nb != (hbl_nb+1) ) { printf("\n\n*** Inconsistent Nb. %d != %d\n", bi_nb, hbl_nb+1 ) ; gSystem -> Exit(-1) ; }
+               }
 
                double ldp_val(0.) ;
                double ldp_hist_err(0.) ;
@@ -303,7 +315,14 @@
 
             for ( int bi_nb=1; bi_nb<=nb_nb; bi_nb++ ) {
 
-               bi_hist = global_bin_with_mhtc( bi_nj, bi_nb, bi_ht ) ;
+               bi_hist = hadtau_global_bin_with_mhtc( bi_nj, bi_nb, bi_ht ) ;
+
+               if ( bi_hist > 0 ) {
+                  int hbl_nj, hbl_nb, hbl_mht, hbl_htmht ;
+                  sscanf( h_pred_lowdphi->GetXaxis()->GetBinLabel( bi_hist ), "NJets%d_BTags%d_MHT%d_HT%d", &hbl_nj, &hbl_nb, &hbl_mht, &hbl_htmht ) ;
+                  if ( bi_nj != (hbl_nj+1) ) { printf("\n\n*** Inconsistent Njets.  %d != %d\n", bi_nj, hbl_nj+1) ; gSystem -> Exit(-1) ; }
+                  if ( bi_nb != (hbl_nb+1) ) { printf("\n\n*** Inconsistent Nb. %d != %d\n", bi_nb, hbl_nb+1 ) ; gSystem -> Exit(-1) ; }
+               }
 
                double ldp_val(0.) ;
                double ldp_hist_err(0.) ;
@@ -403,7 +422,42 @@
 
    } // make_hadtau_input_files2
 
+//=========================================
 
+int hadtau_global_bin_with_mhtc ( int arg_nji, int arg_nbi, int arg_htmhti ) {
+
+   if ( !hadtau_gbi_array_ready ) {
+      int gbi(0) ;
+      int gbi_no_mhtc(0) ;      
+      for ( int nji=1; nji<=nb_nj; nji++ ) {
+         int nbmax=nb_nb ;
+         if ( nji==1 ) nbmax -- ;
+         for ( int nbi=1; nbi<=nbmax; nbi ++ ) {
+            for ( int htmhti=1; htmhti<=nb_htmht; htmhti++ ) {
+               int hti, mhti ;
+               htmht_bin_to_ht_and_mht_bins( htmhti, hti, mhti ) ;
+               bool excluded = exclude_this_bin( nji-1, nbi-1, hti-1, mhti-1 ) ;
+               if ( mhti==1 ) {
+                  gbi++ ;
+               } else {
+                  if ( !excluded ) gbi++ ;
+               }
+               if ( !excluded ) {
+                  hadtau_gbi_with_mhtc[nji][nbi][htmhti] = gbi ;
+               } else {
+                  hadtau_gbi_with_mhtc[nji][nbi][htmhti] = -1 ;
+               } // else if !excluded
+            } //htmhti
+         } // nbi
+      } // mhi
+      hadtau_gbi_array_ready = true ;
+   }
+
+   return hadtau_gbi_with_mhtc[arg_nji][arg_nbi][arg_htmhti] ;
+
+} // hadtau_global_bin_with_mhtc
+
+//=========================================
 
 
 
