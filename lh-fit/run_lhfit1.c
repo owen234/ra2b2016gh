@@ -126,18 +126,19 @@
 
       const RooArgList lh_pdf_list = ((RooProdPdf*)likelihood) -> pdfList() ;
 
-      double pdfprod(1.) ;
-      double sumlogpdf(0.) ;
-      printf("  PDFs in likelihood\n" ) ;
-      RooLinkedListIter pdf_iter = lh_pdf_list.iterator() ;
-      while ( RooAbsPdf* pdf = (RooAbsPdf*) pdf_iter.Next() ) {
-         printf("  %35s :  value = %8.6f, -ln(val) = %15.4f\n", pdf->GetName(), pdf->getVal(), -1.*log(pdf->getVal()) ) ;
-         pdfprod = pdfprod * (pdf->getVal()) ;
-         sumlogpdf += -1.*log(pdf->getVal()) ;
-         printf("      pdf prod = %g ,  sum -ln(pdf) = %g \n", pdfprod, sumlogpdf ) ;
+      {
+         double pdfprod(1.) ;
+         double sumlogpdf(0.) ;
+         printf("  Post-fit PDFs in likelihood\n" ) ;
+         RooLinkedListIter pdf_iter = lh_pdf_list.iterator() ;
+         while ( RooAbsPdf* pdf = (RooAbsPdf*) pdf_iter.Next() ) {
+            printf("  %35s :  value = %8.6f, -ln(val) = %15.4f\n", pdf->GetName(), pdf->getVal(), -1.*log(pdf->getVal()) ) ;
+            pdfprod = pdfprod * (pdf->getVal()) ;
+            sumlogpdf += -1.*log(pdf->getVal()) ;
+            printf("      pdf prod = %g ,  sum -ln(pdf) = %g \n", pdfprod, sumlogpdf ) ;
+         }
+         printf("\n\n\n ======== PDF prod = %g ,    sum -ln(pdf) = %g\n\n", pdfprod, sumlogpdf ) ;
       }
-
-      printf("\n\n\n ======== PDF prod = %g ,    sum -ln(pdf) = %g\n\n", pdfprod, sumlogpdf ) ;
 
 
 
@@ -164,6 +165,21 @@
       RooFitResult* fitResult = likelihood -> fitTo( *rds, Save(true), Optimize(0), PrintLevel(3), Hesse(true), Strategy(1) ) ;
       double minNllSusyFloat = fitResult->minNll() ;
       double susy_ss_atMinNll = rv_sig_strength -> getVal() ;
+
+
+      {
+         double pdfprod(1.) ;
+         double sumlogpdf(0.) ;
+         printf("  Post-fit PDFs in likelihood\n" ) ;
+         RooLinkedListIter pdf_iter = lh_pdf_list.iterator() ;
+         while ( RooAbsPdf* pdf = (RooAbsPdf*) pdf_iter.Next() ) {
+            printf("  %35s :  value = %8.6f, -ln(val) = %15.4f\n", pdf->GetName(), pdf->getVal(), -1.*log(pdf->getVal()) ) ;
+            pdfprod = pdfprod * (pdf->getVal()) ;
+            sumlogpdf += -1.*log(pdf->getVal()) ;
+            printf("      pdf prod = %g ,  sum -ln(pdf) = %g \n", pdfprod, sumlogpdf ) ;
+         }
+         printf("\n\n\n ======== PDF prod = %g ,    sum -ln(pdf) = %g\n\n", pdfprod, sumlogpdf ) ;
+      }
 
 
 
