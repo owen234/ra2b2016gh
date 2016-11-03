@@ -486,8 +486,12 @@ void draw_badjet_cat_v3(const char* infile = "outputfiles/syst-2015-v2.root" ) {
 
          }
          else
-            fprintf( out_file     , "Sqcd_mht%d_%3s   %3.6f     %3.5f  %3.5f\n", bi-1, htstr,dr_val,dr_stat,dr_syst) ;
-            fprintf( out_file_data, "Sqcd_mht%d_%3s   %3.6f     %3.5f  %3.5f\n", bi-1, htstr,dr_val,dr_stat,dr_syst) ;
+         {
+            double rel_syst(0.) ;
+            if ( dr_val != 0. ) rel_syst = dr_syst / dr_val ;
+            fprintf( out_file     , "Sqcd_mht%d_%3s   %3.6f     %3.5f  %3.5f\n", bi-1, htstr,dr_val,dr_stat,rel_syst) ;
+            fprintf( out_file_data, "Sqcd_mht%d_%3s   %3.6f     %3.5f  %3.5f\n", bi-1, htstr,dr_val,dr_stat,rel_syst) ;
+         }
 
          store_val = dr_val;
          store_rel_err = dr_rel_err;
