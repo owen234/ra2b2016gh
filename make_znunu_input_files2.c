@@ -15,6 +15,9 @@
                                ) {
       setup_bins();
 
+      double trig_eff[6] = {0., 0.982, 0.985, 0.995, 1.00, 1.00 } ; // inclusive MET trig eff, index 1 = MHTC.
+                                                                    // see email from Aditee on Nov 3, 2016.
+
 
       gDirectory -> Delete( "h*" ) ;
 
@@ -231,6 +234,14 @@
                   if ( total_syst_err_highdphi ) hdp_syst_over_n = total_syst_err_highdphi / hdp_val ;
                }
 
+               ldp_val                 = ldp_val                 * trig_eff[bi_mht] ;
+               ldp_hist_err            = ldp_hist_err            * trig_eff[bi_mht] ;
+               total_syst_err_lowdphi  = total_syst_err_lowdphi  * trig_eff[bi_mht] ;
+               hdp_val                 = hdp_val                 * trig_eff[bi_mht] ;
+               hdp_hist_err            = hdp_hist_err            * trig_eff[bi_mht] ;
+               total_syst_err_highdphi = total_syst_err_highdphi * trig_eff[bi_mht] ;
+
+
                printf(               "%s      %8.1f +/- %5.1f +/- %5.1f         %8.1f +/- %5.1f +/- %5.1f\n",
                    label,    ldp_val, ldp_hist_err, total_syst_err_lowdphi,   hdp_val, hdp_hist_err, total_syst_err_highdphi ) ;
 
@@ -351,6 +362,13 @@
                hdp_syst_over_n =  total_syst_err_highdphi / nbsum_highdphi_val  ;
                hdp_stat_over_sqrtn = 1. ;
             }
+
+            nbsum_lowdphi_val       = nbsum_lowdphi_val        * trig_eff[1] ;
+            nbsum_lowdphi_err2      = nbsum_lowdphi_err2       * pow(trig_eff[1],2) ;
+            total_syst_err_lowdphi  = total_syst_err_lowdphi   * trig_eff[1] ;
+            nbsum_highdphi_val      = nbsum_highdphi_val       * trig_eff[1] ;
+            nbsum_highdphi_err2     = nbsum_highdphi_err2      * pow(trig_eff[1],2) ;
+            total_syst_err_highdphi = total_syst_err_highdphi  * trig_eff[1] ;
 
             printf( "   Nj%d-HT%d   %8.1f +/- %5.1f +/- %5.1f  (%6.3f)      %8.1f +/- %5.1f +/- %5.1f  (%6.3f)\n", bi_nj, bi_ht,
                   nbsum_lowdphi_val, sqrt(nbsum_lowdphi_err2), total_syst_err_lowdphi,  ldp_syst_over_n,

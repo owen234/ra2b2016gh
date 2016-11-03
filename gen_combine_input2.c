@@ -407,7 +407,7 @@ void gen_combine_input2(
                   fprintf( ofp_combine, " %7.2f +/- %5.2f   ", nqcd_hdp_val, nqcd_hdp_err ) ;
 
                   float overall_rel_err(0.) ;
-                  if ( nqcd_hdp_val > 0. ) {
+                  if ( nqcd_hdp_val > 0.1 ) {
                      overall_rel_err = nqcd_hdp_err/nqcd_hdp_val ;
                   }
                   fprintf( ofp_combine, " ( %5.0f %%) ", 100. * overall_rel_err ) ;
