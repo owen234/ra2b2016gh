@@ -101,15 +101,24 @@
 
       int n_qcd_kht_pars(3) ;
 
-      rv_qcd_kht[1] = new RooRealVar( "Kqcd_ht1", "Kqcd_ht1", 0.28, 0., 5. ) ;
-      rv_qcd_kht[2] = new RooRealVar( "Kqcd_ht2", "Kqcd_ht2", 0.03, 0., 5. ) ;
+      ////////rv_qcd_kht[1] = new RooRealVar( "Kqcd_ht1", "Kqcd_ht1", 0.28, 0., 5. ) ;
+      ////////rv_qcd_kht[2] = new RooRealVar( "Kqcd_ht2", "Kqcd_ht2", 0.03, 0., 5. ) ;
+      ////////rv_qcd_kht[3] = new RooRealVar( "Kqcd_ht3", "Kqcd_ht3", 0.02, 0., 5. ) ;
+      rv_qcd_kht[1] = new RooRealVar( "Kqcd_ht1", "Kqcd_ht1", 0.71, 0., 5. ) ;
+      rv_qcd_kht[2] = new RooRealVar( "Kqcd_ht2", "Kqcd_ht2", 0.09, 0., 5. ) ;
       rv_qcd_kht[3] = new RooRealVar( "Kqcd_ht3", "Kqcd_ht3", 0.02, 0., 5. ) ;
 
       printf("\n Njet parameters:\n") ;
       for ( int bi=1; bi<=nb_nj; bi++ ) {
          char pname[100] ;
          sprintf( pname, "Sqcd_njet%d", bi ) ;
-         rv_qcd_snjet[bi] = new RooRealVar( pname, pname, 1.0, 0., 40. ) ;
+         float initial_val(1.0) ;
+         if ( bi==1 ) initial_val = 0.67 ;
+         if ( bi==2 ) initial_val = 1.00 ;
+         if ( bi==3 ) initial_val = 1.45 ;
+         if ( bi==4 ) initial_val = 2.85 ;
+         if ( bi==5 ) initial_val = 7.96 ;
+         rv_qcd_snjet[bi] = new RooRealVar( pname, pname, initial_val, 0., 40. ) ;
          printf(" %s ", pname ) ;
          if ( bi == (njet_bin_to_be_fixed_in_qcd_model_fit+1) ) {
             ((RooRealVar*) rv_qcd_snjet[bi]) -> setConstant( kTRUE ) ;

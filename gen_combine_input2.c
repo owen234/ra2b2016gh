@@ -22,10 +22,10 @@ void gen_combine_input2(
    const char* model_pars_file          = "outputfiles/model-pars-data3.txt",
    const char* mc_minus_model_hist_file = "outputfiles/model-ratio-hist1.root",
    const char* data_file                = "outputfiles/combine-input-data.txt",
-   const char* lostlep_file             = "outputfiles/mc-combine-input-lostlep.txt",
-   const char* hadtau_file              = "outputfiles/mc-combine-input-hadtau.txt",
-   const char* znunu_file               = "outputfiles/mc-combine-input-znunu.txt", 
-   const char* combine_output_file      = "outputfiles/mc-combine-input-all.txt",   
+   const char* lostlep_file             = "outputfiles/combine-input-lostlep.txt",
+   const char* hadtau_file              = "outputfiles/combine-input-hadtau.txt",
+   const char* znunu_file               = "outputfiles/combine-input-znunu.txt", 
+   const char* combine_output_file      = "outputfiles/combine-input-all.txt",
    const char* qcdratio_output_file     = "outputfiles/qcd-ratios.txt",
    const char* hist_output_file         = "outputfiles/gci-output.root"
                        ) 
@@ -410,7 +410,7 @@ void gen_combine_input2(
                   if ( nqcd_hdp_val > 0. ) {
                      overall_rel_err = nqcd_hdp_err/nqcd_hdp_val ;
                   }
-                  fprintf( ofp_combine, " ( %5.0f%%) ", 100. * overall_rel_err ) ;
+                  fprintf( ofp_combine, " ( %5.0f %%) ", 100. * overall_rel_err ) ;
 
 
                   h_ratio_all -> SetBinContent( region_bi, Rqcd_val ) ;
