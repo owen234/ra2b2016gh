@@ -139,6 +139,17 @@ void gen_combine_input2(
       int ht_plot_bi[10]{};
       int nj_plot_bi[10]{};
 
+
+   // //++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+   // printf("\n\n ######### debug ##########\n") ;
+   // for ( int htmhti=4; htmhti<=13; htmhti++ ) {
+   //    int hti, mhti ;
+   //    htmht_bin_to_ht_and_mht_bins ( htmhti, hti, mhti );
+   //    printf( " htmhti=%3d  par_val_ht_mht[%d][%d] = %7.4f\n", htmhti, hti, mhti, par_val_ht_mht[hti][mhti] ) ;
+   // } // htmhti
+   // printf(" ######### debug ##########\n\n\n") ;
+   // //++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
       for ( int bi_nj=1; bi_nj<=nb_nj; bi_nj++ ) {
          for ( int bi_nb=1; bi_nb<=nb_nb; bi_nb++ ) {
             for ( int bi_htmht=1; bi_htmht<=nb_htmht; bi_htmht++ ) {
@@ -267,13 +278,16 @@ void gen_combine_input2(
 
                   float Rqcd_val(0.) ;
 
-		  Rqcd_val = par_val_ht[bi_ht] * par_val_njet[bi_nj] * par_val_ht_mht[bi_ht][bi_mht-1] ;
+		  Rqcd_val = par_val_ht[bi_ht] * par_val_njet[bi_nj] * par_val_ht_mht[bi_ht][bi_mht] ;
+                  ////////printf("    debug2:  %s Rqcd_val = par_val_ht[%d] * par_val_njet[%d] * par_val_ht_mht[%d][%d] = %7.4f * %7.4f * %7.4f = %7.4f\n",
+                     owen_label, bi_ht, bi_nj, bi_ht, bi_mht, par_val_ht[bi_ht], par_val_njet[bi_nj], par_val_ht_mht[bi_ht][bi_mht], Rqcd_val ) ;
                   if ( bi_htmht==4 && bi_nj>2 ) Rqcd_val = 0 ; // shut things off in the first ht bin in the highest 2 njets bins.
                   if ( bi_htmht==7 && bi_nj>2 ) Rqcd_val = 0 ; // shut things off in the first ht bin in the highest 2 njets bins.
 
-                  bi_hist++ ;
+                  bi_hist = ( 4 * 10 ) * (bi_nj-1) + (10) * (bi_nb-1) + bi_htmht-3 ;
                   float mc_minus_model_val = h_ratio_qcdmc_minus_model -> GetBinContent( bi_hist ) ;
                   float mc_minus_model_err = h_ratio_qcdmc_minus_model -> GetBinError( bi_hist ) ;
+                  ////////printf("    debug3:  %s , hist bin label %s h_ratio_qcdmc_minus_model = %8.4f +/- %8.4f\n", owen_label, h_ratio_qcdmc_minus_model -> GetXaxis()->GetBinLabel( bi_hist), mc_minus_model_val, mc_minus_model_err ) ;
                   if ( mc_minus_model_val < 0. ) mc_minus_model_val = 0. ;
                   if ( mc_minus_model_val > 0.5 ) {
                      mc_minus_model_val = 0.5 ;
@@ -309,7 +323,7 @@ void gen_combine_input2(
                   if ( bi_nj != njet_bin_to_be_fixed_in_qcd_model_fit+1 ) rel_err_nj[bi_nj] += par_rel_err_njet[bi_nj] ;
 
 		  std::vector<std::vector<float>> rel_err_ht_mht(10,std::vector<float>(10,1.)) ; //creating a [10][10] vector with inital value 1.
-                  rel_err_ht_mht[bi_ht][bi_mht-1] += par_rel_err_ht_mht[bi_ht][bi_mht] ;
+                  rel_err_ht_mht[bi_ht][bi_mht] += par_rel_err_ht_mht[bi_ht][bi_mht] ;
 
 		  std::vector <float> rel_err_nb(10,1.);
                   rel_err_nb[bi_nb-1] += par_rel_err_nb[bi_nb] ;
@@ -327,12 +341,16 @@ void gen_combine_input2(
                      if ( bi_nj != njet_bin_to_be_fixed_in_qcd_model_fit+1 )
                         Rqcd_rel_err2 += pow( rel_err_nj[bi_nj]-1, 2. ) ;
 
-                  for ( int bi_ht = 1; bi_ht<=nBinsHT; bi_ht++ )
+                  for ( int bi_ht = 1; bi_ht<=nBinsHT; bi_ht++ ) {
+                     int debug_bi_mht_before = bi_mht ;
                      for ( int bi_mht=1; bi_mht<nb_mht; bi_mht++ )
                      {
                         if ( bi_ht == 1 && bi_mht > 2 ) continue;
                         Rqcd_rel_err2 += pow( rel_err_ht_mht[bi_ht][bi_mht]-1, 2. ) ;
 		     }
+                     int debug_bi_mht_after = bi_mht ;
+                     if ( debug_bi_mht_after != debug_bi_mht_before ) { printf("\n\n *** bi_mht changed.\n\n") ; gSystem->Exit(-1) ; }
+                  }
 
 		  for ( int bi_nb =1; bi_nb<=nb_nj; bi_nb++ )
                      Rqcd_rel_err2 += pow( rel_err_nb[bi_nb-1]-1, 2. ) ;
@@ -344,7 +362,7 @@ void gen_combine_input2(
                       region_bi, owen_label, bi_ht, bi_nj, (bi_mht-1),
                       par_val_ht[bi_ht], sqrt( pow( par_err_ht_fit[bi_ht], 2.) + pow( par_val_ht[bi_ht]*par_err_ht_syst[bi_ht], 2.) ),
                       par_val_njet[bi_nj], sqrt( pow( par_err_njet_fit[bi_nj], 2.) + pow( par_val_njet[bi_nj]*par_err_njet_syst[bi_nj], 2.) ),
-                      par_val_ht_mht[bi_ht][bi_mht-1], par_err_ht_mht[bi_ht][bi_mht-1],
+                      par_val_ht_mht[bi_ht][bi_mht], par_err_ht_mht[bi_ht][bi_mht],
                       Rqcd_val, Rqcd_err ) ;
 
                   float nqcd_hdp_err(0.) ;

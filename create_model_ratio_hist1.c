@@ -93,6 +93,7 @@
          sprintf( label, "%s", h_ratio_all -> GetXaxis() -> GetBinLabel( bi ) ) ;
          float diff_val(0.) ;
          float diff_err(0.) ;
+         printf(" debug1 : model bin label = %s , qcdmc bin label = %s\n", h_ratio_all -> GetXaxis() -> GetBinLabel( bi ), h_ratio_qcdmc -> GetXaxis() -> GetBinLabel( bi ) ) ;
          if ( hdp_val > 0 ) {
             diff_val = qcdmc_val - model_val ;
             diff_err = diff_val ;
