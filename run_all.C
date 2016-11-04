@@ -20,6 +20,11 @@
 #include "run_modelfit3_on_data.c"
 #include "create_model_ratio_hist1.c"
 #include "gen_combine_input2.c"
+#include "draw_qcd_ratio_v3.c"
+#include "create_model_ratio_hist1.c"
+#include "dump_qcdmc_vals.c"
+#include "closure_sums3.c"
+#include "draw_closure_sums1.c"
 
 void run_all ( TString skim_slim_input_dir = "" )
 
@@ -36,11 +41,11 @@ void run_all ( TString skim_slim_input_dir = "" )
       run_slimskim(skim_slim_input_dir + "/tree_signal");
       run_slimskim(skim_slim_input_dir+ "/tree_LDP");
 
-      gSystem -> Exec("mkdir -p ./fnal-prod-v9-skims-slimmed/tree_signal");
-      gSystem -> Exec("mkdir -p ./fnal-prod-v9-skims-slimmed/tree_LDP");
+      gSystem -> Exec("mkdir -p ./fnal-prod-v10-skims-slimmed/tree_signal");
+      gSystem -> Exec("mkdir -p ./fnal-prod-v10-skims-slimmed/tree_LDP");
 
-      gSystem -> Exec("mv " + skim_slim_input_dir + "/tree_signal/slim/* ./fnal-prod-v9-skims-slimmed/tree_signal");
-      gSystem -> Exec("mv " + skim_slim_input_dir + "/tree_LDP/slim/* ./fnal-prod-v9-skims-slimmed/tree_LDP");
+      gSystem -> Exec("mv " + skim_slim_input_dir + "/tree_signal/slim/* ./fnal-prod-v10-skims-slimmed/tree_signal");
+      gSystem -> Exec("mv " + skim_slim_input_dir + "/tree_LDP/slim/* ./fnal-prod-v10-skims-slimmed/tree_LDP");
 
    }
    data_turnon1();
@@ -67,4 +72,16 @@ void run_all ( TString skim_slim_input_dir = "" )
    draw_badjet_cat_v3();
    create_model_ratio_hist1();
    gen_combine_input2();
+   draw_qcd_ratio_v3();
+   create_model_ratio_hist1();   
+   dump_qcdmc_vals();
+   closure_sums3();
+
+   draw_closure_sums1("njet");
+   draw_closure_sums1("mht");
+   draw_closure_sums1("ht");
+   draw_closure_sums1("nb");
+   draw_closure_sums1("10boxes");
+
+
 }

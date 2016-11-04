@@ -186,18 +186,6 @@ fill_data_hists_loop_v2d::fill_data_hists_loop_v2d(TTree *tree, const char* samp
       // of trees.
       TChain * chain = new TChain("tree","");
      //----------
-   // chain->Add("fnal-prod-v9-skims-slimmed/tree_LDP/tree_MET_2016B-slimskim.root/tree");
-   // chain->Add("fnal-prod-v9-skims-slimmed/tree_LDP/tree_MET_2016C-slimskim.root/tree");
-   // chain->Add("fnal-prod-v9-skims-slimmed/tree_signal/tree_MET_2016B-slimskim.root/tree");
-   // chain->Add("fnal-prod-v9-skims-slimmed/tree_signal/tree_MET_2016C-slimskim.root/tree");
-     //----------
-   // chain->Add("fnal-prod-v9-skims-slimmed/tree_LDP/tree_MET_2016B-slimskim.root/tree");
-   // chain->Add("fnal-prod-v9-skims-slimmed/tree_LDP/tree_MET_2016C-slimskim.root/tree");
-   // chain->Add("fnal-prod-v9-skims-slimmed/tree_LDP/tree_MET_2016D-slimskim.root/tree");
-   // chain->Add("fnal-prod-v9-skims-slimmed/tree_signal/tree_MET_2016B-slimskim.root/tree");
-   // chain->Add("fnal-prod-v9-skims-slimmed/tree_signal/tree_MET_2016C-slimskim.root/tree");
-   // chain->Add("fnal-prod-v9-skims-slimmed/tree_signal/tree_MET_2016D-slimskim.root/tree");
-     //----------
       chain->Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_MET_2016B-slimskim.root/tree");
       chain->Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_MET_2016C-slimskim.root/tree");
       chain->Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_MET_2016D-slimskim.root/tree");

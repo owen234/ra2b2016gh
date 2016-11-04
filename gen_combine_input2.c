@@ -147,7 +147,7 @@ void gen_combine_input2(
   
                htmht_bin_to_ht_and_mht_bins ( bi_htmht, bi_ht, bi_mht );
 
-               if ( exclude_this_bin(bi_nj - 1, bi_nb -1, bi_ht - 1, bi_mht - 1 ) ) 
+               if ( is_this_bin_excluded(bi_nj - 1, bi_nb -1, bi_ht - 1, bi_mht - 1 ) ) 
                {
                        //Because those bins we want to remove still exist in background text files. If we change input text files, we can remove these lines
                        line.ReadLine( ifs_data ) ; 

@@ -210,17 +210,17 @@ fill_hists_loop_v2d::fill_hists_loop_v2d(TTree *tree, const char* samplename_arg
       // The following code should be used if you want this class to access a chain
       // of trees.
       TChain * chain = new TChain("tree","");
-      chain->Add("fnal-prod-v9-skims-slimmed/tree_LDP/tree_QCD_HT-500to700-slimskim.root/tree");
-      chain->Add("fnal-prod-v9-skims-slimmed/tree_LDP/tree_QCD_HT-700to1000-slimskim.root/tree");
-      chain->Add("fnal-prod-v9-skims-slimmed/tree_LDP/tree_QCD_HT-1000to1500-slimskim.root/tree");
-      chain->Add("fnal-prod-v9-skims-slimmed/tree_LDP/tree_QCD_HT-1500to2000-slimskim.root/tree");
-      chain->Add("fnal-prod-v9-skims-slimmed/tree_LDP/tree_QCD_HT-2000toInf-slimskim.root/tree");
+      chain->Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_QCD_HT-500to700-slimskim.root/tree");
+      chain->Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_QCD_HT-700to1000-slimskim.root/tree");
+      chain->Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_QCD_HT-1000to1500-slimskim.root/tree");
+      chain->Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_QCD_HT-1500to2000-slimskim.root/tree");
+      chain->Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_QCD_HT-2000toInf-slimskim.root/tree");
 
-      chain->Add("fnal-prod-v9-skims-slimmed/tree_signal/tree_QCD_HT-500to700-slimskim.root/tree");
-      chain->Add("fnal-prod-v9-skims-slimmed/tree_signal/tree_QCD_HT-700to1000-slimskim.root/tree");
-      chain->Add("fnal-prod-v9-skims-slimmed/tree_signal/tree_QCD_HT-1000to1500-slimskim.root/tree");
-      chain->Add("fnal-prod-v9-skims-slimmed/tree_signal/tree_QCD_HT-1500to2000-slimskim.root/tree");
-      chain->Add("fnal-prod-v9-skims-slimmed/tree_signal/tree_QCD_HT-2000toInf-slimskim.root/tree");
+      chain->Add("fnal-prod-v10-skims-slimmed/tree_signal/tree_QCD_HT-500to700-slimskim.root/tree");
+      chain->Add("fnal-prod-v10-skims-slimmed/tree_signal/tree_QCD_HT-700to1000-slimskim.root/tree");
+      chain->Add("fnal-prod-v10-skims-slimmed/tree_signal/tree_QCD_HT-1000to1500-slimskim.root/tree");
+      chain->Add("fnal-prod-v10-skims-slimmed/tree_signal/tree_QCD_HT-1500to2000-slimskim.root/tree");
+      chain->Add("fnal-prod-v10-skims-slimmed/tree_signal/tree_QCD_HT-2000toInf-slimskim.root/tree");
       tree = chain;
 #endif // SINGLE_TREE
 

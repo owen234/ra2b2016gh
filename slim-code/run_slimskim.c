@@ -31,6 +31,7 @@
 
       printf("\n\n") ;
 
+      gSystem -> Exec ( "rm ./rootfiles.txt");
 
 
    } // run_slimskim

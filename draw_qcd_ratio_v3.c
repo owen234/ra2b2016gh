@@ -1,3 +1,6 @@
+#ifndef draw_qcd_ratio_v3_c
+#define draw_qcd_ratio_v3_c
+
 #include "TDirectory.h"
 #include "TH1F.h"
 #include "TSystem.h"
@@ -211,4 +214,4 @@
 
 
 
-
+#endif

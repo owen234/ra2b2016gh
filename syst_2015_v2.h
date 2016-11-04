@@ -645,16 +645,16 @@ syst_2015_v2::syst_2015_v2(TTree *tree) : fChain(0)
       // The following code should be used if you want this class to access a chain
       // of trees.
       TChain * chain = new TChain("tree","");
-      chain->Add("fnal-prod-v9-skims/tree_LDP/tree_QCD_HT-500to700.root/tree");
-      chain->Add("fnal-prod-v9-skims/tree_signal/tree_QCD_HT-500to700.root/tree");
-      chain->Add("fnal-prod-v9-skims/tree_LDP/tree_QCD_HT-700to1000.root/tree");
-      chain->Add("fnal-prod-v9-skims/tree_signal/tree_QCD_HT-700to1000.root/tree");
-      chain->Add("fnal-prod-v9-skims/tree_LDP/tree_QCD_HT-1000to1500.root/tree");
-      chain->Add("fnal-prod-v9-skims/tree_signal/tree_QCD_HT-1000to1500.root/tree");
-      chain->Add("fnal-prod-v9-skims/tree_LDP/tree_QCD_HT-1500to2000.root/tree");
-      chain->Add("fnal-prod-v9-skims/tree_signal/tree_QCD_HT-1500to2000.root/tree");
-      chain->Add("fnal-prod-v9-skims/tree_LDP/tree_QCD_HT-2000toInf.root/tree");
-      chain->Add("fnal-prod-v9-skims/tree_signal/tree_QCD_HT-2000toInf.root/tree");
+      chain->Add("fnal-prod-v10-skims/tree_LDP/tree_QCD_HT-500to700.root/tree");
+      chain->Add("fnal-prod-v10-skims/tree_signal/tree_QCD_HT-500to700.root/tree");
+      chain->Add("fnal-prod-v10-skims/tree_LDP/tree_QCD_HT-700to1000.root/tree");
+      chain->Add("fnal-prod-v10-skims/tree_signal/tree_QCD_HT-700to1000.root/tree");
+      chain->Add("fnal-prod-v10-skims/tree_LDP/tree_QCD_HT-1000to1500.root/tree");
+      chain->Add("fnal-prod-v10-skims/tree_signal/tree_QCD_HT-1000to1500.root/tree");
+      chain->Add("fnal-prod-v10-skims/tree_LDP/tree_QCD_HT-1500to2000.root/tree");
+      chain->Add("fnal-prod-v10-skims/tree_signal/tree_QCD_HT-1500to2000.root/tree");
+      chain->Add("fnal-prod-v10-skims/tree_LDP/tree_QCD_HT-2000toInf.root/tree");
+      chain->Add("fnal-prod-v10-skims/tree_signal/tree_QCD_HT-2000toInf.root/tree");
       tree = chain;
 #endif // SINGLE_TREE
 
