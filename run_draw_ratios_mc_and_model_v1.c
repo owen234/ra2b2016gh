@@ -1,4 +1,3 @@
-
 #include "draw_ratios_mc_and_model_v1.c"
 
    void run_draw_ratios_mc_and_model_v1() {
