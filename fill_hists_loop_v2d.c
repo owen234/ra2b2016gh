@@ -38,7 +38,7 @@
 using namespace std ;
 
 
-
+int bi_nj, bi_nb, bi_ht, bi_mht, bi_htmht;
 
 void fill_hists_loop_v2d::Loop( bool verb, int nloop )
 {
@@ -362,7 +362,6 @@ void fill_hists_loop_v2d::Loop( bool verb, int nloop )
 
       int bi_mhtc_plot = (bi_nj-1)*nb_nb*(nb_ht[1]) + (bi_nb-1)*(nb_ht[1]) + bi_ht ;
       int bi_mhtc_nbsum_plot = (bi_nj-1)*(nb_ht[1]) + bi_ht ;
-
       if ( !in_ldp ) {
          h_hdp -> Fill( bi_global, hw ) ;
          h_nbsum_hdp -> Fill( bi_nbsum_global, hw ) ;

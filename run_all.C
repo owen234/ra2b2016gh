@@ -1,3 +1,6 @@
+#include <stdio.h>
+#include <sys/stat.h>
+
 #include "slim-code/run_slimskim.c"
 
 #include "data_turnon1.c"
@@ -20,6 +23,18 @@
 #include "run_modelfit3_on_data.c"
 #include "create_model_ratio_hist1.c"
 #include "gen_combine_input2.c"
+#include "draw_qcd_ratio_v3.c"
+#include "create_model_ratio_hist1.c"
+#include "dump_qcdmc_vals.c"
+#include "closure_sums3.c"
+#include "draw_closure_sums1.c"
+#include "draw_qcd_ratio_v3.c"
+#include "create_model_ratio_hist1.c"
+#include "closure_v4.c"
+#include "draw_qcd_ratio_v3.c"
+
+bool does_outputfiles_exist();
+
 
 void run_all ( TString skim_slim_input_dir = "" )
 
@@ -36,13 +51,16 @@ void run_all ( TString skim_slim_input_dir = "" )
       run_slimskim(skim_slim_input_dir + "/tree_signal");
       run_slimskim(skim_slim_input_dir+ "/tree_LDP");
 
-      gSystem -> Exec("mkdir -p ./fnal-prod-v9-skims-slimmed/tree_signal");
-      gSystem -> Exec("mkdir -p ./fnal-prod-v9-skims-slimmed/tree_LDP");
+      gSystem -> Exec("mkdir -p ./fnal-prod-v10-skims-slimmed/tree_signal");
+      gSystem -> Exec("mkdir -p ./fnal-prod-v10-skims-slimmed/tree_LDP");
 
-      gSystem -> Exec("mv " + skim_slim_input_dir + "/tree_signal/slim/* ./fnal-prod-v9-skims-slimmed/tree_signal");
-      gSystem -> Exec("mv " + skim_slim_input_dir + "/tree_LDP/slim/* ./fnal-prod-v9-skims-slimmed/tree_LDP");
+      gSystem -> Exec("mv " + skim_slim_input_dir + "/tree_signal/slim/* ./fnal-prod-v10-skims-slimmed/tree_signal");
+      gSystem -> Exec("mv " + skim_slim_input_dir + "/tree_LDP/slim/* ./fnal-prod-v10-skims-slimmed/tree_LDP");
 
    }
+
+   if ( !does_outputfiles_exist() ) gSystem -> Exec("mkdir ./outputfiles");
+
    data_turnon1();
 
    fill_hists_loop_v2d f1;
@@ -67,4 +85,33 @@ void run_all ( TString skim_slim_input_dir = "" )
    draw_badjet_cat_v3();
    create_model_ratio_hist1();
    gen_combine_input2();
+   dump_qcdmc_vals();
+   closure_sums3();
+
+   draw_closure_sums1("njet");
+   draw_closure_sums1("mht");
+   draw_closure_sums1("ht");
+   draw_closure_sums1("nb");
+   draw_closure_sums1("10boxes");
+
+
 }
+
+
+
+
+bool does_outputfiles_exist()
+{
+    const char* folderr;
+    folderr = "./outputfiles";
+    struct stat sb;
+
+    if (stat(folderr, &sb) == 0 && S_ISDIR(sb.st_mode))
+    {
+       return true;
+    }
+    else
+    {
+       return false;
+    }
+}// does_outputfiles_exist

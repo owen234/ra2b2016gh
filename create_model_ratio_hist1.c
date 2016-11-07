@@ -9,8 +9,7 @@
 #include "binning.h"
 #include "histio.c"
 #include "read_pars.h"
-
-   TH1F* get_hist( const char* hname );
+#include "get_hist.h"
 
    void create_model_ratio_hist1( const char* model_pars_file = "outputfiles/model-pars-qcdmc3.txt",
                                   const char* qcd_ratio_file = "outputfiles/qcdmc-ratio-v3.root" ) {
@@ -124,19 +123,5 @@
    } // create_model_ratio_hist1
 
 
-#ifndef get_hist_
-#define get_hist_
-
-   TH1F* get_hist( const char* hname ) {
-      TH1F* hp = (TH1F*) gDirectory -> FindObject( hname ) ;
-      if ( hp == 0x0 ) {
-         printf("\n\n *** Missing histogram : %s\n\n", hname ) ;
-         gDirectory -> ls() ;
-         gSystem -> Exit( -1 ) ;
-      }
-      return hp ;
-   } // get_hist
-
-#endif
 //===============================================================================
 #endif

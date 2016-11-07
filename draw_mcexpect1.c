@@ -1,4 +1,3 @@
-
 #include "TDirectory.h"
 #include "TH1F.h"
 #include "THStack.h"
@@ -7,11 +6,8 @@
 #include "TSystem.h"
 #include "TStyle.h"
 
+#include "get_hist.h"
 #include "histio.c"
-
-  //--------
-
-   TH1F* get_hist( const char* hname ) ;
 
   //--------
 
@@ -157,17 +153,3 @@
 
 
    } // draw_mcexpect1
-
-//===============================================================================
-
-   TH1F* get_hist( const char* hname ) {
-      TH1F* hp = (TH1F*) gDirectory -> FindObject( hname ) ;
-      if ( hp == 0x0 ) {
-         printf("\n\n *** Missing histogram : %s\n\n", hname ) ;
-         gDirectory -> ls() ;
-         gSystem -> Exit( -1 ) ;
-      }
-      return hp ;
-   } // get_hist
-
-//===============================================================================
