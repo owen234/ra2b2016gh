@@ -73,7 +73,7 @@ using namespace std ;
 
       bi = 0 ;
 
-      bin_edges_nj[bi] = 1.5 ; bi++ ; // *** adding NJets=2 binning
+//      bin_edges_nj[bi] = 1.5 ; bi++ ; // *** adding NJets=2 binning
       njet_bin_to_be_fixed_in_qcd_model_fit  = bi; // Setting bin NJets = {3,4} as the bin to be fixed to one while fitting QCD toymodel parameters
       bin_edges_nj[bi] = 2.5 ; bi++ ;
       bin_edges_nj[bi] = 4.5 ; bi++ ;
@@ -144,6 +144,7 @@ using namespace std ;
       nb_ht[mbi] = bi ;
       nb_htmht += bi ;
 
+
       nb_global = nb_htmht * nb_nb * nb_nj ;
       nb_global_after_exclusion = 0;
       nb_global_w_exclusion_w_mhtc = 0;
@@ -185,7 +186,7 @@ bool is_this_bin_excluded(int bin_nj, int bin_nb, int bin_ht, int bin_mht)
 {
   // all variables start from zero
   // bin_mht = 0 corresponds to MHTC bins
-
+/*
   if ( bin_edges_nj[0] == 1.5 ) // If NJets = 2 binning is considered
   {	
      if ( bin_nj == 0 && bin_nb == 3 ) return true; // Removing bins NJets0_BTags3_...
@@ -197,7 +198,7 @@ bool is_this_bin_excluded(int bin_nj, int bin_nb, int bin_ht, int bin_mht)
   if ( bin_nj == nb_nj-1 && bin_ht == 0 && bin_mht == 0) return true; // Removing bins NJets4_BTagsX_MHTC_HT0
   if ( bin_nj == nb_nj-1 && bin_ht == 0 && bin_mht == 1) return true; // Removing bins NJets4_BTagsX_MHT0_HT0
   if ( bin_nj == nb_nj-1 && bin_ht == 0 && bin_mht == 2) return true; // Removing bins NJets4_BTagsX_MHT1_HT0
-
+*/
   return false;  //don't exclude this bin
 }
 
@@ -389,7 +390,38 @@ bool translate_qcd_bin_to_nj_nb_ht_mht( int qcd_bin_no, int& arg_nj, int& arg_nb
    return 0; // Didn't find such a bin
 }//translate_qcd_bin_to_nj_nb_ht_mht
 
+
+TString num_to_str(int value)
+{
+   
+   TString str;
+   str.Form("%d",value);
+   return str;
+
+}
+
+TString num_to_str(double value)
+{
+
+   TString str; 
+   str.Form("%f",value);
+   return str;
+
+}
+
+TString num_to_str(float value)
+{
+
+   TString str;
+   str.Form("%f",value);
+   return str;
+
+}
+
+
 //=========================================
+
+
 
 
 #endif
