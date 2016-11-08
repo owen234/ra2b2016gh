@@ -80,7 +80,7 @@
          }
          h_hdp_model -> SetBinContent( bi, hdp_pred_val ) ;
          h_hdp_model -> SetBinError( bi, hdp_pred_err ) ;
-         ///h_hdp_model -> GetXaxis() -> SetBinLabel( bi, label ) ;
+         h_hdp_model -> GetXaxis() -> SetBinLabel( bi, label ) ;
 
          if ( hdp_pred_val > 0 ) {
             h_hdp_evts_over_model -> SetBinContent( bi, (hdp_val/hdp_pred_val) ) ;
@@ -97,6 +97,7 @@
       } // bi
 
       h_hdp_model -> GetXaxis() -> LabelsOption( "v" ) ;
+
       if ( do_text_binlabels ) {
          h_hdp_evts_over_model  -> GetXaxis() -> LabelsOption( "v" ) ;
          h_hdp_model_over_model -> GetXaxis() -> LabelsOption( "v" ) ;
@@ -205,7 +206,6 @@
       for ( int bi_nb=0; bi_nb<nb_nb; bi_nb++ ) { position += width[0][bi_nb];}
 
       nblabels -> DrawLatex(  position+3+width[1][0]/2, exp(0.81*(log(ymax)-log(ymin))+log(ymin)), "N_{b-jet}" ) ;
-
 
       for ( int bi_nb=0; bi_nb<nb_nb; bi_nb++ )
       {

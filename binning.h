@@ -391,34 +391,6 @@ bool translate_qcd_bin_to_nj_nb_ht_mht( int qcd_bin_no, int& arg_nj, int& arg_nb
 }//translate_qcd_bin_to_nj_nb_ht_mht
 
 
-TString num_to_str(int value)
-{
-   
-   TString str;
-   str.Form("%d",value);
-   return str;
-
-}
-
-TString num_to_str(double value)
-{
-
-   TString str; 
-   str.Form("%f",value);
-   return str;
-
-}
-
-TString num_to_str(float value)
-{
-
-   TString str;
-   str.Form("%f",value);
-   return str;
-
-}
-
-
 //=========================================
 
 

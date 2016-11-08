@@ -17,21 +17,17 @@
 #include "make_hadtau_input_files1.c"
 #include "make_znunu_input_files1.c"
 #include "syst_2015_v2.c"
-#include "draw_qcd_ratio_v3.c"
 #include "draw_badjet_cat_v3.c"
 #include "gen_modelfit_input1.c"
 #include "run_modelfit3_on_data.c"
-#include "create_model_ratio_hist1.c"
 #include "gen_combine_input2.c"
-#include "draw_qcd_ratio_v3.c"
-#include "create_model_ratio_hist1.c"
 #include "dump_qcdmc_vals.c"
 #include "closure_sums3.c"
 #include "draw_closure_sums1.c"
-#include "draw_qcd_ratio_v3.c"
 #include "create_model_ratio_hist1.c"
 #include "closure_v4.c"
 #include "draw_qcd_ratio_v3.c"
+#include "draw_model_vs_mc.c"
 
 bool does_outputfiles_exist();
 
@@ -124,6 +120,13 @@ void run_all ( TString skim_slim_input_dir = "" )
    draw_closure_sums1("nb");
    draw_closure_sums1("10boxes");
 
+   std::cout << "\n-----------   running code closure_v4   -----------\n" << std::endl;   
+
+   closure_v4();
+
+   std::cout << "\n-----------   running code draw_model_vs_mc   -----------\n" << std::endl;
+
+   draw_model_vs_mc();
 
 }
 
