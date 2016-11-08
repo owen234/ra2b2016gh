@@ -3,7 +3,11 @@
 #include "TLine.h"
 #include "TBox.h"
 #include "TASImage.h"
-
+#include "lumi_taken.h"
+#include "binning.h"
+#include "num_to_str.h"
+#include <iostream>
+#include <string>
 //
 // Global variables
 //
@@ -28,8 +32,8 @@ float relExtraDY = 1.2;
 
 // ratio of "CMS" and extra text size
 float extraOverCmsTextSize  = 0.76;
-
-TString lumi_13TeV = "1.28 pb^{-1}";
+double lumi = lumi_ / 1000;
+TString lumi_13TeV = num_to_str( lumi, 1) + " pb^{-1}";
 TString lumi_8TeV  = "19.7 fb^{-1}";
 TString lumi_7TeV  = "5.1 fb^{-1}";
 TString lumi_sqrtS = "";

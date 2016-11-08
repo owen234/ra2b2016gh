@@ -1,3 +1,6 @@
+#ifndef draw_qcd_ratio_v3_c
+#define draw_qcd_ratio_v3_c
+
 #include "TDirectory.h"
 #include "TH1F.h"
 #include "TSystem.h"
@@ -7,8 +10,9 @@
 
 #include "binning.h"
 #include "histio.c"
+#include "get_hist.h"
 
-   TH1F* get_hist( const char* hname ) ;
+
    void  draw_boundaries() ;
    void  draw_boundaries_nj( int nhtb ) ;
 
@@ -44,10 +48,10 @@
       TH1F* h_hdp = get_hist( "h_hdp" ) ;
       TH1F* h_max_ldp_weight = get_hist( "h_max_ldp_weight" ) ;
 
-      TH1F* h_ratio = new TH1F( "h_ratio", "QCD H/L ratio", (nb_htmht-3) * nb_nb * nb_nj, 0.5, (nb_htmht-3) * nb_nb * nb_nj + 0.5 ) ;
-      TH1F* h_max_ldp_weight_search_bins = new TH1F( "h_max_ldp_weight_search_bins", "max LDP weight", (nb_htmht-3) * nb_nb * nb_nj, 0.5, (nb_htmht-3) * nb_nb * nb_nj + 0.5 ) ;
-      TH1F* h_ldp_search_bins = new TH1F( "h_ldp_search_bins", "LDP counts, (nb_htmht-3) * nb_nb * nb_nj bins", (nb_htmht-3) * nb_nb * nb_nj, 0.5, (nb_htmht-3) * nb_nb * nb_nj + 0.5 ) ;
-      TH1F* h_hdp_search_bins = new TH1F( "h_hdp_search_bins", "HDP counts, (nb_htmht-3) * nb_nb * nb_nj bins", (nb_htmht-3) * nb_nb * nb_nj, 0.5, (nb_htmht-3) * nb_nb * nb_nj + 0.5 ) ;
+      TH1F* h_ratio = new TH1F( "h_ratio", "QCD H/L ratio", nb_global_after_exclusion, 0.5, nb_global_after_exclusion + 0.5 ) ;
+      TH1F* h_max_ldp_weight_search_bins = new TH1F( "h_max_ldp_weight_search_bins", "max LDP weight", nb_global_after_exclusion, 0.5, nb_global_after_exclusion + 0.5 ) ;
+      TH1F* h_ldp_search_bins = new TH1F( "h_ldp_search_bins", "LDP counts, search bins", nb_global_after_exclusion, 0.5, nb_global_after_exclusion + 0.5 ) ;
+      TH1F* h_hdp_search_bins = new TH1F( "h_hdp_search_bins", "HDP counts, search bins", nb_global_after_exclusion, 0.5, nb_global_after_exclusion + 0.5 ) ;
 
       TH1F * h_ratio_nb[10], * h_ratio_nj[10];
 
@@ -55,7 +59,7 @@
       {
 
       TString nb_str; nb_str.Form("%d",nb_count);
-      h_ratio_nb[nb_count] = new TH1F( "h_ratio_nb"+nb_str, "QCD H/L ratio, Nb"+nb_str, 40, 0.5, 40.5 ) ;
+      h_ratio_nb[nb_count] = new TH1F( "h_ratio_nb"+nb_str, "QCD H/L ratio, Nb"+nb_str, no_bin_bjet[nb_count], 0.5, no_bin_bjet[nb_count]+0.5 ) ;
 
       }
 
@@ -63,16 +67,21 @@
       {
 
       TString nj_str; nj_str.Form("%d",nj_count);
-      h_ratio_nj[nj_count] = new TH1F( "h_ratio_nj"+nj_str, "QCD H/L ratio, Nj"+nj_str, 40, 0.5, 40.5 ) ;
+      h_ratio_nj[nj_count] = new TH1F( "h_ratio_nj"+nj_str, "QCD H/L ratio, Nj"+nj_str, no_bin_njet[nj_count], 0.5, no_bin_njet[nj_count]+0.5 ) ;
 
       }
 
       int bi_hist(0) ;
       int bi_search_hist(0) ;
+      int bi_nb_hist[10] = {};
+      int bi_nj_hist[10] = {};
       for ( int bi_nj=1; bi_nj<=nb_nj; bi_nj++ ) {
          for ( int bi_nb=1; bi_nb<=nb_nb; bi_nb++ ) {
             for ( int bi_htmht=1; bi_htmht<=nb_htmht; bi_htmht++ ) {
-               bi_hist++ ;
+
+               bi_hist++ ;  // this line should be reviewd when updating the code that produces h_ldp and h_hdp
+
+               if ( is_this_bin_excluded(bi_nj-1, bi_nb-1, bi_htmht-1) ) continue;
                sprintf( label, "%s", h_ldp -> GetXaxis() -> GetBinLabel( bi_hist ) ) ;
                //printf( " %3d : Nj%d Nb%d HTMHT%d : %30s\n", bi_hist, bi_nj, bi_nb-1, bi_htmht, label ) ;
                if ( bi_htmht > 3 ) {
@@ -101,20 +110,22 @@
                   printf( "  search %3d : %30s : R= %6.4f +/- %6.4f\n", bi_search_hist, label, ratio_val, ratio_err ) ;
                   TH1F* hp_nb(0x0) ;
                   hp_nb = h_ratio_nb[bi_nb-1] ;
-                  int bi_nb_hist = (bi_nj-1)*10 + bi_htmht-3 ;
-                  hp_nb -> SetBinContent( bi_nb_hist, ratio_val ) ;
-                  hp_nb -> SetBinError( bi_nb_hist, ratio_err ) ;
-                  hp_nb -> GetXaxis() -> SetBinLabel( bi_nb_hist, label ) ;
+                  bi_nb_hist[bi_nb-1]++;
+                  hp_nb -> SetBinContent( bi_nb_hist[bi_nb-1], ratio_val ) ;
+                  hp_nb -> SetBinError( bi_nb_hist[bi_nb-1], ratio_err ) ;
+                  hp_nb -> GetXaxis() -> SetBinLabel( bi_nb_hist[bi_nb-1], label ) ;
                   TH1F* hp_nj(0x0) ;
                   hp_nj = h_ratio_nj[bi_nj] ;
-                  int bi_nj_hist = (bi_nb-1)*10 + bi_htmht-3 ;
-                  hp_nj -> SetBinContent( bi_nj_hist, ratio_val ) ;
-                  hp_nj -> SetBinError( bi_nj_hist, ratio_err ) ;
-                  hp_nj -> GetXaxis() -> SetBinLabel( bi_nj_hist, label ) ;
+                  bi_nj_hist[bi_nj-1]++;
+                  hp_nj -> SetBinContent( bi_nj_hist[bi_nj-1], ratio_val ) ;
+                  hp_nj -> SetBinError( bi_nj_hist[bi_nj-1], ratio_err ) ;
+                  hp_nj -> GetXaxis() -> SetBinLabel( bi_nj_hist[bi_nj-1], label ) ;
                } // not control bin.
             } // bi_htmht
          } // bi_nb
       } // bi_nj
+
+
 
       h_ratio -> GetXaxis() -> LabelsOption( "v" ) ;
       h_ratio -> SetMarkerStyle(20) ;
@@ -142,20 +153,6 @@
 
    } // draw_qcd_ratio_v3
 
-//===============================================================================
-#ifndef get_hist_
-#define get_hist_
-
-   TH1F* get_hist( const char* hname ) {
-      TH1F* hp = (TH1F*) gDirectory -> FindObject( hname ) ;
-      if ( hp == 0x0 ) {
-         printf("\n\n *** Missing histogram : %s\n\n", hname ) ;
-         gDirectory -> ls() ;
-         gSystem -> Exit( -1 ) ;
-      }
-      return hp ;
-   } // get_hist
-#endif
 //===============================================================================
 
    void draw_boundaries() {
@@ -211,4 +208,4 @@
 
 
 
-
+#endif

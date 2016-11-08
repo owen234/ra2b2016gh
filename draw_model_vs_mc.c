@@ -1,15 +1,21 @@
+#ifndef  draw_model_vs_mc_c
+#define  draw_model_vs_mc_c
 
+#include "TGraphErrors.h"
+#include "TSystem.h"
+#include "TPad.h"
 #include "histio.c"
+#include "TCanvas.h"
+#include "TStyle.h"
 
-   TH1F* get_hist( const char* hname ) ;
-
-   //void draw_model_vs_mc( const char* model_file = "outputfiles/model-ratio-hist1.root",
-   //                       const char* qcdmc_file = "outputfiles/qcdmc-ratio-v3.root",
-   //                       const char* output_dir = "outputfiles/mc-model-vs-mc" ) {
+#include "get_hist.h"
+#include "binning.h"
 
    void draw_model_vs_mc( const char* model_file = "outputfiles/gci-output.root",
                           const char* qcdmc_file = "outputfiles/qcdmc-ratio-v3.root",
                           const char* output_dir = "outputfiles/model-vs-mc" ) {
+
+      setup_bins();
 
       gStyle -> SetOptStat(0) ;
 
@@ -30,6 +36,7 @@
       TH1F* h_qcdmc = get_hist( "h_ratio_qcdmc" ) ;
 
       TH1F* h_qcdmc_minus_model = (TH1F*) h_qcdmc -> Clone( "h_qcdmc_minus_model" ) ;
+
       for ( int bi=1; bi<=h_qcdmc_minus_model-> GetNbinsX(); bi++ ) {
          float model_val = h_model -> GetBinContent( bi ) ;
          float qcdmc_val = h_qcdmc -> GetBinContent( bi ) ;
@@ -54,17 +61,23 @@
 
       TGraphErrors* gr_model(0x0) ;
       {
-         double x[160], y[160], ex[160], ey[160] ;
-         for ( int bi=1; bi<=160; bi++ ) {
-            x[bi] = bi ;
+         double x[1000], y[1000], ex[1000], ey[1000];
+
+	 int nbins = h_model->GetNbinsX();
+         for ( int bi=1; bi <= nbins; bi++ ) {
+            x [bi] = bi ;
             ex[bi] = 0.5 ;
-            y[bi] = h_model -> GetBinContent( bi ) ;
+            y [bi] = h_model -> GetBinContent( bi ) ;
             ey[bi] = h_model -> GetBinError( bi ) ;
+         } // bi
+
+	 nbins = h_qcdmc->GetNbinsX();
+         for ( int bi=1; bi <= nbins; bi++ ) {
             if ( h_qcdmc->GetBinContent( bi ) == 0. && h_qcdmc->GetBinError( bi) == 0. ) {
                h_qcdmc->SetBinContent( bi, -9. ) ;
-            }
-         } // bi
-         gr_model = new TGraphErrors( 160, x, y, ex, ey ) ;
+            }// h_qcdmc
+	 }//bi
+	 gr_model = new TGraphErrors( nb_global_after_exclusion, x, y, ex, ey ) ;
       }
       gr_model -> SetFillColor( kRed-10 ) ;
 
@@ -74,7 +87,7 @@
       h_model_noerrs -> SetMaximum( 1.2 ) ;
       h_model_noerrs -> SetMinimum( -0.1 ) ;
 
-      h_model_noerrs -> GetXaxis() -> SetRange( 1, 40 ) ;
+      h_model_noerrs -> GetXaxis() -> SetRange( 1, no_bin_njet[0] ) ;
 
       h_model_noerrs -> Draw( "e" ) ;
       gr_model -> Draw( "0 2" ) ;
@@ -86,116 +99,39 @@
       gPad -> SetGridy(1) ;
 
      //---
+      int range_min = 0;
+      for ( int bi_nj = 1; bi_nj <= nb_nj; bi_nj++)
+      {
 
-      h_model_noerrs -> SetMaximum( 1.2 ) ;
-      h_model_noerrs -> SetMinimum( -0.1 ) ;
+         if ( bi_nj > 1 ) {range_min += no_bin_njet[bi_nj-2];}
+         h_model_noerrs -> GetXaxis() -> SetRange( range_min+1, range_min+no_bin_njet[bi_nj-1] ) ;
+         h_model_noerrs -> SetTitle( "QCD Model H/L ratio, Njet "+num_to_str(bi_nj) );
+         h_model_noerrs -> SetMaximum( 1.2 ) ;
+         h_model_noerrs -> SetMinimum( -0.1 ) ;
 
-      can1 -> Update() ; can1 -> Draw() ;
-      sprintf( fname, "%s/plot-nj1-full.pdf", output_dir ) ;
-      can1 -> SaveAs( fname ) ;
+         can1 -> Update() ; can1 -> Draw() ;
+         sprintf( fname, "%s/plot-nj%d-full.pdf", output_dir, bi_nj ) ;
+         can1 -> SaveAs( fname ) ;
 
-      h_model_noerrs -> SetMaximum( 0.25 ) ;
-      h_model_noerrs -> SetMinimum( -0.05 ) ;
+         h_model_noerrs -> SetMaximum( 0.25 ) ;
+         h_model_noerrs -> SetMinimum( -0.05 ) ;
 
-      can1 -> Update() ; can1 -> Draw() ;
-      sprintf( fname, "%s/plot-nj1-zoom1.pdf", output_dir ) ;
-      can1 -> SaveAs( fname ) ;
-
-
-      h_model_noerrs -> SetMaximum( 0.06 ) ;
-      h_model_noerrs -> SetMinimum( -0.01 ) ;
-
-      can1 -> Update() ; can1 -> Draw() ;
-      sprintf( fname, "%s/plot-nj1-zoom2.pdf", output_dir ) ;
-      can1 -> SaveAs( fname ) ;
+         can1 -> Update() ; can1 -> Draw() ;
+         sprintf( fname, "%s/plot-nj%d-zoom1.pdf", output_dir, bi_nj ) ;
+         can1 -> SaveAs( fname ) ;
 
 
+         h_model_noerrs -> SetMaximum( 0.06 ) ;
+         h_model_noerrs -> SetMinimum( -0.01 ) ;
+
+         can1 -> Update() ; can1 -> Draw() ;
+         sprintf( fname, "%s/plot-nj%d-zoom2.pdf", output_dir, bi_nj ) ;
+         can1 -> SaveAs( fname ) ;
+
+      }//bi_nj
      //---
 
-      h_model_noerrs -> GetXaxis() -> SetRange( 41, 80 ) ;
-
-      h_model_noerrs -> SetMaximum( 1.2 ) ;
-      h_model_noerrs -> SetMinimum( -0.1 ) ;
-
-      can1 -> Update() ; can1 -> Draw() ;
-      sprintf( fname, "%s/plot-nj2-full.pdf", output_dir ) ;
-      can1 -> SaveAs( fname ) ;
-
-      h_model_noerrs -> SetMaximum( 0.25 ) ;
-      h_model_noerrs -> SetMinimum( -0.05 ) ;
-
-      can1 -> Update() ; can1 -> Draw() ;
-      sprintf( fname, "%s/plot-nj2-zoom1.pdf", output_dir ) ;
-      can1 -> SaveAs( fname ) ;
-
-
-      h_model_noerrs -> SetMaximum( 0.06 ) ;
-      h_model_noerrs -> SetMinimum( -0.01 ) ;
-
-      can1 -> Update() ; can1 -> Draw() ;
-      sprintf( fname, "%s/plot-nj2-zoom2.pdf", output_dir ) ;
-      can1 -> SaveAs( fname ) ;
-
-
-     //---
-
-      h_model_noerrs -> GetXaxis() -> SetRange( 81, 120 ) ;
-
-      h_model_noerrs -> SetMaximum( 1.2 ) ;
-      h_model_noerrs -> SetMinimum( -0.1 ) ;
-
-      can1 -> Update() ; can1 -> Draw() ;
-      sprintf( fname, "%s/plot-nj3-full.pdf", output_dir ) ;
-      can1 -> SaveAs( fname ) ;
-
-      h_model_noerrs -> SetMaximum( 0.25 ) ;
-      h_model_noerrs -> SetMinimum( -0.05 ) ;
-
-      can1 -> Update() ; can1 -> Draw() ;
-      sprintf( fname, "%s/plot-nj3-zoom1.pdf", output_dir ) ;
-      can1 -> SaveAs( fname ) ;
-
-
-      h_model_noerrs -> SetMaximum( 0.06 ) ;
-      h_model_noerrs -> SetMinimum( -0.01 ) ;
-
-      can1 -> Update() ; can1 -> Draw() ;
-      sprintf( fname, "%s/plot-nj3-zoom2.pdf", output_dir ) ;
-      can1 -> SaveAs( fname ) ;
-
-
-     //---
-
-      h_model_noerrs -> GetXaxis() -> SetRange( 121, 160 ) ;
-
-      h_model_noerrs -> SetMaximum( 1.2 ) ;
-      h_model_noerrs -> SetMinimum( -0.1 ) ;
-
-      can1 -> Update() ; can1 -> Draw() ;
-      sprintf( fname, "%s/plot-nj4-full.pdf", output_dir ) ;
-      can1 -> SaveAs( fname ) ;
-
-      h_model_noerrs -> SetMaximum( 0.25 ) ;
-      h_model_noerrs -> SetMinimum( -0.05 ) ;
-
-      can1 -> Update() ; can1 -> Draw() ;
-      sprintf( fname, "%s/plot-nj4-zoom1.pdf", output_dir ) ;
-      can1 -> SaveAs( fname ) ;
-
-
-      h_model_noerrs -> SetMaximum( 0.06 ) ;
-      h_model_noerrs -> SetMinimum( -0.01 ) ;
-
-      can1 -> Update() ; can1 -> Draw() ;
-      sprintf( fname, "%s/plot-nj4-zoom2.pdf", output_dir ) ;
-      can1 -> SaveAs( fname ) ;
-
-
-     //---
-
-      h_model_noerrs -> SetLabelSize( 0.02, "x" ) ;
-
-      h_model_noerrs -> GetXaxis() -> SetRange( 1, 160 ) ;
+      h_model_noerrs -> GetXaxis() -> SetRange( 1, nb_global_after_exclusion ) ;
 
       h_model_noerrs -> SetMaximum( 1.2 ) ;
       h_model_noerrs -> SetMinimum( -0.1 ) ;
@@ -225,28 +161,28 @@
 
      //---------------------------------------------------------
 
-      TH1F* h_model_nb0 = new TH1F( "h_model_nb0", "QCD Model H/L ratio, Nb0", 40, 0.5, 40.5 ) ;
-      TH1F* h_model_nb1 = new TH1F( "h_model_nb1", "QCD Model H/L ratio, Nb1", 40, 0.5, 40.5 ) ;
-      TH1F* h_model_nb2 = new TH1F( "h_model_nb2", "QCD Model H/L ratio, Nb2", 40, 0.5, 40.5 ) ;
-      TH1F* h_model_nb3 = new TH1F( "h_model_nb3", "QCD Model H/L ratio, Nb3", 40, 0.5, 40.5 ) ;
+      std::vector<TH1F*> h_model_nb;        h_model_nb        . resize(nb_nb);
+      std::vector<TH1F*> h_model_nb_noerrs; h_model_nb_noerrs . resize(nb_nb);
+      std::vector<TH1F*> h_qcdmc_nb;        h_qcdmc_nb        . resize(nb_nb);
 
-      TH1F* h_model_nb0_noerrs = new TH1F( "h_model_nb0_noerrs", "QCD Model H/L ratio, Nb0", 40, 0.5, 40.5 ) ;
-      TH1F* h_model_nb1_noerrs = new TH1F( "h_model_nb1_noerrs", "QCD Model H/L ratio, Nb1", 40, 0.5, 40.5 ) ;
-      TH1F* h_model_nb2_noerrs = new TH1F( "h_model_nb2_noerrs", "QCD Model H/L ratio, Nb2", 40, 0.5, 40.5 ) ;
-      TH1F* h_model_nb3_noerrs = new TH1F( "h_model_nb3_noerrs", "QCD Model H/L ratio, Nb3", 40, 0.5, 40.5 ) ;
+      for ( int bi_nb=0; bi_nb<nb_nb; bi_nb++ ) 
+      {
+         h_model_nb[bi_nb] = new TH1F( "h_model_nb"+num_to_str(bi_nb), "QCD Model H/L ratio, Nb"+num_to_str(bi_nb), no_bin_bjet[bi_nb], 0.5, no_bin_bjet[bi_nb]+0.5 ) ;
+         h_model_nb_noerrs[bi_nb] = new TH1F( "h_model_nb"+num_to_str(bi_nb)+"_noerrs", "QCD Model H/L ratio, Nb"+num_to_str(bi_nb),
+                                              no_bin_bjet[bi_nb], 0.5, no_bin_bjet[bi_nb]+0.5 ) ;
+         h_qcdmc_nb[bi_nb] = new TH1F( "h_qcdmc_nb"+num_to_str(bi_nb), "QCD MC H/L ratio, Nb"+num_to_str(bi_nb), no_bin_bjet[bi_nb], 0.5, no_bin_bjet[bi_nb]+0.5 ) ;
 
-      TH1F* h_qcdmc_nb0 = new TH1F( "h_qcdmc_nb0", "QCD MC H/L ratio, Nb0", 40, 0.5, 40.5 ) ;
-      TH1F* h_qcdmc_nb1 = new TH1F( "h_qcdmc_nb1", "QCD MC H/L ratio, Nb1", 40, 0.5, 40.5 ) ;
-      TH1F* h_qcdmc_nb2 = new TH1F( "h_qcdmc_nb2", "QCD MC H/L ratio, Nb2", 40, 0.5, 40.5 ) ;
-      TH1F* h_qcdmc_nb3 = new TH1F( "h_qcdmc_nb3", "QCD MC H/L ratio, Nb3", 40, 0.5, 40.5 ) ;
+      }//bi_nj
+
 
       int bi_hist(0) ;
-      for ( int bi_nj=1; bi_nj<=4; bi_nj++ ) {
-         for ( int bi_nb=1; bi_nb<=4; bi_nb++ ) {
-            for ( int bi_htmht=1; bi_htmht<=10; bi_htmht++ ) {
+      std::vector<int> bi_hist_nb; bi_hist_nb.resize(nb_nb);
 
+      for ( int bi_nj=1; bi_nj<=nb_nj; bi_nj++ ) {
+         for ( int bi_nb=1; bi_nb<=nb_nb; bi_nb++ ) {
+            for ( int bi_htmht=1; bi_htmht<=nb_htmht-nBinsHT; bi_htmht++ ) {
+               if ( is_this_bin_excluded(bi_nj-1, bi_nb-1, bi_htmht-1) ) continue;
                bi_hist++ ;
-               int bi_hist_nb = (bi_nj-1)*10 + bi_htmht ;
 
                float model_val = h_model -> GetBinContent( bi_hist ) ;
                float model_err = h_model -> GetBinError( bi_hist ) ;
@@ -260,35 +196,23 @@
                TH1F* hp_model_noerrs(0x0) ;
                TH1F* hp_qcdmc(0x0) ;
 
-               if ( bi_nb==1 ) {
-                  hp_model = h_model_nb0 ;
-                  hp_model_noerrs = h_model_nb0_noerrs ;
-                  hp_qcdmc = h_qcdmc_nb0 ;
-               } else if ( bi_nb==2 ) {
-                  hp_model = h_model_nb1 ;
-                  hp_model_noerrs = h_model_nb1_noerrs ;
-                  hp_qcdmc = h_qcdmc_nb1 ;
-               } else if ( bi_nb==3 ) {
-                  hp_model = h_model_nb2 ;
-                  hp_model_noerrs = h_model_nb2_noerrs ;
-                  hp_qcdmc = h_qcdmc_nb2 ;
-               } else if ( bi_nb==4 ) {
-                  hp_model = h_model_nb3 ;
-                  hp_model_noerrs = h_model_nb3_noerrs ;
-                  hp_qcdmc = h_qcdmc_nb3 ;
-               }
+               hp_model = h_model_nb[bi_nb-1] ;
+               hp_model_noerrs = h_model_nb_noerrs[bi_nb-1] ;
+               hp_qcdmc = h_qcdmc_nb[bi_nb-1] ;
 
-               hp_model -> SetBinContent( bi_hist_nb, model_val ) ;
-               hp_model -> SetBinError( bi_hist_nb, model_err ) ;
-               hp_model -> GetXaxis() -> SetBinLabel( bi_hist_nb, label ) ;
+               bi_hist_nb[bi_nb-1]++;
 
-               hp_model_noerrs -> SetBinContent( bi_hist_nb, model_val ) ;
-               hp_model_noerrs -> SetBinError( bi_hist_nb, 0.00000001 ) ;
-               hp_model_noerrs -> GetXaxis() -> SetBinLabel( bi_hist_nb, label ) ;
+               hp_model -> SetBinContent( bi_hist_nb[bi_nb-1], model_val ) ;
+               hp_model -> SetBinError( bi_hist_nb[bi_nb-1], model_err ) ;
+               hp_model -> GetXaxis() -> SetBinLabel( bi_hist_nb[bi_nb-1], label ) ;
 
-               hp_qcdmc -> SetBinContent( bi_hist_nb, qcdmc_val ) ;
-               hp_qcdmc -> SetBinError( bi_hist_nb, qcdmc_err ) ;
-               hp_qcdmc -> GetXaxis() -> SetBinLabel( bi_hist_nb, label ) ;
+               hp_model_noerrs -> SetBinContent( bi_hist_nb[bi_nb-1], model_val ) ;
+               hp_model_noerrs -> SetBinError( bi_hist_nb[bi_nb-1], 0.00000001 ) ;
+               hp_model_noerrs -> GetXaxis() -> SetBinLabel( bi_hist_nb[bi_nb-1], label ) ;
+
+               hp_qcdmc -> SetBinContent( bi_hist_nb[bi_nb-1], qcdmc_val ) ;
+               hp_qcdmc -> SetBinError( bi_hist_nb[bi_nb-1], qcdmc_err ) ;
+               hp_qcdmc -> GetXaxis() -> SetBinLabel( bi_hist_nb[bi_nb-1], label ) ;
 
             } // bi_htmht
          } // bi_nb
@@ -297,274 +221,80 @@
 
 
      //--------
+      std::vector<TGraphErrors*> gr_model_nb;
+      gr_model_nb.resize(nb_nb);
 
-      TGraphErrors* gr_model_nb0(0x0) ;
+      for ( int bi_nb=0; bi_nb < nb_nb; bi_nb++ )
       {
-         double x[40], y[40], ex[40], ey[40] ;
-         for ( int bi=1; bi<=40; bi++ ) {
-            x[bi] = bi ;
-            ex[bi] = 0.5 ;
-            y[bi] = h_model_nb0 -> GetBinContent( bi ) ;
-            ey[bi] = h_model_nb0 -> GetBinError( bi ) ;
-            if ( h_qcdmc_nb0->GetBinContent( bi ) == 0. && h_qcdmc_nb0->GetBinError( bi) == 0. ) {
-               h_qcdmc_nb0->SetBinContent( bi, -9. ) ;
-            }
-         } // bi
-         gr_model_nb0 = new TGraphErrors( 40, x, y, ex, ey ) ;
-      }
-      gr_model_nb0 -> SetFillColor( kRed-10 ) ;
-      h_model_nb0_noerrs -> SetLineColor(4) ;
-      h_model_nb0_noerrs -> SetLineWidth(2) ;
-      h_qcdmc_nb0 -> SetMarkerStyle(20) ;
-      h_model_nb0_noerrs -> GetXaxis() -> LabelsOption("v") ;
 
-      h_model_nb0_noerrs -> SetMaximum( 1.2 ) ;
-      h_model_nb0_noerrs -> SetMinimum( -0.1 ) ;
+         {
+            double x[100], y[100], ex[100], ey[100] ;
+            for ( int bi=1; bi <= h_model_nb[bi_nb]->GetNbinsX(); bi++ ) 
+	    {
+               x[bi] = bi ;
+               ex[bi] = 0.5 ;
+               y[bi] = h_model_nb[bi_nb] -> GetBinContent( bi ) ;
+               ey[bi] = h_model_nb[bi_nb] -> GetBinError( bi ) ;
+	    }//bi
 
-      h_model_nb0_noerrs -> GetXaxis() -> SetRange( 1, 40 ) ;
+            for ( int bi=1; bi <= h_qcdmc_nb[bi_nb]->GetNbinsX(); bi++ ) 
+            {	 
+               if ( h_qcdmc_nb[bi_nb]->GetBinContent( bi ) == 0. && h_qcdmc_nb[bi_nb]->GetBinError( bi) == 0. ) {
+                  h_qcdmc_nb[bi_nb]->SetBinContent( bi, -9. ) ;
+               }
+            } // bi
+            gr_model_nb[bi_nb] = new TGraphErrors( nb_global_after_exclusion, x, y, ex, ey ) ;
+         }
 
-      h_model_nb0_noerrs -> Draw( "e" ) ;
-      gr_model_nb0 -> Draw( "0 2" ) ;
-      h_model_nb0_noerrs -> Draw( "e same" ) ;
 
-      h_qcdmc_nb0 -> Draw( "same e0" ) ;
-      h_qcdmc_nb0 -> Draw( "axig same" ) ;
+
+      gr_model_nb      [bi_nb] -> SetFillColor( kRed-10 ) ;
+      h_model_nb_noerrs[bi_nb] -> SetLineColor(4) ;
+      h_model_nb_noerrs[bi_nb] -> SetLineWidth(2) ;
+      h_qcdmc_nb       [bi_nb] -> SetMarkerStyle(20) ;
+      h_model_nb_noerrs[bi_nb] -> GetXaxis() -> LabelsOption("v") ;
+
+      h_model_nb_noerrs[bi_nb] -> SetMaximum( 1.2 ) ;
+      h_model_nb_noerrs[bi_nb] -> SetMinimum( -0.1 ) ;
+
+      h_model_nb_noerrs[bi_nb] -> GetXaxis() -> SetRange( 1, 40 ) ;
+
+      h_model_nb_noerrs[bi_nb] -> Draw( "e" ) ;
+      gr_model_nb      [bi_nb] -> Draw( "0 2" ) ;
+      h_model_nb_noerrs[bi_nb] -> Draw( "e same" ) ;
+
+      h_qcdmc_nb       [bi_nb] -> Draw( "same e0" ) ;
+      h_qcdmc_nb       [bi_nb] -> Draw( "axig same" ) ;
 
       gPad -> SetGridy(1) ;
 
      //---
 
-      h_model_nb0_noerrs -> SetMaximum( 1.2 ) ;
-      h_model_nb0_noerrs -> SetMinimum( -0.1 ) ;
+      h_model_nb_noerrs[bi_nb] -> SetMaximum( 1.2 ) ;
+      h_model_nb_noerrs[bi_nb] -> SetMinimum( -0.1 ) ;
 
       can1 -> Update() ; can1 -> Draw() ;
-      sprintf( fname, "%s/plot-nb0-full.pdf", output_dir ) ;
+      sprintf( fname, "%s/plot-nb%d-full.pdf", output_dir, bi_nb) ;
       can1 -> SaveAs( fname ) ;
 
-      h_model_nb0_noerrs -> SetMaximum( 0.25 ) ;
-      h_model_nb0_noerrs -> SetMinimum( -0.05 ) ;
+      h_model_nb_noerrs[bi_nb] -> SetMaximum( 0.25 ) ;
+      h_model_nb_noerrs[bi_nb] -> SetMinimum( -0.05 ) ;
 
       can1 -> Update() ; can1 -> Draw() ;
-      sprintf( fname, "%s/plot-nb0-zoom1.pdf", output_dir ) ;
-      can1 -> SaveAs( fname ) ;
-
-
-      h_model_nb0_noerrs -> SetMaximum( 0.06 ) ;
-      h_model_nb0_noerrs -> SetMinimum( -0.01 ) ;
-
-      can1 -> Update() ; can1 -> Draw() ;
-      sprintf( fname, "%s/plot-nb0-zoom2.pdf", output_dir ) ;
+      sprintf( fname, "%s/plot-nb%d-zoom1.pdf", output_dir, bi_nb ) ;
       can1 -> SaveAs( fname ) ;
 
 
-
-
-
-
-     //--------
-
-      TGraphErrors* gr_model_nb1(0x0) ;
-      {
-         double x[40], y[40], ex[40], ey[40] ;
-         for ( int bi=1; bi<=40; bi++ ) {
-            x[bi] = bi ;
-            ex[bi] = 0.5 ;
-            y[bi] = h_model_nb1 -> GetBinContent( bi ) ;
-            ey[bi] = h_model_nb1 -> GetBinError( bi ) ;
-            if ( h_qcdmc_nb1->GetBinContent( bi ) == 0. && h_qcdmc_nb1->GetBinError( bi) == 0. ) {
-               h_qcdmc_nb1->SetBinContent( bi, -9. ) ;
-            }
-         } // bi
-         gr_model_nb1 = new TGraphErrors( 40, x, y, ex, ey ) ;
-      }
-      gr_model_nb1 -> SetFillColor( kRed-10 ) ;
-      h_model_nb1_noerrs -> SetLineColor(4) ;
-      h_model_nb1_noerrs -> SetLineWidth(2) ;
-      h_qcdmc_nb1 -> SetMarkerStyle(20) ;
-      h_model_nb1_noerrs -> GetXaxis() -> LabelsOption("v") ;
-
-      h_model_nb1_noerrs -> SetMaximum( 1.2 ) ;
-      h_model_nb1_noerrs -> SetMinimum( -0.1 ) ;
-
-      h_model_nb1_noerrs -> GetXaxis() -> SetRange( 1, 40 ) ;
-
-      h_model_nb1_noerrs -> Draw( "e" ) ;
-      gr_model_nb1 -> Draw( "0 2" ) ;
-      h_model_nb1_noerrs -> Draw( "e same" ) ;
-
-      h_qcdmc_nb1 -> Draw( "same e0" ) ;
-      h_qcdmc_nb1 -> Draw( "axig same" ) ;
-
-      gPad -> SetGridy(1) ;
-
-     //---
-
-      h_model_nb1_noerrs -> SetMaximum( 1.2 ) ;
-      h_model_nb1_noerrs -> SetMinimum( -0.1 ) ;
+      h_model_nb_noerrs[bi_nb] -> SetMaximum( 0.06 ) ;
+      h_model_nb_noerrs[bi_nb] -> SetMinimum( -0.01 ) ;
 
       can1 -> Update() ; can1 -> Draw() ;
-      sprintf( fname, "%s/plot-nb1-full.pdf", output_dir ) ;
+      sprintf( fname, "%s/plot-nb%d-zoom2.pdf", output_dir, bi_nb ) ;
       can1 -> SaveAs( fname ) ;
 
-      h_model_nb1_noerrs -> SetMaximum( 0.25 ) ;
-      h_model_nb1_noerrs -> SetMinimum( -0.05 ) ;
-
-      can1 -> Update() ; can1 -> Draw() ;
-      sprintf( fname, "%s/plot-nb1-zoom1.pdf", output_dir ) ;
-      can1 -> SaveAs( fname ) ;
-
-
-      h_model_nb1_noerrs -> SetMaximum( 0.06 ) ;
-      h_model_nb1_noerrs -> SetMinimum( -0.01 ) ;
-
-      can1 -> Update() ; can1 -> Draw() ;
-      sprintf( fname, "%s/plot-nb1-zoom2.pdf", output_dir ) ;
-      can1 -> SaveAs( fname ) ;
-
-
-
-     //--------
-
-      TGraphErrors* gr_model_nb2(0x0) ;
-      {
-         double x[40], y[40], ex[40], ey[40] ;
-         for ( int bi=1; bi<=40; bi++ ) {
-            x[bi] = bi ;
-            ex[bi] = 0.5 ;
-            y[bi] = h_model_nb2 -> GetBinContent( bi ) ;
-            ey[bi] = h_model_nb2 -> GetBinError( bi ) ;
-            if ( h_qcdmc_nb2->GetBinContent( bi ) == 0. && h_qcdmc_nb2->GetBinError( bi) == 0. ) {
-               h_qcdmc_nb2->SetBinContent( bi, -9. ) ;
-            }
-         } // bi
-         gr_model_nb2 = new TGraphErrors( 40, x, y, ex, ey ) ;
-      }
-      gr_model_nb2 -> SetFillColor( kRed-10 ) ;
-      h_model_nb2_noerrs -> SetLineColor(4) ;
-      h_model_nb2_noerrs -> SetLineWidth(2) ;
-      h_qcdmc_nb2 -> SetMarkerStyle(20) ;
-      h_model_nb2_noerrs -> GetXaxis() -> LabelsOption("v") ;
-
-      h_model_nb2_noerrs -> SetMaximum( 1.2 ) ;
-      h_model_nb2_noerrs -> SetMinimum( -0.1 ) ;
-
-      h_model_nb2_noerrs -> GetXaxis() -> SetRange( 1, 40 ) ;
-
-      h_model_nb2_noerrs -> Draw( "e" ) ;
-      gr_model_nb2 -> Draw( "0 2" ) ;
-      h_model_nb2_noerrs -> Draw( "e same" ) ;
-
-      h_qcdmc_nb2 -> Draw( "same e0" ) ;
-      h_qcdmc_nb2 -> Draw( "axig same" ) ;
-
-      gPad -> SetGridy(1) ;
-
-     //---
-
-      h_model_nb2_noerrs -> SetMaximum( 1.2 ) ;
-      h_model_nb2_noerrs -> SetMinimum( -0.1 ) ;
-
-      can1 -> Update() ; can1 -> Draw() ;
-      sprintf( fname, "%s/plot-nb2-full.pdf", output_dir ) ;
-      can1 -> SaveAs( fname ) ;
-
-      h_model_nb2_noerrs -> SetMaximum( 0.25 ) ;
-      h_model_nb2_noerrs -> SetMinimum( -0.05 ) ;
-
-      can1 -> Update() ; can1 -> Draw() ;
-      sprintf( fname, "%s/plot-nb2-zoom1.pdf", output_dir ) ;
-      can1 -> SaveAs( fname ) ;
-
-
-      h_model_nb2_noerrs -> SetMaximum( 0.06 ) ;
-      h_model_nb2_noerrs -> SetMinimum( -0.01 ) ;
-
-      can1 -> Update() ; can1 -> Draw() ;
-      sprintf( fname, "%s/plot-nb2-zoom2.pdf", output_dir ) ;
-      can1 -> SaveAs( fname ) ;
-
-
-
-     //--------
-
-      TGraphErrors* gr_model_nb3(0x0) ;
-      {
-         double x[40], y[40], ex[40], ey[40] ;
-         for ( int bi=1; bi<=40; bi++ ) {
-            x[bi] = bi ;
-            ex[bi] = 0.5 ;
-            y[bi] = h_model_nb3 -> GetBinContent( bi ) ;
-            ey[bi] = h_model_nb3 -> GetBinError( bi ) ;
-            if ( h_qcdmc_nb3->GetBinContent( bi ) == 0. && h_qcdmc_nb3->GetBinError( bi) == 0. ) {
-               h_qcdmc_nb3->SetBinContent( bi, -9. ) ;
-            }
-         } // bi
-         gr_model_nb3 = new TGraphErrors( 40, x, y, ex, ey ) ;
-      }
-      gr_model_nb3 -> SetFillColor( kRed-10 ) ;
-      h_model_nb3_noerrs -> SetLineColor(4) ;
-      h_model_nb3_noerrs -> SetLineWidth(2) ;
-      h_qcdmc_nb3 -> SetMarkerStyle(20) ;
-      h_model_nb3_noerrs -> GetXaxis() -> LabelsOption("v") ;
-
-      h_model_nb3_noerrs -> SetMaximum( 1.2 ) ;
-      h_model_nb3_noerrs -> SetMinimum( -0.1 ) ;
-
-      h_model_nb3_noerrs -> GetXaxis() -> SetRange( 1, 40 ) ;
-
-      h_model_nb3_noerrs -> Draw( "e" ) ;
-      gr_model_nb3 -> Draw( "0 2" ) ;
-      h_model_nb3_noerrs -> Draw( "e same" ) ;
-
-      h_qcdmc_nb3 -> Draw( "same e0" ) ;
-      h_qcdmc_nb3 -> Draw( "axig same" ) ;
-
-      gPad -> SetGridy(1) ;
-
-     //---
-
-      h_model_nb3_noerrs -> SetMaximum( 1.2 ) ;
-      h_model_nb3_noerrs -> SetMinimum( -0.1 ) ;
-
-      can1 -> Update() ; can1 -> Draw() ;
-      sprintf( fname, "%s/plot-nb3-full.pdf", output_dir ) ;
-      can1 -> SaveAs( fname ) ;
-
-      h_model_nb3_noerrs -> SetMaximum( 0.25 ) ;
-      h_model_nb3_noerrs -> SetMinimum( -0.05 ) ;
-
-      can1 -> Update() ; can1 -> Draw() ;
-      sprintf( fname, "%s/plot-nb3-zoom1.pdf", output_dir ) ;
-      can1 -> SaveAs( fname ) ;
-
-
-      h_model_nb3_noerrs -> SetMaximum( 0.06 ) ;
-      h_model_nb3_noerrs -> SetMinimum( -0.01 ) ;
-
-      can1 -> Update() ; can1 -> Draw() ;
-      sprintf( fname, "%s/plot-nb3-zoom2.pdf", output_dir ) ;
-      can1 -> SaveAs( fname ) ;
-
-
-
-
-
+      }//bi_nb
 
 
    } // draw_model_vs_mc
 
-
-//===============================================================================
-
-   TH1F* get_hist( const char* hname ) {
-      TH1F* hp = (TH1F*) gDirectory -> FindObject( hname ) ;
-      if ( hp == 0x0 ) {
-         printf("\n\n *** Missing histogram : %s\n\n", hname ) ;
-         gDirectory -> ls() ;
-         gSystem -> Exit( -1 ) ;
-      }
-      return hp ;
-   } // get_hist
-
-//===============================================================================
-
+#endif

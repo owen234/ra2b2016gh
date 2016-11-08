@@ -139,7 +139,6 @@ void gen_combine_input2(
       int ht_plot_bi[10]{};
       int nj_plot_bi[10]{};
 
-
    // //++++++++++++++++++++++++++++++++++++++++++++++++++++++++
    // printf("\n\n ######### debug ##########\n") ;
    // for ( int htmhti=4; htmhti<=13; htmhti++ ) {
@@ -150,6 +149,7 @@ void gen_combine_input2(
    // printf(" ######### debug ##########\n\n\n") ;
    // //++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+
       for ( int bi_nj=1; bi_nj<=nb_nj; bi_nj++ ) {
          for ( int bi_nb=1; bi_nb<=nb_nb; bi_nb++ ) {
             for ( int bi_htmht=1; bi_htmht<=nb_htmht; bi_htmht++ ) {
@@ -158,7 +158,7 @@ void gen_combine_input2(
   
                htmht_bin_to_ht_and_mht_bins ( bi_htmht, bi_ht, bi_mht );
 
-               if ( exclude_this_bin(bi_nj - 1, bi_nb -1, bi_ht - 1, bi_mht - 1 ) ) 
+               if ( is_this_bin_excluded(bi_nj - 1, bi_nb -1, bi_ht - 1, bi_mht - 1 ) ) 
                {
                        //Because those bins we want to remove still exist in background text files. If we change input text files, we can remove these lines
                        line.ReadLine( ifs_data ) ; 
@@ -279,15 +279,19 @@ void gen_combine_input2(
                   float Rqcd_val(0.) ;
 
 		  Rqcd_val = par_val_ht[bi_ht] * par_val_njet[bi_nj] * par_val_ht_mht[bi_ht][bi_mht] ;
-                  ////////printf("    debug2:  %s Rqcd_val = par_val_ht[%d] * par_val_njet[%d] * par_val_ht_mht[%d][%d] = %7.4f * %7.4f * %7.4f = %7.4f\n",
-                     owen_label, bi_ht, bi_nj, bi_ht, bi_mht, par_val_ht[bi_ht], par_val_njet[bi_nj], par_val_ht_mht[bi_ht][bi_mht], Rqcd_val ) ;
-                  if ( bi_htmht==4 && bi_nj>2 ) Rqcd_val = 0 ; // shut things off in the first ht bin in the highest 2 njets bins.
+
+		  ///printf("    debug2:  %s Rqcd_val = par_val_ht[%d] * par_val_njet[%d] * par_val_ht_mht[%d][%d] = %7.4f * %7.4f * %7.4f = %7.4f\n",
+                  //owen_label, bi_ht, bi_nj, bi_ht, bi_mht, par_val_ht[bi_ht], par_val_njet[bi_nj], par_val_ht_mht[bi_ht][bi_mht], Rqcd_val ) ;
+
+		  if ( bi_htmht==4 && bi_nj>2 ) Rqcd_val = 0 ; // shut things off in the first ht bin in the highest 2 njets bins.
                   if ( bi_htmht==7 && bi_nj>2 ) Rqcd_val = 0 ; // shut things off in the first ht bin in the highest 2 njets bins.
 
-                  bi_hist = ( 4 * 10 ) * (bi_nj-1) + (10) * (bi_nb-1) + bi_htmht-3 ;
+                  bi_hist++ ;
                   float mc_minus_model_val = h_ratio_qcdmc_minus_model -> GetBinContent( bi_hist ) ;
                   float mc_minus_model_err = h_ratio_qcdmc_minus_model -> GetBinError( bi_hist ) ;
-                  ////////printf("    debug3:  %s , hist bin label %s h_ratio_qcdmc_minus_model = %8.4f +/- %8.4f\n", owen_label, h_ratio_qcdmc_minus_model -> GetXaxis()->GetBinLabel( bi_hist), mc_minus_model_val, mc_minus_model_err ) ;
+
+                  //printf("    debug3:  %s , hist bin label %s h_ratio_qcdmc_minus_model = %8.4f +/- %8.4f\n", owen_label, 
+		  //h_ratio_qcdmc_minus_model -> GetXaxis()->GetBinLabel( bi_hist), mc_minus_model_val, mc_minus_model_err ) ;		  
                   if ( mc_minus_model_val < 0. ) mc_minus_model_val = 0. ;
                   if ( mc_minus_model_val > 0.5 ) {
                      mc_minus_model_val = 0.5 ;
@@ -341,7 +345,8 @@ void gen_combine_input2(
                      if ( bi_nj != njet_bin_to_be_fixed_in_qcd_model_fit+1 )
                         Rqcd_rel_err2 += pow( rel_err_nj[bi_nj]-1, 2. ) ;
 
-                  for ( int bi_ht = 1; bi_ht<=nBinsHT; bi_ht++ ) {
+                  for ( int bi_ht = 1; bi_ht<=nBinsHT; bi_ht++ )
+		  {
                      int debug_bi_mht_before = bi_mht ;
                      for ( int bi_mht=1; bi_mht<nb_mht; bi_mht++ )
                      {
@@ -350,7 +355,7 @@ void gen_combine_input2(
 		     }
                      int debug_bi_mht_after = bi_mht ;
                      if ( debug_bi_mht_after != debug_bi_mht_before ) { printf("\n\n *** bi_mht changed.\n\n") ; gSystem->Exit(-1) ; }
-                  }
+                  } //bi_ht
 
 		  for ( int bi_nb =1; bi_nb<=nb_nj; bi_nb++ )
                      Rqcd_rel_err2 += pow( rel_err_nb[bi_nb-1]-1, 2. ) ;
@@ -425,7 +430,7 @@ void gen_combine_input2(
                   fprintf( ofp_combine, " %7.2f +/- %5.2f   ", nqcd_hdp_val, nqcd_hdp_err ) ;
 
                   float overall_rel_err(0.) ;
-                  if ( nqcd_hdp_val > 0.1 ) {
+                  if ( nqcd_hdp_val > 0. ) {
                      overall_rel_err = nqcd_hdp_err/nqcd_hdp_val ;
                   }
                   fprintf( ofp_combine, " ( %5.0f %%) ", 100. * overall_rel_err ) ;

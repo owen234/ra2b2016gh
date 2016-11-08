@@ -1,9 +1,17 @@
+#ifndef draw_closure_sums1_c
+#define draw_closure_sums1_c
 
+#include "TSystem.h"
+#include "TPad.h"
+#include "TStyle.h"
+#include "TCanvas.h"
+#include "TLegend.h"
 #include "histio.c"
+#include "get_hist.h"
 
-   TH1F* get_hist( const char* hname ) ;
+TH1F* get_hist( const char* hname ) ;
 
-   void draw_closure_sums1( const char* plotname = "njet", const char* infile = "outputfiles/closure-sums3.root" ) {
+void draw_closure_sums1( const char* plotname = "njet", const char* infile = "outputfiles/closure-sums3.root" ) {
 
       char hname[100] ;
 
@@ -91,21 +99,6 @@
       sprintf( fname, "outputfiles/closure-sum-%s.pdf", plotname ) ;
       can -> SaveAs( fname ) ;
 
+} // draw_closure_sums1
 
-
-   } // draw_closure_sums1
-
-
-//===============================================================================
-
-   TH1F* get_hist( const char* hname ) {
-      TH1F* hp = (TH1F*) gDirectory -> FindObject( hname ) ;
-      if ( hp == 0x0 ) {
-         printf("\n\n *** Missing histogram : %s\n\n", hname ) ;
-         gDirectory -> ls() ;
-         gSystem -> Exit( -1 ) ;
-      }
-      return hp ;
-   } // get_hist
-
-//===============================================================================
+#endif
