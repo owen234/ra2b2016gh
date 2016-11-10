@@ -67,7 +67,7 @@
       {
 
       TString nj_str; nj_str.Form("%d",nj_count);
-      h_ratio_nj[nj_count] = new TH1F( "h_ratio_nj"+nj_str, "QCD H/L ratio, Nj"+nj_str, no_bin_njet[nj_count], 0.5, no_bin_njet[nj_count]+0.5 ) ;
+      h_ratio_nj[nj_count] = new TH1F( "h_ratio_nj"+nj_str, "QCD H/L ratio, Nj"+nj_str, no_bin_njet[nj_count-1], 0.5, no_bin_njet[nj_count-1]+0.5 ) ;
 
       }
 
@@ -92,7 +92,7 @@
                   double hdp_err = h_hdp -> GetBinError( bi_hist ) ;
                   double ratio_val(0.) ;
                   double ratio_err(0.) ;
-                  if ( ldp_val > 0 && hdp_val > 0 ) {
+                  if ( ldp_val > 0. && hdp_val > 0. ) {
                      ratio_val = hdp_val / ldp_val ;
                      ratio_err = ratio_val * sqrt( pow( ldp_err/ldp_val, 2. ) + pow( hdp_err/hdp_val, 2. ) ) ;
                   }
@@ -117,8 +117,9 @@
                   TH1F* hp_nj(0x0) ;
                   hp_nj = h_ratio_nj[bi_nj] ;
                   bi_nj_hist[bi_nj-1]++;
+		  if ( bi_nj == 5 ) std::cout << "amin: " << bi_nj_hist[bi_nj-1] << " " << ratio_val << " " << ratio_err << " " << label << std::endl;
                   hp_nj -> SetBinContent( bi_nj_hist[bi_nj-1], ratio_val ) ;
-                  hp_nj -> SetBinError( bi_nj_hist[bi_nj-1], ratio_err ) ;
+                  hp_nj -> SetBinError  ( bi_nj_hist[bi_nj-1], ratio_err ) ;
                   hp_nj -> GetXaxis() -> SetBinLabel( bi_nj_hist[bi_nj-1], label ) ;
                } // not control bin.
             } // bi_htmht

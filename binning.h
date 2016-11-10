@@ -18,6 +18,8 @@
 
 
 void htmht_bin_to_ht_and_mht_bins(int bin_htmht, int& bin_ht, int& bin_mht);
+void translate_ht_and_mht_bin_to_htmht_bins(int bin_ht, int bin_mht, int& bin_htmht);
+
 bool is_this_bin_excluded(int bin_nj, int bin_nb, int bin_ht, int bin_mht);
 bool is_this_bin_excluded(int bin_nj, int bin_nb, int bin_htmht);
 
@@ -262,6 +264,32 @@ void htmht_bin_to_ht_and_mht_bins(int bin_htmht, int& bin_ht, int& bin_mht)
 }
 //=========================================
 
+
+void translate_ht_and_mht_bin_to_htmht_bins(int bin_ht, int bin_mht, int& bin_htmht)
+{
+
+   if ( bin_ht == 1 && bin_mht == 1 ) bin_htmht = 1;
+   if ( bin_ht == 2 && bin_mht == 1 ) bin_htmht = 2;
+   if ( bin_ht == 3 && bin_mht == 1 ) bin_htmht = 3;
+
+   if ( bin_ht == 1 && bin_mht == 2 ) bin_htmht = 4;
+   if ( bin_ht == 2 && bin_mht == 2 ) bin_htmht = 5;
+   if ( bin_ht == 3 && bin_mht == 2 ) bin_htmht = 6;
+
+   if ( bin_ht == 1 && bin_mht == 3 ) bin_htmht = 7;
+   if ( bin_ht == 2 && bin_mht == 3 ) bin_htmht = 8;
+   if ( bin_ht == 3 && bin_mht == 3 ) bin_htmht = 9;
+
+   if ( bin_ht == 2 && bin_mht == 4 ) bin_htmht = 10;
+   if ( bin_ht == 3 && bin_mht == 4 ) bin_htmht = 11;
+
+   if ( bin_ht == 2 && bin_mht == 5 ) bin_htmht = 12;
+   if ( bin_ht == 3 && bin_mht == 5 ) bin_htmht = 13;
+
+}
+//=========================================
+
+
 void fill_gbi ()
 {
 
@@ -398,7 +426,19 @@ bool translate_qcd_bin_to_nj_nb_ht_mht( int qcd_bin_no, int& arg_nj, int& arg_nb
 
 //=========================================
 
+int translate_qcd_bin_to_search_bin ( int qcd_bin_no )
+{
 
+   if ( qcd_bin_no < 1 || qcd_bin_no > nb_global_w_exclusion_w_mhtc ) {std::cout << "Error: QCD bin index out of range" << std::endl; return -1; }
+
+   int bi_nj, bi_nb, bi_ht, bi_mht, bi_htmht; 
+   translate_qcd_bin_to_nj_nb_ht_mht(qcd_bin_no, bi_nj, bi_nb, bi_ht, bi_mht);
+
+   translate_ht_and_mht_bin_to_htmht_bins( bi_ht, bi_mht, bi_htmht);
+   if ( bi_mht == 1 ) return -1;
+   else                return gbi_search_bins[bi_nj][bi_nb][bi_htmht];
+
+}
 
 
 #endif

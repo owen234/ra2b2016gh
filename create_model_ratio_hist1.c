@@ -27,15 +27,12 @@
       TH1F* h_hdp_search_bins = get_hist( "h_hdp_search_bins_qcdmc" ) ;
       TH1F* h_ratio_qcdmc = get_hist( "h_ratio_qcdmc" ) ;
 
-      int bi_hist(0) ;
       int bi_hist_with_exclusion(0) ;
 
       for ( int bi_nj=1; bi_nj<=nb_nj; bi_nj++ ) {
          for ( int bi_nb=1; bi_nb<=nb_nb; bi_nb++ ) {
             for ( int bi_htmht=4; bi_htmht<=nb_htmht; bi_htmht++ ) {
                
-               bi_hist++ ;
-
                if ( is_this_bin_excluded(bi_nj-1, bi_nb-1, bi_htmht-1) ) continue;
 
 	       bi_hist_with_exclusion++;  // these few lines should be changed when we update the code that produces qcdmc-ratio-v3.root

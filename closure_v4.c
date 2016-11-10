@@ -190,11 +190,11 @@
       for ( int bi_nj=0; bi_nj<nb_nj; bi_nj++ )
       {
          int width_nj = 0;
-         for ( int bi_nb=0; bi_nb<nb_nb; bi_nb++ ) width_nj += width[bi_nj][bi_nb];
+         for ( int bi_nb=0; bi_nb<nb_nb; bi_nb++ ) { width_nj += width[bi_nj][bi_nb]; }
          TString str = num_to_str( bin_edges_nj[bi_nj]+0.5, 0) + " #leq N_{jet} #leq " + num_to_str(bin_edges_nj[bi_nj+1]-0.5, 0);
 	 if ( bin_edges_nj[bi_nj]+0.5 == bin_edges_nj[bi_nj+1]-0.5 ) str = "N_{jet} = " + num_to_str(bin_edges_nj[bi_nj+1]-0.5, 0);
          if ( bi_nj == nb_nj - 1 ) str = "N_{jet} #geq " + num_to_str(bin_edges_nj[bi_nj]+0.5, 0);
-	 njlabels -> DrawLatex( position + (int) (width_nj/2), exp(0.92*(log(ymax)-log(ymin))+log(ymin)), str) ;
+	 njlabels -> DrawLatex( position + width_nj/2, exp(0.92*(log(ymax)-log(ymin))+log(ymin)), str) ;
          position += width_nj;
       }//bi_nj
 
@@ -206,15 +206,24 @@
       for ( int bi_nb=0; bi_nb<nb_nb; bi_nb++ ) { position += width[0][bi_nb];}
 
       nblabels -> DrawLatex(  position+3+width[1][0]/2, exp(0.81*(log(ymax)-log(ymin))+log(ymin)), "N_{b-jet}" ) ;
+      nblabels -> DrawLatex(           3+width[0][0]/2, exp(0.81*(log(ymax)-log(ymin))+log(ymin)), "N_{b-jet}" ) ;
 
+      int position0 = 0;
       for ( int bi_nb=0; bi_nb<nb_nb; bi_nb++ )
       {
          TString str;
          if ( bi_nb == nb_nb - 1 ) str = "#geq " + num_to_str ( bin_edges_nb[bi_nb]+0.5 , 0);
          else str = num_to_str(bin_edges_nb[bi_nb]+0.5, 0);
-         nblabels -> DrawLatex( position + (int) (width[1][bi_nb]/2), exp(0.75*(log(ymax)-log(ymin))+log(ymin)), str ) ;
 
-         position += width[1][bi_nb];
+	 if ( width[1][bi_nb] != 0. ) 
+            nblabels -> DrawLatex( position  + width[1][bi_nb]/2, exp(0.75*(log(ymax)-log(ymin))+log(ymin)), str ) ;
+         if ( width[0][bi_nb] != 0. ) 
+            nblabels -> DrawLatex( position0 + width[0][bi_nb]/2, exp(0.75*(log(ymax)-log(ymin))+log(ymin)), str ) ;
+
+	 
+         position  += width[1][bi_nb];
+         position0 += width[0][bi_nb];
+
       }//bi_nb
 
 

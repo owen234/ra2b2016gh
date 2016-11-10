@@ -10,7 +10,7 @@
 #include "read_pars.h"
 #include "histio.c"
 #include <string.h>
-
+#include "num_to_str.h"
 
 
    int sum_index_array[1000] ;
@@ -41,13 +41,12 @@
    void read_qcd( const char* qcd_file ) ;
    void calc_sum( bool verb ) ;
    void print_search_bin_table() ;
-   int  translate_qcd_bin_to_old_search_bin( int qcd_bi ) ;
 
 
   //----
 
    void closure_sums3(
-          bool verb = false,
+          bool verb = true,
           bool arg_include_qcdmc_correction = false,
           const char* model_pars_file = "outputfiles/model-pars-qcdmc3.txt",
           const char* model_ratio_hist_file = "outputfiles/model-ratio-hist1.root",
@@ -73,10 +72,10 @@
 
 
 
-      TH1F* h_closure_ht_model_fit   = new TH1F( "h_closure_ht_model_fit", "HT bins, model", 3, 0.5, 3.5 ) ;
-      TH1F* h_closure_ht_model_fit_and_syst   = new TH1F( "h_closure_ht_model_fit_and_syst", "HT bins, model", 3, 0.5, 3.5 ) ;
-      TH1F* h_closure_ht_model_total = new TH1F( "h_closure_ht_model_total", "HT bins, model", 3, 0.5, 3.5 ) ;
-      TH1F* h_closure_ht_qcdmc = new TH1F( "h_closure_ht_qcdmc", "HT bins, QCD MC", 3, 0.5, 3.5 ) ;
+      TH1F* h_closure_ht_model_fit   = new TH1F( "h_closure_ht_model_fit", "HT bins, model", nBinsHT, 0.5, nBinsHT + 0.5 ) ;
+      TH1F* h_closure_ht_model_fit_and_syst   = new TH1F( "h_closure_ht_model_fit_and_syst", "HT bins, model", nBinsHT, 0.5, nBinsHT + 0.5 ) ;
+      TH1F* h_closure_ht_model_total = new TH1F( "h_closure_ht_model_total", "HT bins, model", nBinsHT, 0.5, nBinsHT + 0.5 ) ;
+      TH1F* h_closure_ht_qcdmc = new TH1F( "h_closure_ht_qcdmc", "HT bins, QCD MC", nBinsHT, 0.5, nBinsHT + 0.5 ) ;
 
       for ( int bin_ht = nBinsHT; bin_ht > 0; bin_ht--)
       {
@@ -132,10 +131,10 @@
 
 
      //---- 4 Njet bins
-      TH1F* h_closure_njet_model_fit   = new TH1F( "h_closure_njet_model_fit", "njet bins, model", 4, 0.5, 4.5 ) ;
-      TH1F* h_closure_njet_model_fit_and_syst   = new TH1F( "h_closure_njet_model_fit_and_syst", "njet bins, model", 4, 0.5, 4.5 ) ;
-      TH1F* h_closure_njet_model_total = new TH1F( "h_closure_njet_model_total", "njet bins, model", 4, 0.5, 4.5 ) ;
-      TH1F* h_closure_njet_qcdmc = new TH1F( "h_closure_njet_qcdmc", "njet bins, QCD MC", 4, 0.5, 4.5 ) ;
+      TH1F* h_closure_njet_model_fit   = new TH1F( "h_closure_njet_model_fit", "njet bins, model", nb_nj, 0.5, nb_nj + 0.5 ) ;
+      TH1F* h_closure_njet_model_fit_and_syst   = new TH1F( "h_closure_njet_model_fit_and_syst", "njet bins, model", nb_nj, 0.5, nb_nj + 0.5 ) ;
+      TH1F* h_closure_njet_model_total = new TH1F( "h_closure_njet_model_total", "njet bins, model", nb_nj, 0.5, nb_nj + 0.5 ) ;
+      TH1F* h_closure_njet_qcdmc = new TH1F( "h_closure_njet_qcdmc", "njet bins, QCD MC", nb_nj, 0.5, nb_nj + 0.5 ) ;
 
 
       for ( int bin_nj = 1; bin_nj <= nb_nj; bin_nj++)
@@ -150,12 +149,11 @@
 
                   bi_hist ++ ;
                   int bi_ht, bi_mht ;
-
+                  
                   htmht_bin_to_ht_and_mht_bins( bi_htmht, bi_ht, bi_mht ) ;
 
                   if ( bi_mht == 1 ) continue ;
                   if ( bi_nj != bin_nj ) continue;
-
                   sum_index_array[sum_nbins] = bi_hist ;
                   sum_nbins++ ;
 
@@ -214,10 +212,10 @@
 
 
 
-      TH1F* h_closure_nb_model_fit   = new TH1F( "h_closure_nb_model_fit", "nb bins, model", 4, 0.5, 4.5 ) ;
-      TH1F* h_closure_nb_model_fit_and_syst   = new TH1F( "h_closure_nb_model_fit_and_syst", "nb bins, model", 4, 0.5, 4.5 ) ;
-      TH1F* h_closure_nb_model_total = new TH1F( "h_closure_nb_model_total", "nb bins, model", 4, 0.5, 4.5 ) ;
-      TH1F* h_closure_nb_qcdmc = new TH1F( "h_closure_nb_qcdmc", "nb bins, QCD MC", 4, 0.5, 4.5 ) ;
+      TH1F* h_closure_nb_model_fit   = new TH1F( "h_closure_nb_model_fit", "nb bins, model", nb_nb, 0.5, nb_nb + 0.5 ) ;
+      TH1F* h_closure_nb_model_fit_and_syst   = new TH1F( "h_closure_nb_model_fit_and_syst", "nb bins, model", nb_nb, 0.5, nb_nb + 0.5 ) ;
+      TH1F* h_closure_nb_model_total = new TH1F( "h_closure_nb_model_total", "nb bins, model", nb_nb, 0.5, nb_nb + 0.5 ) ;
+      TH1F* h_closure_nb_qcdmc = new TH1F( "h_closure_nb_qcdmc", "nb bins, QCD MC", nb_nb, 0.5, nb_nb + 0.5 ) ;
 
       for ( int bin_nb = 1; bin_nb <= nb_nb; bin_nb++)
       {
@@ -298,10 +296,10 @@
 
      //--- 4 MHT bins
 
-      TH1F* h_closure_mht_model_fit   = new TH1F( "h_closure_mht_model_fit", "mht bins, model", 4, 0.5, 4.5 ) ;
-      TH1F* h_closure_mht_model_fit_and_syst   = new TH1F( "h_closure_mht_model_fit_and_syst", "mht bins, model", 4, 0.5, 4.5 ) ;
-      TH1F* h_closure_mht_model_total = new TH1F( "h_closure_mht_model_total", "mht bins, model", 4, 0.5, 4.5 ) ;
-      TH1F* h_closure_mht_qcdmc = new TH1F( "h_closure_mht_qcdmc", "mht bins, QCD MC", 4, 0.5, 4.5 ) ;
+      TH1F* h_closure_mht_model_fit   = new TH1F( "h_closure_mht_model_fit", "mht bins, model", nb_mht-1, 0.5, nb_mht - 0.5 ) ;
+      TH1F* h_closure_mht_model_fit_and_syst   = new TH1F( "h_closure_mht_model_fit_and_syst", "mht bins, model", nb_mht-1, 0.5, nb_mht - 0.5 ) ;
+      TH1F* h_closure_mht_model_total = new TH1F( "h_closure_mht_model_total", "mht bins, model", nb_mht-1, 0.5, nb_mht - 0.5 ) ;
+      TH1F* h_closure_mht_qcdmc = new TH1F( "h_closure_mht_qcdmc", "mht bins, QCD MC", nb_mht-1, 0.5, nb_mht - 0.5 ) ;
 
       for ( int bin_mht = 1; bin_mht < nb_mht; bin_mht++)
       {
@@ -452,11 +450,12 @@
 
 
      //--- boxes
-
-      TH1F* h_closure_10boxes_model_fit   = new TH1F( "h_closure_10boxes_model_fit", "10 MHT-HT boxes, model", 10, 0.5, 10.5 ) ;
-      TH1F* h_closure_10boxes_model_fit_and_syst   = new TH1F( "h_closure_10boxes_model_fit_and_syst", "10 MHT-HT boxes, model", 10, 0.5, 10.5 ) ;
-      TH1F* h_closure_10boxes_model_total = new TH1F( "h_closure_10boxes_model_total", "10 MHT-HT boxes, model", 10, 0.5, 10.5 ) ;
-      TH1F* h_closure_10boxes_qcdmc = new TH1F( "h_closure_10boxes_qcdmc", "10 MHT-HT boxes, QCD MC", 10, 0.5, 10.5 ) ;
+      TString htmht_str = num_to_str(nb_htmht-nBinsHT);
+      TH1F* h_closure_10boxes_model_fit   = new TH1F( "h_closure_10boxes_model_fit", htmht_str+" MHT-HT boxes, model", nb_htmht-nBinsHT, 0.5, nb_htmht-nBinsHT+0.5 ) ;
+      TH1F* h_closure_10boxes_model_fit_and_syst   = new TH1F( "h_closure_10boxes_model_fit_and_syst", htmht_str+
+		                                               " MHT-HT boxes, model", nb_htmht-nBinsHT, 0.5, nb_htmht-nBinsHT+0.5 ) ;
+      TH1F* h_closure_10boxes_model_total = new TH1F( "h_closure_10boxes_model_total", htmht_str+" MHT-HT boxes, model", nb_htmht-nBinsHT, 0.5, nb_htmht-nBinsHT+0.5 ) ;
+      TH1F* h_closure_10boxes_qcdmc = new TH1F( "h_closure_10boxes_qcdmc", htmht_str+" MHT-HT boxes, QCD MC", nb_htmht-nBinsHT, 0.5, nb_htmht-nBinsHT+0.5 ) ;
 
       for ( int bin_htmht=3+1; bin_htmht<=nb_htmht; bin_htmht++ )
       {
@@ -603,20 +602,18 @@
            //--- skip HT1 at high Njet.
             int bi_nj, bi_nb, bi_ht, bi_mht;
             translate_qcd_bin_to_nj_nb_ht_mht (hbi, bi_nj, bi_nb, bi_ht, bi_mht);
-            if ( bi_ht == 1 && bi_nj > 2 ) continue ;
+            if ( bi_ht == 1 && bi_nj > nb_nj-2 ) continue ;
 
             float model_ratio(0.) ;
             model_ratio =  par_val_ht[bi_ht] * par_val_njet[bi_nj] * par_val_ht_mht[bi_ht][bi_mht] * par_val_nb[bi_nb] ;
-
             float ratio_correction_val(0.) ;
             float ratio_correction_err(0.) ;
             {
-               int search_bin = translate_qcd_bin_to_old_search_bin( hbi ) ;
-               ratio_correction_val = h_ratio_qcdmc_minus_model -> GetBinContent( search_bin ) ;
-               ratio_correction_err = h_ratio_qcdmc_minus_model -> GetBinError( search_bin ) ;
+               ratio_correction_val = h_ratio_qcdmc_minus_model -> GetBinContent( translate_qcd_bin_to_search_bin(hbi) ) ;
+               ratio_correction_err = h_ratio_qcdmc_minus_model -> GetBinError( translate_qcd_bin_to_search_bin(hbi) ) ;
                if ( verb ) {
                   printf("  Correcting QCD bin %3d (%30s) with search bin %d (%30s) : correction = %6.4f +/- %6.4f\n",
-                      hbi, qcd_label[hbi], search_bin, h_ratio_qcdmc_minus_model -> GetXaxis() -> GetBinLabel( search_bin ),
+                      hbi, qcd_label[hbi], translate_qcd_bin_to_search_bin(hbi), h_ratio_qcdmc_minus_model -> GetXaxis() -> GetBinLabel( translate_qcd_bin_to_search_bin(hbi) ),
                       ratio_correction_val, ratio_correction_err ) ;
                }
             }
@@ -625,10 +622,8 @@
             float model_correction_val = qcd_ldp_val[hbi] * ratio_correction_val ;
 
             model_sum_val += model_val ;
-
             model_sum_correction_val += model_correction_val ;
             model_sum_correction_err2 += pow( qcd_ldp_val[hbi] * ratio_correction_err, 2. ) ;
-
             qcd_sum_val += qcd_hdp_val[hbi] ;
             qcd_sum_err2 += pow( qcd_hdp_err[hbi], 2. ) ;
 
@@ -760,39 +755,18 @@
          model_sum_err_fit = sqrt( model_sum_err2_fit ) ;
          model_sum_err_mc = sqrt( model_sum_correction_err2 ) ;
          model_sum_err_syst = sqrt( model_sum_err2_syst ) ;
+
          model_sum_err = sqrt( model_sum_err2_fit + model_sum_correction_err2 + model_sum_err2_syst ) ;
 
          if ( include_qcdmc_correction ) {
             model_sum_val += model_sum_correction_val ;
          }
 
-         printf("  Sums:  model = %8.1f +/- %8.1f (%8.1f (fit), %8.5f (syst))     QCD = %8.1f +/- %8.1f\n",
+         printf("  Sums:  model = %8.1f +/- %8.1f (%8.5f (fit), %8.5f (syst))     QCD = %8.1f +/- %8.1f\n",
             model_sum_val, model_sum_err, model_sum_err_fit, model_sum_err_syst,
             qcd_sum_val, qcd_sum_err ) ;
 
      } // calc_sum
-
-  //=======================================================================================
-
-   int  translate_qcd_bin_to_old_search_bin( int qcd_bi ) {
-
-      int old_sbi(0);
-
-      for ( int nji=1; nji<=nb_nj; nji++ )
-         for ( int nbi=1; nbi<=nb_nb; nbi ++ )
-            for ( int htmhti=1; htmhti<=nb_htmht; htmhti++ ) 
-	    {
-               if ( htmhti > 3 ) old_sbi++;
-               if ( global_bin_with_mhtc( nji, nbi, htmhti ) == qcd_bi ) 
-	       {
-                  return (htmhti>3)?old_sbi:-1;
-	       }
-            }//htmhti
-
-
-      return -1 ;
-
-   } // translate_qcd_bin_to_old_search_bin
 
   //=======================================================================================
 
@@ -804,37 +778,35 @@
       if ( h_ratio_all == 0x0 ) { printf("\n\n *** Missing h_ratio_all hist.\n\n") ; gSystem->Exit(-1) ; }
 
       int hbi = 0;
-      for ( int i = 1; i <= nb_global; i++ )
+      for ( int i = 1; i <= nb_global_after_exclusion; i++ )
       {
 
-         if ( is_this_bin_excluded (i) ) continue;
 	 hbi++;
          int bi_nj, bi_nb, bi_ht, bi_mht;
-         translate_qcd_bin_to_nj_nb_ht_mht (hbi, bi_nj, bi_nb, bi_ht, bi_mht);
+         translate_search_bin_to_nj_nb_ht_mht (hbi, bi_nj, bi_nb, bi_ht, bi_mht);
 
-         int search_bi = translate_qcd_bin_to_old_search_bin( hbi ) ;
-         if ( search_bi < 1 ) continue ;
          float model_ratio(0.) ;
          model_ratio =  par_val_ht[bi_ht] * par_val_njet[bi_nj] * par_val_ht_mht[bi_ht][bi_mht] * par_val_nb[bi_nb] ;
 
-         float model_ratio_from_hist = h_ratio_all -> GetBinContent( search_bi ) ;
+         float model_ratio_from_hist = h_ratio_all -> GetBinContent( hbi ) ;//amin
 
          if ( bi_ht == 1 && bi_nj > nb_nj-2 ) continue ;
 
-         if ( fabs(model_ratio-model_ratio_from_hist) > 0.00001 ) { printf("\n *** inconsistent model ratios.\n\n" ) ; }
+         if ( fabs(model_ratio-model_ratio_from_hist) > 0.00001 ) { printf("\n *** inconsistent model ratios in Njet bin = %d, Nbjet = bin %d, HT bin = %d and MHT bin = %d.\n\n",
+			bi_nj, bi_nb, bi_ht, bi_mht ) ; }
 
          float ratio_correction_val(0.) ;
          float ratio_correction_err(0.) ;
          {
-            ratio_correction_val = h_ratio_qcdmc_minus_model -> GetBinContent( search_bi ) ;
-            ratio_correction_err = h_ratio_qcdmc_minus_model -> GetBinError( search_bi ) ;
+            ratio_correction_val = h_ratio_qcdmc_minus_model -> GetBinContent( hbi ) ;
+            ratio_correction_err = h_ratio_qcdmc_minus_model -> GetBinError( hbi ) ;
          }
          float model_val = qcd_ldp_val[hbi] * model_ratio ;
 
          float model_correction_val = qcd_ldp_val[hbi] * ratio_correction_val ;
          float model_correction_err = qcd_ldp_val[hbi] * ratio_correction_err ;
 	 printf("  %3d   %30s :  Model %6.1f +/- %6.1f,  cor = %9.3f * %7.4f = %6.1f +/- %6.1f,  total = %6.1f +/- %6.1f,   HDP QCD MC  %6.1f +/- %6.1f  ",
-             search_bi, qcd_label[hbi],
+             hbi, qcd_label[hbi],
              model_val, 0.,
              qcd_ldp_val[hbi], ratio_correction_val, model_correction_val, model_correction_err,
              model_val+model_correction_val, 0.,
