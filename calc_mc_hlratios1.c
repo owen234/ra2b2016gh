@@ -1,4 +1,3 @@
-
 #include "TDirectory.h"
 #include "TH1F.h"
 #include "THStack.h"
@@ -8,10 +7,7 @@
 #include "TStyle.h"
 
 #include "histio.c"
-
-  //--------
-
-   TH1F* get_hist( const char* hname ) ;
+#include "get_hist.h"
 
   //--------
 
@@ -322,16 +318,3 @@
 
    } // calc_mc_hlratios1
 
-//===============================================================================
-
-   TH1F* get_hist( const char* hname ) {
-      TH1F* hp = (TH1F*) gDirectory -> FindObject( hname ) ;
-      if ( hp == 0x0 ) {
-         printf("\n\n *** Missing histogram : %s\n\n", hname ) ;
-         gDirectory -> ls() ;
-         gSystem -> Exit( -1 ) ;
-      }
-      return hp ;
-   } // get_hist
-
-//===============================================================================

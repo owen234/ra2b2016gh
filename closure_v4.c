@@ -1,15 +1,20 @@
-
+#include "TCanvas.h"
+#include "TSystem.h"
+#include "TLegend.h"
+#include "TStyle.h"
 
 #include "CMS_lumi.C"
-
+#include "get_hist.h"
 #include "histio.c"
+#include "binning.h"
+#include "num_to_str.h"
 
-   TH1F* get_hist( const char* hname ) ;
+
 
    void closure_v4( const char* infile = "outputfiles/model-ratio-hist1.root" ) {
 
       bool do_text_binlabels(false) ;
-
+      setup_bins();
       gStyle -> SetOptStat(0) ;
       gStyle -> SetOptTitle(0) ;
 
@@ -17,20 +22,20 @@
 
       loadHist( infile ) ;
 
-      TH1F* h_ldp_160bins_qcdmc = get_hist( "h_ldp_160bins_qcdmc" ) ;
-      TH1F* h_hdp_160bins_qcdmc = get_hist( "h_hdp_160bins_qcdmc" ) ;
+      TH1F* h_ldp_search_bins_qcdmc = get_hist( "h_ldp_search_bins_qcdmc" ) ;
+      TH1F* h_hdp_search_bins_qcdmc = get_hist( "h_hdp_search_bins_qcdmc" ) ;
       TH1F* h_ratio_all = get_hist( "h_ratio_all" ) ;
       TH1F* h_ratio_qcdmc_minus_model = get_hist( "h_ratio_qcdmc_minus_model" ) ;
 
-      int nbins = h_ldp_160bins_qcdmc->GetNbinsX() ;
+      int nbins = h_ldp_search_bins_qcdmc->GetNbinsX() ;
 
-      //////TH1F* h_hdp_evts = h_hdp_160bins_qcdmc ;
-      TH1F* h_hdp_evts_orig = h_hdp_160bins_qcdmc ;
+      //////TH1F* h_hdp_evts = h_hdp_search_bins_qcdmc ;
+      TH1F* h_hdp_evts_orig = h_hdp_search_bins_qcdmc ;
       TH1F* h_hdp_model = new TH1F( "h_hdp_model", "HDP, QCD model", nbins, 0.5, nbins+0.5 ) ;
       TH1F* h_hdp_evts_over_model = new TH1F( "h_hdp_evts_over_model", "HDP, QCD MC events / model", nbins, 0.5, nbins+0.5 ) ;
       TH1F* h_hdp_model_over_model = new TH1F( "h_hdp_model_over_model", "HDP, QCD model / model", nbins, 0.5, nbins+0.5 ) ;
 
-      TH1F* h_hdp_evts = new TH1F( "h_hdp_evts","", 160, 0.5, 160.5 ) ;
+      TH1F* h_hdp_evts = new TH1F( "h_hdp_evts","", nb_global_after_exclusion, 0.5, nb_global_after_exclusion + 0.5 ) ;
 
       for ( int bi=1; bi<=nbins; bi++ ) {
 
@@ -38,13 +43,13 @@
          h_hdp_evts -> SetBinError( bi, h_hdp_evts_orig -> GetBinError( bi ) ) ;
 
          char label[100] ;
-         sprintf( label, "%s", h_ldp_160bins_qcdmc -> GetXaxis() -> GetBinLabel( bi ) ) ;
+         sprintf( label, "%s", h_ldp_search_bins_qcdmc -> GetXaxis() -> GetBinLabel( bi ) ) ;
 
-         float ldp_val = h_ldp_160bins_qcdmc -> GetBinContent( bi ) ;
-         float ldp_err = h_ldp_160bins_qcdmc -> GetBinError( bi ) ;
+         float ldp_val = h_ldp_search_bins_qcdmc -> GetBinContent( bi ) ;
+         float ldp_err = h_ldp_search_bins_qcdmc -> GetBinError( bi ) ;
 
-         float hdp_val = h_hdp_160bins_qcdmc -> GetBinContent( bi ) ;
-         float hdp_err = h_hdp_160bins_qcdmc -> GetBinError( bi ) ;
+         float hdp_val = h_hdp_search_bins_qcdmc -> GetBinContent( bi ) ;
+         float hdp_err = h_hdp_search_bins_qcdmc -> GetBinError( bi ) ;
 
          float ratio_model_val = h_ratio_all -> GetBinContent( bi ) ;
          float ratio_model_err = h_ratio_all -> GetBinError( bi ) ;
@@ -75,7 +80,7 @@
          }
          h_hdp_model -> SetBinContent( bi, hdp_pred_val ) ;
          h_hdp_model -> SetBinError( bi, hdp_pred_err ) ;
-         ///h_hdp_model -> GetXaxis() -> SetBinLabel( bi, label ) ;
+         h_hdp_model -> GetXaxis() -> SetBinLabel( bi, label ) ;
 
          if ( hdp_pred_val > 0 ) {
             h_hdp_evts_over_model -> SetBinContent( bi, (hdp_val/hdp_pred_val) ) ;
@@ -92,24 +97,30 @@
       } // bi
 
       h_hdp_model -> GetXaxis() -> LabelsOption( "v" ) ;
+
       if ( do_text_binlabels ) {
-         h_hdp_evts_over_model -> GetXaxis() -> LabelsOption( "v" ) ;
+         h_hdp_evts_over_model  -> GetXaxis() -> LabelsOption( "v" ) ;
          h_hdp_model_over_model -> GetXaxis() -> LabelsOption( "v" ) ;
       }
 
 
     //-------------------
-
-      int nb_ht(3) ;
-      int nb_nj(4) ;
-      int nb_nb(4) ;
-      int nb_htmht(13) ;
-      int nb_mht(5) ;
-
-      int nb_htmhts(10) ;
-
+      double ymax(3100.) ;
+      double ymin(0.002) ;
 
       h_hdp_evts -> SetMarkerStyle( 20 ) ;
+
+
+      int width[10][10] = {};
+
+      for ( int bi_nj=0; bi_nj<nb_nj; bi_nj++ ){
+         for ( int bi_nb=0; bi_nb<nb_nb; bi_nb++ ){
+            for ( int bi_htmht=3; bi_htmht<nb_htmht; bi_htmht++ ){
+              if ( !is_this_bin_excluded(bi_nj, bi_nb, bi_htmht) ) width[bi_nj][bi_nb]++;
+            }//bi_htmht
+         }//bi_nb
+      }//bi_nj
+
 
 
       TCanvas* can1 = (TCanvas*) gDirectory -> FindObject( "can1_closure_v4" ) ;
@@ -134,8 +145,6 @@
 
       //double ymax(3900.) ;
       ///////////double ymax(890.) ;
-      double ymax(3100.) ;
-      double ymin(0.002) ;
       h_hdp_evts -> SetMaximum(ymax) ;
       h_hdp_evts -> SetMinimum(ymin) ;
       //h_hdp_evts -> SetTitleSize( 0.075, "y" ) ;
@@ -162,28 +171,61 @@
       linenj -> SetLineStyle(2) ;
       TLine* linenb = new TLine() ;
       linenb -> SetLineStyle(3) ;
-      for ( int i=1; i<=nb_nj; i++ ) {
-         linenj -> DrawLine( i*nb_nb*nb_htmhts + 0.5, ymin, i*nb_nb*nb_htmhts + 0.5, ymax ) ;
-         for ( int j=1; j<nb_nb; j++ ) {
-            linenb -> DrawLine( (i-1)*nb_nb*nb_htmhts + j*nb_htmhts + 0.5, ymin,  (i-1)*nb_nb*nb_htmhts + j*nb_htmhts + 0.5, exp(0.75*(log(ymax)-log(ymin))+log(ymin)) ) ;
+
+      int position = 0;
+
+      for ( int bi_nj=0; bi_nj<nb_nj; bi_nj++ ) {
+         for ( int bi_nb=0; bi_nb<nb_nb-1; bi_nb++ ) {
+            position += width[bi_nj][bi_nb];
+            if ( bi_nb <= bi_nj + 1) linenb -> DrawLine( position+0.5, ymin, position+0.5, exp(0.75*(log(ymax)-log(ymin))+log(ymin)) ) ;
          }
+         position += width[bi_nj][nb_nb-1];
+         linenj -> DrawLine( position+0.5, ymin, position+0.5, ymax ) ;
       }
 
-      TLatex* nblabels = new TLatex() ;
-      nblabels -> SetTextAlign( 21 ) ;
-      ///nblabels -> DrawLatex(  5, exp(0.81*(log(ymax)-log(ymin))+log(ymin)), "N_{b-jet}" ) ;
-      nblabels -> DrawLatex(  9, exp(0.81*(log(ymax)-log(ymin))+log(ymin)), "N_{b-jet}" ) ;
-      nblabels -> DrawLatex(  5, exp(0.75*(log(ymax)-log(ymin))+log(ymin)), "0" ) ;
-      nblabels -> DrawLatex( 15, exp(0.75*(log(ymax)-log(ymin))+log(ymin)), "1" ) ;
-      nblabels -> DrawLatex( 25, exp(0.75*(log(ymax)-log(ymin))+log(ymin)), "2" ) ;
-      nblabels -> DrawLatex( 35, exp(0.75*(log(ymax)-log(ymin))+log(ymin)), "#geq 3" ) ;
 
       TLatex* njlabels = new TLatex() ;
       njlabels -> SetTextAlign( 21 ) ;
-      njlabels -> DrawLatex(  20, exp(0.92*(log(ymax)-log(ymin))+log(ymin)), "3 #leq N_{jet} #leq 4" ) ;
-      njlabels -> DrawLatex(  60, exp(0.92*(log(ymax)-log(ymin))+log(ymin)), "5 #leq N_{jet} #leq 6" ) ;
-      njlabels -> DrawLatex( 100, exp(0.92*(log(ymax)-log(ymin))+log(ymin)), "7 #leq N_{jet} #leq 8" ) ;
-      njlabels -> DrawLatex( 140, exp(0.92*(log(ymax)-log(ymin))+log(ymin)), "N_{jet} #geq 9" ) ;
+      position = 0;
+      for ( int bi_nj=0; bi_nj<nb_nj; bi_nj++ )
+      {
+         int width_nj = 0;
+         for ( int bi_nb=0; bi_nb<nb_nb; bi_nb++ ) { width_nj += width[bi_nj][bi_nb]; }
+         TString str = num_to_str( bin_edges_nj[bi_nj]+0.5, 0) + " #leq N_{jet} #leq " + num_to_str(bin_edges_nj[bi_nj+1]-0.5, 0);
+	 if ( bin_edges_nj[bi_nj]+0.5 == bin_edges_nj[bi_nj+1]-0.5 ) str = "N_{jet} = " + num_to_str(bin_edges_nj[bi_nj+1]-0.5, 0);
+         if ( bi_nj == nb_nj - 1 ) str = "N_{jet} #geq " + num_to_str(bin_edges_nj[bi_nj]+0.5, 0);
+	 njlabels -> DrawLatex( position + width_nj/2, exp(0.92*(log(ymax)-log(ymin))+log(ymin)), str) ;
+         position += width_nj;
+      }//bi_nj
+
+
+      TLatex* nblabels = new TLatex() ;
+      nblabels -> SetTextAlign( 21 ) ;
+
+      position = 0;
+      for ( int bi_nb=0; bi_nb<nb_nb; bi_nb++ ) { position += width[0][bi_nb];}
+
+      nblabels -> DrawLatex(  position+3+width[1][0]/2, exp(0.81*(log(ymax)-log(ymin))+log(ymin)), "N_{b-jet}" ) ;
+      nblabels -> DrawLatex(           3+width[0][0]/2, exp(0.81*(log(ymax)-log(ymin))+log(ymin)), "N_{b-jet}" ) ;
+
+      int position0 = 0;
+      for ( int bi_nb=0; bi_nb<nb_nb; bi_nb++ )
+      {
+         TString str;
+         if ( bi_nb == nb_nb - 1 ) str = "#geq " + num_to_str ( bin_edges_nb[bi_nb]+0.5 , 0);
+         else str = num_to_str(bin_edges_nb[bi_nb]+0.5, 0);
+
+	 if ( width[1][bi_nb] != 0. ) 
+            nblabels -> DrawLatex( position  + width[1][bi_nb]/2, exp(0.75*(log(ymax)-log(ymin))+log(ymin)), str ) ;
+         if ( width[0][bi_nb] != 0. ) 
+            nblabels -> DrawLatex( position0 + width[0][bi_nb]/2, exp(0.75*(log(ymax)-log(ymin))+log(ymin)), str ) ;
+
+	 
+         position  += width[1][bi_nb];
+         position0 += width[0][bi_nb];
+
+      }//bi_nb
+
 
       TLegend* legend = new TLegend( 0.61, 0.50, 0.87, 0.75 ) ;
       legend -> SetFillColor(0) ;
@@ -207,6 +249,7 @@
 
       ymax = 5.0 ;
       ymin = 0.0 ;
+
 
       h_hdp_evts_over_model -> SetMaximum( ymax ) ;
       h_hdp_evts_over_model -> SetMinimum( ymin ) ;
@@ -238,18 +281,24 @@
 
       h_hdp_evts_over_model -> Draw("e0") ;
       h_hdp_model_over_model -> Draw( "E2 same" ) ;
-      line1 -> DrawLine(0,1.,160,1.) ;
+      line1 -> DrawLine(0,1.,nb_global_after_exclusion,1.) ;
       h_hdp_evts_over_model -> Draw( "same" ) ;
       h_hdp_evts_over_model -> Draw( "axis same" ) ;
 
-      for ( int i=1; i<=nb_nj; i++ ) {
-         linenj -> DrawLine( i*nb_nb*nb_htmhts + 0.5, ymin, i*nb_nb*nb_htmhts + 0.5, ymax ) ;
-         for ( int j=1; j<nb_nb; j++ ) {
-            linenb -> DrawLine( (i-1)*nb_nb*nb_htmhts + j*nb_htmhts + 0.5, ymin,  (i-1)*nb_nb*nb_htmhts + j*nb_htmhts + 0.5, ymax ) ;
+      position = 0;
+      for ( int bi_nj=0; bi_nj<nb_nj; bi_nj++ ) {
+         for ( int bi_nb=0; bi_nb<nb_nb-1; bi_nb++ ) {
+            position += width[bi_nj][bi_nb];
+            if ( bi_nb <= bi_nj + 1)  linenb -> DrawLine( position+0.5, ymin, position+0.5, ymax ) ;
          }
+         position += width[bi_nj][nb_nb-1];
+         linenj -> DrawLine( position+0.5, ymin, position+0.5, ymax ) ;
       }
 
-      TString lumiline( "12.9 fb^{-1} (13 TeV)" ) ;
+
+
+
+      TString lumiline( lumi_13TeV + " (13 TeV)" ) ;
       lumi_sqrtS = lumiline ;
 
       writeExtraText = true;
@@ -261,19 +310,4 @@
       can1 -> SaveAs( "outputfiles/closure-all-v4.pdf" ) ;
 
    } // closure_v4
-
-
-//===============================================================================
-
-   TH1F* get_hist( const char* hname ) {
-      TH1F* hp = (TH1F*) gDirectory -> FindObject( hname ) ;
-      if ( hp == 0x0 ) {
-         printf("\n\n *** Missing histogram : %s\n\n", hname ) ;
-         gDirectory -> ls() ;
-         gSystem -> Exit( -1 ) ;
-      }
-      return hp ;
-   } // get_hist
-
-//===============================================================================
 

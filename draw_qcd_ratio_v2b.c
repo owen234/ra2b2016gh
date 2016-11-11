@@ -5,11 +5,10 @@
 #include "TStyle.h"
 #include "TCanvas.h"
 #include "TLine.h"
-
+#include "get_hist.h"
 
 #include "histio.c"
 
-   TH1F* get_hist( const char* hname ) ;
    void  draw_boundaries() ;
    void  draw_boundaries_nj( int nhtb ) ;
 
@@ -1038,18 +1037,6 @@
       printf("\n\n") ;
 
    } // draw_qcd_ratio_v2b
-
-//===============================================================================
-
-   TH1F* get_hist( const char* hname ) {
-      TH1F* hp = (TH1F*) gDirectory -> FindObject( hname ) ;
-      if ( hp == 0x0 ) {
-         printf("\n\n *** Missing histogram : %s\n\n", hname ) ;
-         gDirectory -> ls() ;
-         gSystem -> Exit( -1 ) ;
-      }
-      return hp ;
-   } // get_hist
 
 //===============================================================================
 

@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include "TSystem.h"
-
 //
 //  Organizing principles of binning.
 //
@@ -19,9 +18,17 @@
 
 
 void htmht_bin_to_ht_and_mht_bins(int bin_htmht, int& bin_ht, int& bin_mht);
-bool exclude_this_bin(int bin_nj, int bin_nb, int bin_ht, int bin_mht);
+void translate_ht_and_mht_bin_to_htmht_bins(int bin_ht, int bin_mht, int& bin_htmht);
+
+bool is_this_bin_excluded(int bin_nj, int bin_nb, int bin_ht, int bin_mht);
+bool is_this_bin_excluded(int bin_nj, int bin_nb, int bin_htmht);
+
 int global_bin_with_mhtc( int nji, int nbi, int htmhti ) ;
+int global_search_bin ( int arg_nji, int arg_nbi, int arg_htmhti ) ;
+bool is_this_bin_excluded(int bin_no);
 void fill_gbi ();
+bool translate_qcd_bin_to_nj_nb_ht_mht( int qcd_bin_no, int& arg_nj, int& arg_nb, int& arg_ht, int& arg_mht );
+bool translate_search_bin_to_nj_nb_ht_mht( int search_bin_no, int& arg_nj, int& arg_nb, int& arg_ht, int& arg_mht );
 
 using namespace std ;
 
@@ -46,23 +53,27 @@ using namespace std ;
 
    int   njet_bin_to_be_fixed_in_qcd_model_fit;
 
-   int   no_bin_ht  [10]{};
-   int   no_bin_mht [10]{};
-   int   no_bin_bjet[10]{};
-   int   no_bin_njet[10]{};
+   int   no_bin_ht  [10] = {};
+   int   no_bin_mht [10] = {};
+   int   no_bin_bjet[10] = {};
+   int   no_bin_njet[10] = {};
 
-   int   no_bin_ht_w_exclusion_w_mhtc  [10]{};
-   int   no_bin_mht_w_exclusion_w_mhtc [10]{};
-   int   no_bin_bjet_w_exclusion_w_mhtc[10]{};
-   int   no_bin_njet_w_exclusion_w_mhtc[10]{};
+   int   no_bin_ht_w_exclusion_w_mhtc  [10] = {};
+   int   no_bin_mht_w_exclusion_w_mhtc [10] = {};
+   int   no_bin_bjet_w_exclusion_w_mhtc[10] = {};
+   int   no_bin_njet_w_exclusion_w_mhtc[10] = {};
 
    bool  gbi_array_ready(false) ;
+   bool  setup_bins_run (false);
    int   gbi_with_mhtc[6][5][14] ;
    int   gbi_search_bins  [6][5][14] ;
 
 //=====================================================================================================
 
-   void setup_bins() {
+void setup_bins() {
+
+   if ( !setup_bins_run ) 
+   {
 
       int bi ;
 
@@ -139,18 +150,19 @@ using namespace std ;
       nb_ht[mbi] = bi ;
       nb_htmht += bi ;
 
+
       nb_global = nb_htmht * nb_nb * nb_nj ;
       nb_global_after_exclusion = 0;
       nb_global_w_exclusion_w_mhtc = 0;
 
-      for ( int bin_htmht = 1; bin_htmht <= nb_htmht; bin_htmht++)
+      for ( int bin_nj = 0; bin_nj < nb_nj;    bin_nj++)
          for ( int bin_nb = 0;    bin_nb < nb_nb;    bin_nb++)
-            for ( int bin_nj = 0; bin_nj < nb_nj;    bin_nj++)
+            for ( int bin_htmht = 1; bin_htmht <= nb_htmht; bin_htmht++)
 	    {
 
                int bin_ht, bin_mht;
 	       htmht_bin_to_ht_and_mht_bins (bin_htmht, bin_ht, bin_mht);
-               if ( !exclude_this_bin(bin_nj, bin_nb, bin_ht-1, bin_mht-1 ) ) 
+               if ( !is_this_bin_excluded(bin_nj, bin_nb, bin_ht-1, bin_mht-1 ) ) 
 	       {
 		  if ( bin_htmht > 3) 
 		  {
@@ -168,15 +180,16 @@ using namespace std ;
                   no_bin_bjet_w_exclusion_w_mhtc[bin_nb    ]++;
                   no_bin_njet_w_exclusion_w_mhtc[bin_nj    ]++;
 
-	       }//if exclude_this_bin
+	       }//if is_this_bin_excluded
             }//bin_nj
 
       fill_gbi();
+      setup_bins_run = true;
+   }//setup_bins_run
+} // setup_bins
 
-   } // setup_bins
 
-
-bool exclude_this_bin(int bin_nj, int bin_nb, int bin_ht, int bin_mht)
+bool is_this_bin_excluded(int bin_nj, int bin_nb, int bin_ht, int bin_mht)
 {
   // all variables start from zero
   // bin_mht = 0 corresponds to MHTC bins
@@ -195,6 +208,31 @@ bool exclude_this_bin(int bin_nj, int bin_nb, int bin_ht, int bin_mht)
 
   return false;  //don't exclude this bin
 }
+
+
+bool is_this_bin_excluded(int bin_nj, int bin_nb, int bin_htmht)
+{
+   int bin_ht, bin_mht;
+   htmht_bin_to_ht_and_mht_bins (bin_htmht+1, bin_ht, bin_mht);
+   return is_this_bin_excluded(bin_nj, bin_nb, bin_ht-1, bin_mht-1);
+
+}
+
+bool is_this_bin_excluded(int bin_no){
+      int gbi(0) ;
+      for ( int nji=1; nji<=nb_nj; nji++ ) { 
+         for ( int nbi=1; nbi<=nb_nb; nbi ++ ) {
+            for ( int htmhti=1; htmhti<=nb_htmht; htmhti++ ) {
+               gbi++;
+               if ( gbi == bin_no ){
+                  return is_this_bin_excluded( nji-1, nbi-1, htmhti-1 ) ;
+               }//if ( gbi == bin_no )
+	    } //htmhti
+         } // nbi
+      } // mhi
+      return false;
+}  //is_this_bin_excluded
+
 
 void htmht_bin_to_ht_and_mht_bins(int bin_htmht, int& bin_ht, int& bin_mht)
 {
@@ -226,6 +264,32 @@ void htmht_bin_to_ht_and_mht_bins(int bin_htmht, int& bin_ht, int& bin_mht)
 }
 //=========================================
 
+
+void translate_ht_and_mht_bin_to_htmht_bins(int bin_ht, int bin_mht, int& bin_htmht)
+{
+
+   if ( bin_ht == 1 && bin_mht == 1 ) bin_htmht = 1;
+   if ( bin_ht == 2 && bin_mht == 1 ) bin_htmht = 2;
+   if ( bin_ht == 3 && bin_mht == 1 ) bin_htmht = 3;
+
+   if ( bin_ht == 1 && bin_mht == 2 ) bin_htmht = 4;
+   if ( bin_ht == 2 && bin_mht == 2 ) bin_htmht = 5;
+   if ( bin_ht == 3 && bin_mht == 2 ) bin_htmht = 6;
+
+   if ( bin_ht == 1 && bin_mht == 3 ) bin_htmht = 7;
+   if ( bin_ht == 2 && bin_mht == 3 ) bin_htmht = 8;
+   if ( bin_ht == 3 && bin_mht == 3 ) bin_htmht = 9;
+
+   if ( bin_ht == 2 && bin_mht == 4 ) bin_htmht = 10;
+   if ( bin_ht == 3 && bin_mht == 4 ) bin_htmht = 11;
+
+   if ( bin_ht == 2 && bin_mht == 5 ) bin_htmht = 12;
+   if ( bin_ht == 3 && bin_mht == 5 ) bin_htmht = 13;
+
+}
+//=========================================
+
+
 void fill_gbi ()
 {
 
@@ -237,19 +301,20 @@ void fill_gbi ()
             for ( int htmhti=1; htmhti<=nb_htmht; htmhti++ ) {
                int hti, mhti ;
                htmht_bin_to_ht_and_mht_bins( htmhti, hti, mhti ) ;
-               bool excluded = exclude_this_bin( nji-1, nbi-1, hti-1, mhti-1 ) ;
+               bool excluded = is_this_bin_excluded( nji-1, nbi-1, hti-1, mhti-1 ) ;
                if ( !excluded ) {
                   gbi++ ;
                   gbi_with_mhtc[nji][nbi][htmhti] = gbi ;
+
                   if ( htmhti > 3 )
 		  {
                      gbi_no_mhtc++ ;
                      gbi_search_bins[nji][nbi][htmhti] = gbi_no_mhtc ;
 		  }//if htmhti
-		  else 
-                     gbi_search_bins[nji][nbi][htmhti] = gbi_no_mhtc ;
+		  else                                   //else for if ( htmhti > 3 )
+                     gbi_search_bins[nji][nbi][htmhti] = -1 ;
 
-	       } else {
+	       } else {                                 // else for if ( !excluded ) {
                   gbi_with_mhtc[nji][nbi][htmhti] = -1 ;
                   gbi_search_bins[nji][nbi][htmhti] = -1;
                } // else if !excluded
@@ -257,11 +322,18 @@ void fill_gbi ()
          } // nbi
       } // mhi
       gbi_array_ready = true ;
-   }
+   }//if (!gbi_array_ready)
 
-}
+}//fill_gbi
 
 int global_bin_with_mhtc ( int arg_nji, int arg_nbi, int arg_htmhti ) {
+
+//all variables start from one
+ 
+   if ( arg_nji    < 1 || arg_nji    > nb_nj    ) {std::cout << "Error: Njet argument out of range"   << std::endl; return -1; }
+   if ( arg_nbi    < 1 || arg_nbi    > nb_nb    ) {std::cout << "Error: Nbjet argument out of range"  << std::endl; return -1; }
+   if ( arg_htmhti < 1 || arg_htmhti > nb_htmht ) {std::cout << "Error: HT_MHT argument out of range" << std::endl; return -1; }
+
 
    if ( !gbi_array_ready ) {
       fill_gbi ();
@@ -272,7 +344,101 @@ int global_bin_with_mhtc ( int arg_nji, int arg_nbi, int arg_htmhti ) {
 
 } // global_bin_with_mhtc
 
+
+int global_search_bin ( int arg_nji, int arg_nbi, int arg_htmhti ) {
+
+//all variables start from one
+
+   if ( arg_nji    < 1 || arg_nji    > nb_nj    ) {std::cout << "Error: Njet argument out of range"   << std::endl; return -1; }
+   if ( arg_nbi    < 1 || arg_nbi    > nb_nb    ) {std::cout << "Error: Nbjet argument out of range"  << std::endl; return -1; }
+   if ( arg_htmhti < 1 || arg_htmhti > nb_htmht ) {std::cout << "Error: HT_MHT argument out of range" << std::endl; return -1; }
+
+
+   if ( !gbi_array_ready ) {
+         fill_gbi ();
+       gbi_array_ready = true ;
+   }
+   return gbi_search_bins[arg_nji][arg_nbi][arg_htmhti] ;
+
+} // global_bin_with_mhtc
+
+
+
+bool translate_search_bin_to_nj_nb_ht_mht( int search_bin_no, int& arg_nj, int& arg_nb, int& arg_ht, int& arg_mht )
+{
+
+   if ( search_bin_no < 1 || search_bin_no > nb_global_after_exclusion ) {std::cout << "Error: Search bin index out of range" << std::endl; return -1; }
+
+   for ( int nji=1; nji<=nb_nj; nji++ )
+   {
+      for ( int nbi=1; nbi<=nb_nb; nbi ++ )
+      {
+         for ( int htmhti=1; htmhti<=nb_htmht; htmhti++ )
+         {
+            if ( gbi_search_bins[nji][nbi][htmhti] == search_bin_no )
+            {
+               arg_nj = nji;
+               arg_nb = nbi;
+               htmht_bin_to_ht_and_mht_bins(htmhti,arg_ht,arg_mht);
+               return 1; //successfully found the bin
+            }
+         }//htmhti
+      }//nbi
+   }//nji
+
+   arg_nj  = -1;
+   arg_nb  = -1;
+   arg_ht  = -1;
+   arg_mht = -1;
+   return 0; // Didn't find such a bin
+}// translate_search_bin_to_nj_nb_ht_mht
+
+
+
+bool translate_qcd_bin_to_nj_nb_ht_mht( int qcd_bin_no, int& arg_nj, int& arg_nb, int& arg_ht, int& arg_mht )
+{
+
+   if ( qcd_bin_no < 1 || qcd_bin_no > nb_global_w_exclusion_w_mhtc ) {std::cout << "Error: QCD bin index out of range" << std::endl; return -1; }
+
+   for ( int nji=1; nji<=nb_nj; nji++ )
+   {
+      for ( int nbi=1; nbi<=nb_nb; nbi ++ )
+      {
+         for ( int htmhti=1; htmhti<=nb_htmht; htmhti++ )
+         {
+            if ( gbi_with_mhtc[nji][nbi][htmhti] == qcd_bin_no )
+            {
+               arg_nj = nji;
+               arg_nb = nbi;
+               htmht_bin_to_ht_and_mht_bins(htmhti,arg_ht,arg_mht);
+               return 1; //successfully found the bin
+            }
+         } //htmhti
+      } //nbi
+   } //nji
+   arg_nj  = -1;
+   arg_nb  = -1;
+   arg_ht  = -1;
+   arg_mht = -1;
+   return 0; // Didn't find such a bin
+}//translate_qcd_bin_to_nj_nb_ht_mht
+
+
 //=========================================
+
+int translate_qcd_bin_to_search_bin ( int qcd_bin_no )
+{
+
+   if ( qcd_bin_no < 1 || qcd_bin_no > nb_global_w_exclusion_w_mhtc ) {std::cout << "Error: QCD bin index out of range" << std::endl; return -1; }
+
+   int bi_nj, bi_nb, bi_ht, bi_mht, bi_htmht; 
+   translate_qcd_bin_to_nj_nb_ht_mht(qcd_bin_no, bi_nj, bi_nb, bi_ht, bi_mht);
+
+   translate_ht_and_mht_bin_to_htmht_bins( bi_ht, bi_mht, bi_htmht);
+   if ( bi_mht == 1 ) return -1;
+   else                return gbi_search_bins[bi_nj][bi_nb][bi_htmht];
+
+}
 
 
 #endif
