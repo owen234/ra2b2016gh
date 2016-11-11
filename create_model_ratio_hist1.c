@@ -60,8 +60,6 @@
 
                h_ratio_all -> GetXaxis() -> SetBinLabel( bi_hist_with_exclusion, label ) ;
 
-               if ( bi_nj>(nb_nj-2) && bi_ht==1 ) continue ; // skip top two njets bins for lowest HT.
-
                h_ratio_all -> SetBinContent( bi_hist_with_exclusion, model_ratio_val ) ;
                h_ratio_all -> SetBinError( bi_hist_with_exclusion, model_ratio_err ) ;
 
@@ -86,26 +84,25 @@
 
       printf("\n\n") ;
       bi_hist_with_exclusion = 0;
-      int bi=0;
       for ( int bi_nj=1; bi_nj<=nb_nj; bi_nj++ ) {
          for ( int bi_nb=1; bi_nb<=nb_nb; bi_nb++ ) {
             for ( int bi_htmht=4; bi_htmht<=nb_htmht; bi_htmht++ ) {
-               bi++;
                if ( is_this_bin_excluded(bi_nj-1, bi_nb-1, bi_htmht-1) ) continue;
                bi_hist_with_exclusion++; // these few lines should be changed when we update the code that produces qcdmc-ratio-v3.root
 
-               float model_val = h_ratio_all -> GetBinContent( bi_hist_with_exclusion ) ;
-               float qcdmc_val = h_ratio_qcdmc -> GetBinContent( bi ) ;
-               float ldp_val = h_ldp_search_bins -> GetBinContent( bi ) ;
-               float hdp_val = h_hdp_search_bins -> GetBinContent( bi ) ;
-               float max_ldp_weight = h_max_ldp_weight_search_bins -> GetBinContent( bi ) ;
+	       float model_val = h_ratio_all -> GetBinContent( bi_hist_with_exclusion ) ;
+               float qcdmc_val = h_ratio_qcdmc -> GetBinContent( bi_hist_with_exclusion ) ;
+               float ldp_val = h_ldp_search_bins -> GetBinContent( bi_hist_with_exclusion ) ;
+               float hdp_val = h_hdp_search_bins -> GetBinContent( bi_hist_with_exclusion ) ;
+               float max_ldp_weight = h_max_ldp_weight_search_bins -> GetBinContent( bi_hist_with_exclusion ) ;
                char label[100] ;
                sprintf( label, "%s", h_ratio_all -> GetXaxis() -> GetBinLabel( bi_hist_with_exclusion ) ) ;
                float diff_val(0.) ;
                float diff_err(0.) ;
-               printf(" debug1 : model bin label = %s , qcdmc bin label = %s\n", h_ratio_all -> GetXaxis() -> GetBinLabel( bi ), h_ratio_qcdmc -> GetXaxis() -> GetBinLabel( bi ) ) ;
+               printf(" debug1 : model bin label = %s , qcdmc bin label = %s\n", h_ratio_all -> GetXaxis() -> GetBinLabel( bi_hist_with_exclusion ), h_ratio_qcdmc -> GetXaxis() -> GetBinLabel( bi_hist_with_exclusion ) ) ;
                if ( hdp_val > 0 ) {
                   diff_val = qcdmc_val - model_val ;
+	std::cout << qcdmc_val << " " << model_val << " " << diff_val << std::endl;
                   diff_err = diff_val ;
                   printf("  %40s : LDP %7.1f  HDP %7.1f   max LDP weight %5.3f, diff err = %5.3f\n", label, ldp_val, hdp_val, max_ldp_weight, diff_err ) ;
                } else {

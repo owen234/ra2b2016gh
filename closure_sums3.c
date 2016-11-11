@@ -746,7 +746,7 @@
             } //verb
             model_sum_err2_fit += pow( partial_sum[bg][bin_bg] * par_err_fit[bg][bin_bg], 2. ) ;
             model_sum_err2_syst += pow( partial_sum[bg][bin_bg] * par_err_syst[bg][bin_bg], 2. ) ;
-
+std::cout << model_sum_err2_fit << " " << model_sum_err2_syst << std::endl;
 	 }//bin_bg
          }//bg
 

@@ -117,7 +117,6 @@
                   TH1F* hp_nj(0x0) ;
                   hp_nj = h_ratio_nj[bi_nj] ;
                   bi_nj_hist[bi_nj-1]++;
-		  if ( bi_nj == 5 ) std::cout << "amin: " << bi_nj_hist[bi_nj-1] << " " << ratio_val << " " << ratio_err << " " << label << std::endl;
                   hp_nj -> SetBinContent( bi_nj_hist[bi_nj-1], ratio_val ) ;
                   hp_nj -> SetBinError  ( bi_nj_hist[bi_nj-1], ratio_err ) ;
                   hp_nj -> GetXaxis() -> SetBinLabel( bi_nj_hist[bi_nj-1], label ) ;
