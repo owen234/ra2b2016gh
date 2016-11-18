@@ -48,8 +48,8 @@
 
       int bi_ratio_hist(0) ;
 
-      for ( bi_ht=1; bi_ht<=3; bi_ht++ ) {
-         for ( bi_nj=1; bi_nj<=nb_nj; bi_nj++ ) {
+      for ( int bi_ht=1; bi_ht<=3; bi_ht++ ) {
+         for ( int bi_nj=1; bi_nj<=nb_nj; bi_nj++ ) {
 
             double ldp_nbsum_val(0.) ;
             double ldp_nbsum_err2(0.) ;
@@ -57,7 +57,7 @@
             double hdp_nbsum_val(0.) ;
             double hdp_nbsum_err2(0.) ;
 
-            for ( bi_nb=1; bi_nb<=nb_nb; bi_nb++ ) {
+            for ( int bi_nb=1; bi_nb<=nb_nb; bi_nb++ ) {
 
                bi_hist = (bi_nj-1)*(nb_nb)*(nb_htmht) + (bi_nb-1)*(nb_htmht) + bi_ht ;
 
