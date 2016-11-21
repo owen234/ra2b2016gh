@@ -32,6 +32,12 @@
          return ;
       }
 
+
+      FILE* ofp_pars ;
+      if ( (ofp_pars = fopen( "outputfiles/kqcd-parameters-from-qcdmc.txt", "w" ))==NULL ) {
+         printf("\n\n *** Problem opening outputfiles/kqcd-parameters-from-qcdmc.txt\n\n") ; gSystem -> Exit(-1) ;
+      }
+
       TH1F* h_ldp = (TH1F*) tf -> Get( "h_ldp" ) ;
       if ( h_ldp == 0x0 ) { printf("\n\n *** Missing h_ldp\n\n") ; return ; }
 
@@ -107,6 +113,11 @@
             char label[100] ;
             sprintf( label, "Nj%d-HT%d", bi_nj, bi_ht ) ;
 
+            bool excluded = is_this_bin_excluded( bi_nj-1, 0, bi_ht-1, 0 ) ;
+            if ( !excluded ) {
+               fprintf( ofp_pars, "R_qcd_ldp_Nj%d_HT%d %6.4f +/- %6.4f\n", bi_nj, bi_ht, ratio_val, ratio_err ) ;
+            }
+
             bi_ratio_hist ++ ;
             if ( !(bi_ht==1 && bi_nj>nb_nj-2) ) {
                h_ratio -> SetBinContent( bi_ratio_hist, ratio_val ) ;
@@ -134,6 +145,8 @@
 
       fclose( ofp_nbsum ) ;
       printf("\n\n Wrote %s\n\n", nbsum_text_file ) ;
+
+      fclose( ofp_pars ) ;
 
       TFile rf( output_hist_file, "recreate" ) ;
       h_ratio -> Write() ;
