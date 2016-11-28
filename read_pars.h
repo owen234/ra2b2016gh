@@ -28,6 +28,8 @@ float par_rel_err_njet [10] ;
 float par_rel_err_ht_mht[10][10] ;
 float par_rel_err_nb   [10] ;
 
+float par_rel_err_ht_njet[10][10] ;
+
 
 void get_par( ifstream& ifs, const char* pname, float& val, float& err1, float& err2, float& rel_err );
 void get_par2( ifstream& ifs, const char* pname, float& val, float& err );
@@ -85,7 +87,7 @@ void read_pars( const char* model_pars_file ) {
          par_val_ht_mht    [bi_ht][bi_mht+1] = val ;
          par_err_ht_mht    [bi_ht][bi_mht+1] = sqrt( err1*err1 + val*val*err2*err2 ) ;
          par_rel_err_ht_mht[bi_ht][bi_mht+1] = rel_err ;
-         printf("   Read %s : %.4f %.4f %.4f\n", pname, val, err1, err2 ) ;
+         printf("   Read %s : [%d][%d]: %.4f %.4f %.4f (%.4f)\n", pname, bi_ht, bi_mht+1, val, err1, err2, rel_err ) ;
       }//bi_mht and bi_ht
 
 
@@ -125,6 +127,9 @@ void read_pars( const char* model_pars_file ) {
             par_val_ht_njet[bi_ht][bi_nj] = val ;
             par_err_ht_njet[bi_ht][bi_nj] = err ;
             printf(" Read %s : %6.4f +/- %6.4f\n", pname, val, err ) ;
+            float rel_err(0.) ;
+            if ( val >= 0 ) { rel_err = err / val ; }
+            par_rel_err_ht_njet[bi_ht][bi_nj] = rel_err ;
          } // bi_nj
       } // bi_ht
 
