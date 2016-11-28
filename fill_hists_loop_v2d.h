@@ -23,15 +23,14 @@ class fill_hists_loop_v2d {
 public :
 
    //----------
-
-   void set_bi() ;
-
+void set_bi();
    void translate_global_bin( int gbi, int& tbi_nj, int& tbi_nb, int& tbi_htmht, int& tbi_ht, int& tbi_mht ) ;
    void translate_global_bin_nbsum( int gbi_nbsum, int& tbi_nj, int& tbi_htmht, int& tbi_ht, int& tbi_mht ) ;
    int  ht_bi_from_htmht( int bi_htmht ) ;
    int  mht_bi_from_htmht( int bi_htmht ) ;
 
    void set_bin_labels( TH1F* hp ) ;
+   void set_bin_labels_nb( TH1F* hp , int) ;
    void set_bin_labels_div_by_nb( TH1F* hp ) ;
    void set_bin_labels_mhtc_plot( TH1F* hp ) ;
    void set_bin_labels_mhtc_nbsum_plot( TH1F* hp ) ;
@@ -62,14 +61,11 @@ public :
    Double_t        DeltaPhi4;
    Int_t           EcalDeadCellTriggerPrimitiveFilter;
    Int_t           eeBadScFilter;
-   vector<TLorentzVector> *GenEls;
    Double_t        GenHT;
    Double_t        GenMET;
    Double_t        GenMETPhi;
    Double_t        GenMHT;
    Double_t        GenMHTPhi;
-   vector<TLorentzVector> *GenMus;
-   vector<bool>    *GenTau_GenTauHad;
    vector<TLorentzVector> *GenTaus;
    Int_t           globalTightHalo2016Filter;
    Int_t           HBHEIsoNoiseFilter;
@@ -126,14 +122,11 @@ public :
    TBranch        *b_DeltaPhi4;   //!
    TBranch        *b_EcalDeadCellTriggerPrimitiveFilter;   //!
    TBranch        *b_eeBadScFilter;   //!
-   TBranch        *b_GenEls;   //!
    TBranch        *b_GenHT;   //!
    TBranch        *b_GenMET;   //!
    TBranch        *b_GenMETPhi;   //!
    TBranch        *b_GenMHT;   //!
    TBranch        *b_GenMHTPhi;   //!
-   TBranch        *b_GenMus;   //!
-   TBranch        *b_GenTau_GenTauHad;   //!
    TBranch        *b_GenTaus;   //!
    TBranch        *b_globalTightHalo2016Filter;   //!
    TBranch        *b_HBHEIsoNoiseFilter;   //!
@@ -264,9 +257,6 @@ void fill_hists_loop_v2d::Init(TTree *tree)
    // (once per file to be processed).
 
    // Set object pointer
-   GenEls = 0;
-   GenMus = 0;
-   GenTau_GenTauHad = 0;
    GenTaus = 0;
    Jets = 0;
    Jets_hadronFlavor = 0;
@@ -300,14 +290,11 @@ void fill_hists_loop_v2d::Init(TTree *tree)
    fChain->SetBranchAddress("DeltaPhi4", &DeltaPhi4, &b_DeltaPhi4);
    fChain->SetBranchAddress("EcalDeadCellTriggerPrimitiveFilter", &EcalDeadCellTriggerPrimitiveFilter, &b_EcalDeadCellTriggerPrimitiveFilter);
    fChain->SetBranchAddress("eeBadScFilter", &eeBadScFilter, &b_eeBadScFilter);
-   fChain->SetBranchAddress("GenEls", &GenEls, &b_GenEls);
    fChain->SetBranchAddress("GenHT", &GenHT, &b_GenHT);
    fChain->SetBranchAddress("GenMET", &GenMET, &b_GenMET);
    fChain->SetBranchAddress("GenMETPhi", &GenMETPhi, &b_GenMETPhi);
    fChain->SetBranchAddress("GenMHT", &GenMHT, &b_GenMHT);
    fChain->SetBranchAddress("GenMHTPhi", &GenMHTPhi, &b_GenMHTPhi);
-   fChain->SetBranchAddress("GenMus", &GenMus, &b_GenMus);
-   fChain->SetBranchAddress("GenTau_GenTauHad", &GenTau_GenTauHad, &b_GenTau_GenTauHad);
    fChain->SetBranchAddress("GenTaus", &GenTaus, &b_GenTaus);
    fChain->SetBranchAddress("globalTightHalo2016Filter", &globalTightHalo2016Filter, &b_globalTightHalo2016Filter);
    fChain->SetBranchAddress("HBHEIsoNoiseFilter", &HBHEIsoNoiseFilter, &b_HBHEIsoNoiseFilter);

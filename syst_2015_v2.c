@@ -21,9 +21,9 @@ void syst_2015_v2::Loop( int max_dump, bool verb )
 
    TH1::SetDefaultSumw2(); // to make sure all TH1 histograms have Sumw2 enabled
 
-   setup_bins();
-
    printf("\n\n") ;
+
+   gDirectory->Delete("h*") ;
 
    TH1F* h_dpt        = new TH1F( "h_dpt", "Pt(rec)-Pt(gen) for worst jet", 60, 0., 600. ) ;
    TH1F* h_dpt_withnu = new TH1F( "h_dpt_withnu", "Pt(rec)-Pt(gen) for worst jet, neutrinos added in to Pt(gen)", 60, 0., 600. ) ;
@@ -124,7 +124,6 @@ void syst_2015_v2::Loop( int max_dump, bool verb )
 
 
    h_mdp_ht_mht[ht_count][mht_count] = new TH1F( "h_mdp_ht"+ht_str_short+"_mht"+mht_str, "Min Delta Phi, MHT"+mht_str_capital+", "+ht_str_long, 68, 0., 3.4 ) ; 
-   std::cout << "h_mdp_ht"+ht_str_short+"_mht"+mht_str << std::endl;
    h_mdp_ht_badj_in_dphi_mht[ht_count][mht_count] = new TH1F( "h_mdp_ht"+ht_str_short+"_badj_in_dphi_mht"+mht_str, "Min Delta Phi, MHT"+mht_str_capital+", bad jet in Dphi, "+ht_str_long, 68, 0., 3.4 ) ;
 
    h_mdp_ht_badj_not_in_dphi_mht[ht_count][mht_count] = new TH1F( "h_mdp_ht"+ht_str_short+"_badj_not_in_dphi_mht"+mht_str, "Min Delta Phi, MHT"+mht_str_capital+", bad jet not in Dphi, "+ht_str_long, 68, 0., 3.4 ) ;
@@ -140,12 +139,12 @@ void syst_2015_v2::Loop( int max_dump, bool verb )
 
   //-------
 
-   TH1F* h_hdp = new TH1F( "h_hdp", "HDP events", nb_global, 0.5, nb_global + 0.5 ) ;
-   TH1F* h_hdp_nbsum = new TH1F( "h_hdp_nbsum", "HDP events", nb_global/nb_nb, 0.5, nb_global/nb_nb + 0.5 ) ;
+   TH1F* h_hdp = new TH1F( "h_hdp", "HDP events", nb_global_after_exclusion, 0.5, nb_global_after_exclusion + 0.5 ) ;
+   TH1F* h_hdp_nbsum = new TH1F( "h_hdp_nbsum", "HDP events", max_no_bin_bjet_w_exclusion_w_mhtc, 0.5, max_no_bin_bjet_w_exclusion_w_mhtc + 0.5 ) ;
    set_bin_labels( h_hdp_nbsum ) ;
 
-   TH1F* h_ldp = new TH1F( "h_ldp", "ldp events", nb_global, 0.5, nb_global + 0.5 ) ;
-   TH1F* h_ldp_nbsum = new TH1F( "h_ldp_nbsum", "LDP events", nb_global/nb_nb, 0.5, nb_global/nb_nb + 0.5 ) ;
+   TH1F* h_ldp = new TH1F( "h_ldp", "ldp events", nb_global_after_exclusion, 0.5, nb_global_after_exclusion + 0.5 ) ;
+   TH1F* h_ldp_nbsum = new TH1F( "h_ldp_nbsum", "LDP events", max_no_bin_bjet_w_exclusion_w_mhtc, 0.5, max_no_bin_bjet_w_exclusion_w_mhtc + 0.5 ) ;
    set_bin_labels( h_ldp_nbsum ) ;
 
    TH1F* h_hdp_nb[10], *h_ldp_nb[10];
@@ -155,11 +154,11 @@ void syst_2015_v2::Loop( int max_dump, bool verb )
 
    TString nb_str; nb_str.Form("%d",nb_count);
 
-   h_hdp_nb[nb_count] = new TH1F( "h_hdp_nb"+nb_str, "HDP events, Nb="+nb_str, nb_global/nb_nb, 0.5, nb_global/nb_nb + 0.5 ) ;
-   set_bin_labels( h_hdp_nb[nb_count] ) ;
+   h_hdp_nb[nb_count] = new TH1F( "h_hdp_nb"+nb_str, "HDP events, Nb="+nb_str, no_bin_bjet_w_exclusion_w_mhtc[nb_count], 0.5, no_bin_bjet_w_exclusion_w_mhtc[nb_count] + 0.5 ) ;
+   set_bin_labels_nb ( h_hdp_nb[nb_count], nb_count ) ;
 
-   h_ldp_nb[nb_count] = new TH1F( "h_ldp_nb"+nb_str, "ldp events, Nb="+nb_str, nb_global/nb_nb, 0.5, nb_global/nb_nb + 0.5 ) ;
-   set_bin_labels( h_ldp_nb[nb_count] ) ;
+   h_ldp_nb[nb_count] = new TH1F( "h_ldp_nb"+nb_str, "ldp events, Nb="+nb_str, no_bin_bjet_w_exclusion_w_mhtc[nb_count], 0.5, no_bin_bjet_w_exclusion_w_mhtc[nb_count] + 0.5 ) ;
+   set_bin_labels_nb ( h_ldp_nb[nb_count], nb_count ) ;
 
 
    }//nb_count
@@ -171,7 +170,6 @@ void syst_2015_v2::Loop( int max_dump, bool verb )
    if (fChain == 0) return;
 
    Long64_t nentries = fChain->GetEntries();
-   std::cout << "nentries: " << nentries << std::endl;
    Long64_t n_dump = 0 ;
 
    TStopwatch sw ;
@@ -179,7 +177,7 @@ void syst_2015_v2::Loop( int max_dump, bool verb )
    int time(0) ;
    float projected_remaining(999999.) ;
 
-   Long64_t nbytes = 0, nb = 0;
+   Long64_t nb = 0;
    for (Long64_t jentry=0; jentry<nentries;jentry++) {
 
       if ( jentry%1000 == 0 ) { // timer printing stuff
@@ -207,12 +205,12 @@ void syst_2015_v2::Loop( int max_dump, bool verb )
       Long64_t ientry = LoadTree(jentry);
 
       if (ientry < 0) break;
-      nb = fChain->GetEntry(jentry);   nbytes += nb;
+      nb = fChain->GetEntry(jentry);
 
       double hw = Weight * lumi_ ;
 
-
      //--- apply new baseline.
+
       if ( NJets < bin_edges_nj[0] ) continue ;
       if ( MHT < bin_edges_mht[0] ) continue ;
       if ( HT < bin_edges_ht[1][0] ) continue ;
@@ -392,6 +390,7 @@ void syst_2015_v2::Loop( int max_dump, bool verb )
       double worst_dpt_rec_withnu_gen(0.) ;
       double worst_ptrec_over_ptgen_withnu(0.) ;
 
+
       for ( unsigned int rji=0; rji<Jets->size(); rji++ ) {
 
          if ( Jets -> at(rji).Pt() < 25 ) continue ;
@@ -459,8 +458,8 @@ void syst_2015_v2::Loop( int max_dump, bool verb )
             worst_ptrec_over_ptgen_withnu = ptratio_withnu ;
             worst_reco_withnu_ind = rji ;
          }
+ 
       } // rji
-
 
       bool badjet_in_dphi(false) ;
       if ( worst_reco_ind >= 0 ) {
@@ -476,8 +475,6 @@ void syst_2015_v2::Loop( int max_dump, bool verb )
       if ( verb ) printf("\n") ;
       if ( verb ) printf("  Worst reco         jet ind is %2d : dpt = %7.1f , %s\n", worst_reco_ind, worst_dpt_rec_gen, badjet_in_dphi?"in dphi":"NOT in dphi" ) ;
       if ( verb ) printf("  Worst reco with nu jet ind is %2d : dpt = %7.1f\n\n", worst_reco_withnu_ind, worst_dpt_rec_withnu_gen ) ;
-
-
 
 
 
@@ -500,28 +497,28 @@ void syst_2015_v2::Loop( int max_dump, bool verb )
 
 
 
-      int bi_nj, bi_nb, bi_ht, bi_mht ;
-      int bi_htmht ;
-      int bi_global, bi_nbsum_global ;
+///      set_bi( recalc_njets, BTags, recalc_ht, recalc_mht,
+///              bi_nj, bi_nb, bi_ht, bi_mht,    bi_htmht,   bi_global, bi_nbsum_global ) ;
 
-      set_bi( recalc_njets, BTags, recalc_ht, recalc_mht,
-              bi_nj, bi_nb, bi_ht, bi_mht,    bi_htmht,   bi_global, bi_nbsum_global ) ;
+      bi_htmht         = find_htmht_bin_no(recalc_ht, recalc_mht);
+      if ( bi_htmht < 0 ) continue ;
+      translate_htmht_bin_to_ht_and_mht_bins (bi_htmht, bi_ht, bi_mht);      
+      bi_nj            = find_njet_bin_no (recalc_njets);
+      if ( bi_nj < 0    ) continue ;
+      bi_nb            = find_nbjet_bin_no(BTags);
+      if ( bi_nb < 0    ) continue ;  
 
+      bi_global        = global_bin_with_mhtc ( bi_nj, bi_nb, bi_htmht);
+      if ( bi_global < 0 ) continue; // skip excluded bins
+
+      bi_nbsum_global  = global_bin_with_mhtc_sum_nb ( bi_nj, bi_htmht);      
+      bi_nbsum_global_nb  = global_bin_with_mhtc_nb ( bi_nj, bi_nb, bi_htmht);
+    
+    
       if (verb) printf("  Recalculated bin indices:  Nj %d,  Nb %d,  MHT %d,  HT %d,   HTMHT %2d,   %s : global %3d,   global Nbsum %3d\n",
            bi_nj, bi_nb, bi_mht, bi_ht, bi_htmht,
            recalc_in_ldp ? "LDP":"HDP",
            bi_global, bi_nbsum_global ) ;
-
-      int ht_level = 0;
-      if ( bi_ht == 3 || (bi_mht>3 && bi_ht == 2) ) ht_level = 2; //high ht bin
-
-      if ( (bi_mht<=3 && bi_ht == 2) || (bi_mht>3 && bi_ht == 1) ) ht_level = 1 ; //medium ht bin
-
-      if ( (bi_mht<=3 && bi_ht == 1) ) ht_level = 0; // low ht bin
-
-
-      if ( bi_global < 1 ) continue ; //--- only keep events in search or QCD control.
-
 
     //------
 
@@ -553,29 +550,30 @@ void syst_2015_v2::Loop( int max_dump, bool verb )
 
     //------
 
+      if ( bi_ht == 0 ) std::cout << "AMIN" << std::endl;
 
-         h_mdp_ht_all[ht_level] -> Fill( min_delta_phi, hw ) ;
-         h_mdp_ht_mht[ht_level][bi_mht-1] -> Fill( min_delta_phi, hw ) ;
+         h_mdp_ht_all[bi_ht-1] -> Fill( min_delta_phi, hw ) ;
+         h_mdp_ht_mht[bi_ht-1][bi_mht-1] -> Fill( min_delta_phi, hw ) ;
 
          if ( badjet_in_dphi ) {
-            h_mdp_ht_badj_in_dphi_all[ht_level] -> Fill( min_delta_phi, hw ) ;
-            h_mdp_ht_badj_in_dphi_mht[ht_level][bi_mht-1] -> Fill( min_delta_phi, hw ) ;
+            h_mdp_ht_badj_in_dphi_all[bi_ht-1] -> Fill( min_delta_phi, hw ) ;
+            h_mdp_ht_badj_in_dphi_mht[bi_ht-1][bi_mht-1] -> Fill( min_delta_phi, hw ) ;
          } else {
-            h_mdp_ht_badj_not_in_dphi_all[ht_level] -> Fill( min_delta_phi, hw ) ;
-            h_mdp_ht_badj_not_in_dphi_mht[ht_level][bi_mht-1] -> Fill( min_delta_phi, hw ) ;
+            h_mdp_ht_badj_not_in_dphi_all[bi_ht-1] -> Fill( min_delta_phi, hw ) ;
+            h_mdp_ht_badj_not_in_dphi_mht[bi_ht-1][bi_mht-1] -> Fill( min_delta_phi, hw ) ;
          }
 
 
 
-         h_dphiregion_ht_all[ht_level] -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-         h_dphiregion_ht_mht[ht_level][bi_mht-1] -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
+         h_dphiregion_ht_all[bi_ht-1] -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
+         h_dphiregion_ht_mht[bi_ht-1][bi_mht-1] -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
 
          if ( badjet_in_dphi ) {
-             h_dphiregion_ht_badj_in_dphi_all[ht_level] -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-             h_dphiregion_ht_badj_in_dphi_mht[ht_level][bi_mht-1] -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
+             h_dphiregion_ht_badj_in_dphi_all[bi_ht-1] -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
+             h_dphiregion_ht_badj_in_dphi_mht[bi_ht-1][bi_mht-1] -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
          } else {
-             h_dphiregion_ht_badj_not_in_dphi_all[ht_level] -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
-             h_dphiregion_ht_badj_not_in_dphi_mht[ht_level][bi_mht-1] -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
+             h_dphiregion_ht_badj_not_in_dphi_all[bi_ht-1] -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
+             h_dphiregion_ht_badj_not_in_dphi_mht[bi_ht-1][bi_mht-1] -> Fill( recalc_in_ldp ? 0 : 1 , hw ) ;
          }
 
      //-----
@@ -587,11 +585,11 @@ void syst_2015_v2::Loop( int max_dump, bool verb )
       if ( !recalc_in_ldp ) {
          h_hdp -> Fill( bi_global, hw ) ;
          h_hdp_nbsum -> Fill( bi_nbsum_global, hw ) ;
-         h_hdp_nb[bi_nb-1] -> Fill( bi_nbsum_global, hw ) ;
+         h_hdp_nb[bi_nb-1] -> Fill( bi_nbsum_global_nb, hw ) ;
       } else {
          h_ldp -> Fill( bi_global, hw ) ;
          h_ldp_nbsum -> Fill( bi_nbsum_global, hw ) ;
-         h_ldp_nb[bi_nb-1] -> Fill( bi_nbsum_global, hw ) ;
+         h_ldp_nb[bi_nb-1] -> Fill( bi_nbsum_global_nb, hw ) ;
       }
 
 
@@ -611,7 +609,82 @@ void syst_2015_v2::Loop( int max_dump, bool verb )
 
 } // Loop
 
+
 //==================================================================================================
+
+
+   void syst_2015_v2::set_bin_labels_nb( TH1F* hp, int tbi_nb ) {
+   //tbi_nb starts from zero
+      if ( hp == 0x0 ) return ;
+
+      int control_bi = 0, print_bi = 0;
+      int bi = 0;
+      for ( int tbi_nj = 1; tbi_nj <= nb_nj;    tbi_nj++){
+         for ( int tbi_htmht = 1; tbi_htmht <= nb_htmht; tbi_htmht++) {
+         int tbi_ht, tbi_mht ;
+         translate_htmht_bin_to_ht_and_mht_bins (tbi_htmht, tbi_ht, tbi_mht ) ;
+
+         if ( is_this_bin_excluded (tbi_nj-1, tbi_nb, tbi_ht-1, tbi_mht-1 ) ) continue;
+         bi++;
+         char binlabel[100] ;
+         //---------
+         // sprintf( binlabel, "Nj%d-MHT%d-HT%d (%2d)   %2d", tbi_nj, tbi_mht, tbi_ht, tbi_htmht, bi ) ;
+         //---------
+         int print_bi_htmht = tbi_htmht - nb_ht[1] ;
+         int print_bi_mht = tbi_mht - 1 ;
+         if ( tbi_mht == 1 ) {
+            control_bi++;
+            sprintf( binlabel, "Nj%d-MHTC-HT%d (C%1d)   C%2d", tbi_nj, tbi_ht, tbi_ht, control_bi ) ;
+         } else {
+         print_bi++;
+          sprintf( binlabel, "Nj%d-MHT%d-HT%d (%2d)   %2d", tbi_nj, print_bi_mht, tbi_ht, print_bi_htmht, print_bi ) ;
+         }
+         //---------
+         hp -> GetXaxis() -> SetBinLabel( bi, binlabel ) ;
+         } // bin_htmht
+      } // bin_nj
+      hp -> GetXaxis() -> LabelsOption( "v" ) ;
+
+   } // set_bin_labels
+
+
+//==================================================================================================
+
+
+   void syst_2015_v2::set_bin_labels( TH1F* hp ) {
+
+      if ( hp == 0x0 ) return ;
+
+      int control_bi = 0, print_bi = 0;
+      int bi = 0;
+      for ( int tbi_nj = 1; tbi_nj <= nb_nj;    tbi_nj++){
+         for ( int tbi_htmht = 1; tbi_htmht <= nb_htmht; tbi_htmht++) {
+         int tbi_ht, tbi_mht ;
+         translate_htmht_bin_to_ht_and_mht_bins (tbi_htmht, tbi_ht, tbi_mht ) ;
+
+         if ( is_this_bin_excluded_nbsum (tbi_nj-1, tbi_ht-1, tbi_mht-1 ) ) continue;
+         bi++;
+         char binlabel[100] ;
+         //---------
+         // sprintf( binlabel, "Nj%d-MHT%d-HT%d (%2d)   %2d", tbi_nj, tbi_mht, tbi_ht, tbi_htmht, bi ) ;
+         //---------
+         int print_bi_htmht = tbi_htmht - nb_ht[1] ;
+         int print_bi_mht = tbi_mht - 1 ;
+         if ( tbi_mht == 1 ) {
+            control_bi++;
+            sprintf( binlabel, "Nj%d-MHTC-HT%d (C%1d)   C%2d", tbi_nj, tbi_ht, tbi_ht, control_bi ) ;
+         } else {
+            sprintf( binlabel, "Nj%d-MHT%d-HT%d (%2d)   %2d", tbi_nj, print_bi_mht, tbi_ht, print_bi_htmht, print_bi ) ;
+	 }
+         //---------
+         hp -> GetXaxis() -> SetBinLabel( bi, binlabel ) ;
+         } // bin_htmht
+      } // bin_nj
+      hp -> GetXaxis() -> LabelsOption( "v" ) ;
+
+   } // set_bin_labels
+
+   //===================================
 
 double calc_dphi( double phi1, double phi2 ) {
 
@@ -621,8 +694,6 @@ double calc_dphi( double phi1, double phi2 ) {
    return rv ;
 
 } // calc_dphi
-
-//==================================================================================================
 
 double syst_2015_v2::dr_match_rec_to_genjet( int rji, int& match_gji ) {
 
@@ -645,158 +716,6 @@ double syst_2015_v2::dr_match_rec_to_genjet( int rji, int& match_gji ) {
 
    match_gji = best_gji ;
    return min_dr ;
-
-} // dr_match_rec_to_genjet
-
-//=====================================================================================================
-
-   void syst_2015_v2::set_bi( int nj, int nb, double ht, double mht,
-                             int& bi_nj, int& bi_nb, int& bi_ht, int& bi_mht,
-                             int& bi_htmht,
-                             int& bi_global, int& bi_nbsum_global
-                           ) {
-
-      bi_ht = 0 ; bi_mht = 0 ; bi_nj = 0 ; bi_nb = 0 ;
-      for ( int bi = 1; bi <= nb_nj ; bi++ ) { if ( nj  >= bin_edges_nj[bi-1]  && nj < bin_edges_nj[bi]  ) { bi_nj  = bi ; break ; } }
-      for ( int bi = 1; bi <= nb_nb ; bi++ ) { if ( nb  >= bin_edges_nb[bi-1]  && nb < bin_edges_nb[bi]  ) { bi_nb  = bi ; break ; } }
-      for ( int bi = 1; bi <= nb_mht; bi++ ) { if ( mht >= bin_edges_mht[bi-1] && mht < bin_edges_mht[bi] ) { bi_mht = bi ; break ; } }
-      if ( bi_mht>=1 && bi_mht<=nb_mht ) {
-         for ( int bi = 1; bi <= nb_ht[bi_mht] ; bi++ ) { if ( ht  >= bin_edges_ht[bi_mht][bi-1]  && ht < bin_edges_ht[bi_mht][bi]  ) { bi_ht  = bi ; break ; } }
-      }
-
-      bi_htmht = 0 ;
-      if ( bi_ht >=1 && bi_mht >=1 ) {
-         bi_htmht = bi_ht ;
-         if ( bi_mht >= 2 ) bi_htmht += 3 ;
-         if ( bi_mht >= 3 ) bi_htmht += 3 ;
-         if ( bi_mht >= 4 ) bi_htmht += 3 ;
-         if ( bi_mht >= 5 ) bi_htmht += 2 ;
-      }
-
-      bi_global = 0 ;
-      bi_nbsum_global = 0 ;
-      if ( bi_nj >= 1 && bi_nb >= 1 && bi_htmht >= 1 ) {
-         bi_global = (bi_nj-1) * nb_nb * nb_htmht  +  (bi_nb-1) * nb_htmht   + bi_htmht ;
-         bi_nbsum_global = (bi_nj-1) * nb_htmht  +  bi_htmht ;
-      }
-
-   } // set_bi
-
-//=====================================================================================================
-
-   void syst_2015_v2::translate_global_bin( int gbi, int& tbi_nj, int& tbi_nb, int& tbi_htmht, int& tbi_ht, int& tbi_mht ) {
-
-      if ( gbi <= 0 ) { printf("\n\n *** translate_global_bin : illegal global bin index %d\n\n", gbi ) ; gSystem -> Exit(-1) ; }
-
-      tbi_nj = (gbi-1) / ( nb_nb*nb_htmht) + 1 ;
-
-      tbi_nb =  ( ((gbi-1)/nb_htmht) + 1 )  % nb_nb  ;
-      if ( tbi_nb == 0 ) tbi_nb = nb_nb ;
-
-      tbi_htmht = gbi % nb_htmht ;
-      if ( tbi_htmht == 0 ) tbi_htmht = nb_htmht ;
-
-      tbi_ht = ht_bi_from_htmht( tbi_htmht ) ;
-      tbi_mht = mht_bi_from_htmht( tbi_htmht ) ;
-
-      printf("  global bin %3d :  bi_nj = %2d ,  bi_nb = %2d ,  bi_htmht = %2d ,  bi_ht = %2d ,  bi_mht = %d\n",
-          gbi, tbi_nj, tbi_nb, tbi_htmht, tbi_ht, tbi_mht ) ;
-
-   } // translate_global_bin
-
-//=====================================================================================================
-
-   void syst_2015_v2::translate_global_bin_nbsum( int gbi_nbsum, int& tbi_nj, int& tbi_htmht, int& tbi_ht, int& tbi_mht ) {
-
-      if ( gbi_nbsum <= 0 ) { printf("\n\n *** translate_global_bin_nbsum : illegal global bin index %d\n\n", gbi_nbsum ) ; gSystem -> Exit(-1) ; }
-
-      tbi_nj = (gbi_nbsum-1) / (nb_htmht) + 1 ;
-
-      tbi_htmht = gbi_nbsum % nb_htmht ;
-      if ( tbi_htmht == 0 ) tbi_htmht = nb_htmht ;
-
-      tbi_ht = ht_bi_from_htmht( tbi_htmht ) ;
-      tbi_mht = mht_bi_from_htmht( tbi_htmht ) ;
-
-      printf("  qcd nbsum global bin %3d :  bi_nj = %2d ,  bi_htmht = %2d ,  bi_ht = %2d ,  bi_mht = %d\n",
-          gbi_nbsum, tbi_nj, tbi_htmht, tbi_ht, tbi_mht ) ;
-
-   } // translate_global_bin_nbsum
-
-//=====================================================================================================
-
-   int  syst_2015_v2::ht_bi_from_htmht( int abi_htmht ) {
-
-      if ( abi_htmht <= 0 ) { printf("\n\n *** ht_bi_from_htmht: Illegal htmht bin index: %d\n\n", abi_htmht ) ; gSystem -> Exit(-1) ; }
-      if ( abi_htmht > nb_htmht ) { printf("\n\n *** ht_bi_from_htmht: Illegal htmht bin index: %d\n\n", abi_htmht ) ; gSystem -> Exit(-1) ; }
-      int rv(0) ;
-      int sum1(0) ;
-      int sum2(0) ;
-      for ( int mbi=1; mbi<=nb_mht; mbi++ ) {
-         sum2 += nb_ht[mbi] ;
-         if ( abi_htmht > sum1 && abi_htmht <= sum2 ) {
-            rv = abi_htmht - sum1 ;
-            return rv ;
-         }
-         sum1 = sum2 ;
-      }
-      return rv ;
-
-   } // ht_bi_from_htmht
-
-   //===================================
-
-   int  syst_2015_v2::mht_bi_from_htmht( int abi_htmht ) {
-
-      if ( abi_htmht <= 0 ) { printf("\n\n *** mht_bi_from_htmht: Illegal htmht bin index: %d\n\n", abi_htmht ) ; gSystem -> Exit(-1) ; }
-      if ( abi_htmht > nb_htmht ) { printf("\n\n *** mht_bi_from_htmht: Illegal htmht bin index: %d\n\n", abi_htmht ) ; gSystem -> Exit(-1) ; }
-      int rv(0) ;
-      int sum1(0) ;
-      int sum2(0) ;
-      for ( int mbi=1; mbi<=nb_mht; mbi++ ) {
-         sum2 += nb_ht[mbi] ;
-         if ( abi_htmht > sum1 && abi_htmht <= sum2 ) {
-            rv = mbi ;
-            return rv ;
-         }
-         sum1 = sum2 ;
-      }
-      return rv ;
-
-   } // ht_bi_from_htmht
-
-   //===================================
-
-   void syst_2015_v2::set_bin_labels( TH1F* hp ) {
-
-      if ( hp == 0x0 ) return ;
-
-      for ( int bi=1; bi<=nb_global/nb_nb; bi++ ) {
-         int tbi_nj; int tbi_htmht; int tbi_ht; int tbi_mht ;
-         translate_global_bin_nbsum( bi, tbi_nj, tbi_htmht, tbi_ht, tbi_mht ) ;
-         char binlabel[100] ;
-         //---------
-         // sprintf( binlabel, "Nj%d-MHT%d-HT%d (%2d)   %2d", tbi_nj, tbi_mht, tbi_ht, tbi_htmht, bi ) ;
-         //---------
-         int print_bi_htmht = tbi_htmht - nb_ht[1] ;
-         int print_bi_mht = tbi_mht - 1 ;
-         int print_bi = bi - nb_ht[1]*tbi_nj ;
-         int control_bi = (tbi_nj-1)*nb_ht[1] + tbi_ht ;
-         if ( tbi_mht == 1 ) {
-            sprintf( binlabel, "Nj%d-MHTC-HT%d (C%1d)   C%2d", tbi_nj, tbi_ht, tbi_ht, control_bi ) ;
-         } else {
-            sprintf( binlabel, "Nj%d-MHT%d-HT%d (%2d)   %2d", tbi_nj, print_bi_mht, tbi_ht, print_bi_htmht, print_bi ) ;
-         }
-         //---------
-         hp -> GetXaxis() -> SetBinLabel( bi, binlabel ) ;
-      } // bi
-
-      hp -> GetXaxis() -> LabelsOption( "v" ) ;
-
-   } // set_bin_labels
-
-   //===================================
-
-
+}//dr_match_rec_to_genjet
 
 #endif

@@ -49,7 +49,9 @@
          for ( int bi_nb=1; bi_nb<=nb_nb; bi_nb++ ) {
             for ( int bi_htmht=1; bi_htmht<=nb_htmht; bi_htmht++ ) {
 
-               bi_hist ++ ;
+               if ( is_this_bin_excluded ( bi_nj-1, bi_nb-1, bi_htmht-1 ) ) continue;
+
+	       bi_hist ++ ;
 
                double ldp_val = h_ldp -> GetBinContent( bi_hist ) ;
                double ldp_hist_err = h_ldp -> GetBinError( bi_hist ) ;
@@ -61,23 +63,7 @@
 
                int bi_ht = 0, bi_mht = 0;
 
-               if ( bi_htmht == 1 ) { bi_ht = 1; bi_mht = 1; }
-               if ( bi_htmht == 2 ) { bi_ht = 2; bi_mht = 1; }
-               if ( bi_htmht == 3 ) { bi_ht = 3; bi_mht = 1; }
-
-               if ( bi_htmht == 4 ) { bi_ht = 1; bi_mht = 2; }
-               if ( bi_htmht == 5 ) { bi_ht = 2; bi_mht = 2; }
-               if ( bi_htmht == 6 ) { bi_ht = 3; bi_mht = 2; }
-
-               if ( bi_htmht == 7 ) { bi_ht = 1; bi_mht = 3; }
-               if ( bi_htmht == 8 ) { bi_ht = 2; bi_mht = 3; }
-               if ( bi_htmht == 9 ) { bi_ht = 3; bi_mht = 3; }
-
-               if ( bi_htmht ==10 ) { bi_ht = 2; bi_mht = 4; }
-               if ( bi_htmht ==11 ) { bi_ht = 3; bi_mht = 4; }
-
-               if ( bi_htmht ==12 ) { bi_ht = 2; bi_mht = 5; }
-               if ( bi_htmht ==13 ) { bi_ht = 3; bi_mht = 5; }
+               translate_htmht_bin_to_ht_and_mht_bins (bi_htmht, bi_ht, bi_mht);
 
                if ( bi_mht == 1 ) {
                   bi_control ++ ;
@@ -118,12 +104,14 @@
       for ( int bi_ht=1; bi_ht<=nBinsHT; bi_ht++ ) {
          for ( int bi_nj=1; bi_nj<=nb_nj; bi_nj++ ) {
 
+            if ( is_this_Nj_HT_bin_excluded ( bi_nj-1 , bi_ht-1 ) ) continue;  // So we don't consider excluded Nj_HT bins
+
             float ldp_nbsum_val(0.) ;
             float hdp_nbsum_val(0.) ;
 
             for ( int bi_nb=1; bi_nb<=nb_nb; bi_nb++ ) {
 
-               bi_hist = (bi_nj-1)*(nb_nb)*(nb_htmht) + (bi_nb-1)*(nb_htmht) + bi_ht ;
+               bi_hist = global_bin_with_mhtc(bi_nj, bi_nb, bi_ht, 1);
 
                double ldp_val = h_ldp -> GetBinContent( bi_hist ) ;
                double ldp_hist_err = h_ldp -> GetBinError( bi_hist ) ;
@@ -134,10 +122,10 @@
                ldp_nbsum_val += ldp_val ;
                hdp_nbsum_val += hdp_val ;
 
-               TString hist_bin_label( h_ldp -> GetXaxis() -> GetBinLabel( bi_hist ) ) ;
+       ////    TString hist_bin_label( h_ldp -> GetXaxis() -> GetBinLabel( bi_hist ) ) ;
 
-               char label[1000] ;
-               sprintf( label, " %3d  Nj%d-Nb%d-MHTC-HT%d", bi_hist, bi_nj, bi_nb-1, bi_ht ) ;
+       ////    char label[1000] ;
+       ////    sprintf( label, " %3d  Nj%d-Nb%d-MHTC-HT%d", bi_hist, bi_nj, bi_nb-1, bi_ht ) ;
 
        ////    printf("  label : %s   ,  hist label %s\n", label, hist_bin_label.Data() ) ;
 

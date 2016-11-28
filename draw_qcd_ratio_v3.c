@@ -79,9 +79,8 @@
          for ( int bi_nb=1; bi_nb<=nb_nb; bi_nb++ ) {
             for ( int bi_htmht=1; bi_htmht<=nb_htmht; bi_htmht++ ) {
 
-               bi_hist++ ;  // this line should be reviewd when updating the code that produces h_ldp and h_hdp
-
                if ( is_this_bin_excluded(bi_nj-1, bi_nb-1, bi_htmht-1) ) continue;
+               bi_hist++ ;	       
                sprintf( label, "%s", h_ldp -> GetXaxis() -> GetBinLabel( bi_hist ) ) ;
                //printf( " %3d : Nj%d Nb%d HTMHT%d : %30s\n", bi_hist, bi_nj, bi_nb-1, bi_htmht, label ) ;
                if ( bi_htmht > 3 ) {

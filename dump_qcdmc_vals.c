@@ -36,7 +36,7 @@
       for ( int bi_nj=1; bi_nj<=nb_nj; bi_nj++ ) {
          for ( int bi_nb=1; bi_nb<=nb_nb; bi_nb++ ) {
             for ( int bi_htmht=1; bi_htmht<=nb_htmht; bi_htmht++ ) {
-
+               if ( is_this_bin_excluded ( bi_nj-1, bi_nb-1, bi_htmht-1 ) ) continue;
                bi_hist ++ ;
                if ( bi_htmht <= 3 ) {
                   bi_control ++ ;
@@ -46,7 +46,7 @@
 
                int bi_ht = 0 , bi_mht = 0 ;
 
-               htmht_bin_to_ht_and_mht_bins ( bi_htmht, bi_ht, bi_mht );
+               translate_htmht_bin_to_ht_and_mht_bins ( bi_htmht, bi_ht, bi_mht );
 
                char mhtchar[10] ;
                if ( bi_mht == 1 ) {

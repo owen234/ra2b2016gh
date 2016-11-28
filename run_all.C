@@ -13,9 +13,9 @@
 #include "TROOT.h"
 #include "modelfit3.c"
 #include "make_data_input_files1.c"
-#include "make_lostlep_input_files1.c"
-#include "make_hadtau_input_files1.c"
-#include "make_znunu_input_files1.c"
+#include "make_lostlep_input_files2.c"
+#include "make_hadtau_input_files2.c"
+#include "make_znunu_input_files2.c"
 #include "syst_2015_v2.c"
 #include "draw_badjet_cat_v3.c"
 #include "gen_modelfit_input1.c"
@@ -76,14 +76,14 @@ void run_all ( TString skim_slim_input_dir = "" )
    std::cout << "\n-----------   running code make_data_input_files1   -----------\n" << std::endl;
    make_data_input_files1();
 
-   std::cout << "\n-----------   running code make_lostlep_input_files1   -----------\n" << std::endl;
-   make_lostlep_input_files1();
+   std::cout << "\n-----------   running code make_lostlep_input_files2   -----------\n" << std::endl;
+   make_lostlep_input_files2();
 
-   std::cout << "\n-----------   running code make_hadtau_input_files1   -----------\n" << std::endl;
-   make_hadtau_input_files1();
+   std::cout << "\n-----------   running code make_hadtau_input_files2   -----------\n" << std::endl;
+   make_hadtau_input_files2();
 
-   std::cout << "\n-----------   running code make_znunu_input_files1   -----------\n" << std::endl;   
-   make_znunu_input_files1();
+   std::cout << "\n-----------   running code make_znunu_input_files2   -----------\n" << std::endl;   
+   make_znunu_input_files2();
 
    std::cout << "\n-----------   running code gen_modelfit_input1   -----------\n" << std::endl;    
    gen_modelfit_input1();

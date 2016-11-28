@@ -435,8 +435,8 @@ int hadtau_global_bin_with_mhtc ( int arg_nji, int arg_nbi, int arg_htmhti ) {
          for ( int nbi=1; nbi<=nbmax; nbi ++ ) {
             for ( int htmhti=1; htmhti<=nb_htmht; htmhti++ ) {
                int hti, mhti ;
-               htmht_bin_to_ht_and_mht_bins( htmhti, hti, mhti ) ;
-               bool excluded = exclude_this_bin( nji-1, nbi-1, hti-1, mhti-1 ) ;
+               translate_htmht_bin_to_ht_and_mht_bins( htmhti, hti, mhti ) ;
+               bool excluded = is_this_bin_excluded( nji-1, nbi-1, hti-1, mhti-1 ) ;
                if ( mhti==1 ) {
                   gbi++ ;
                } else {

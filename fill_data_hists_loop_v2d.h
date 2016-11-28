@@ -30,6 +30,8 @@ public :
    int  mht_bi_from_htmht( int bi_htmht ) ;
 
    void set_bin_labels( TH1F* hp ) ;
+   void set_bin_labels_nb( TH1F* hp, int tbi_nb) ;
+
    void set_bin_labels_div_by_nb( TH1F* hp ) ;
    void set_bin_labels_mhtc_plot( TH1F* hp ) ;
 
