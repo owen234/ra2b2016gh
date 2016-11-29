@@ -30,7 +30,6 @@ float par_rel_err_nb   [10] ;
 
 float par_rel_err_ht_njet[10][10] ;
 
-
 void get_par( ifstream& ifs, const char* pname, float& val, float& err1, float& err2, float& rel_err );
 void get_par2( ifstream& ifs, const char* pname, float& val, float& err );
 
@@ -127,6 +126,7 @@ void read_pars( const char* model_pars_file ) {
             par_val_ht_njet[bi_ht][bi_nj] = val ;
             par_err_ht_njet[bi_ht][bi_nj] = err ;
             printf(" Read %s : %6.4f +/- %6.4f\n", pname, val, err ) ;
+
             float rel_err(0.) ;
             if ( val >= 0 ) { rel_err = err / val ; }
             par_rel_err_ht_njet[bi_ht][bi_nj] = rel_err ;
@@ -196,6 +196,4 @@ void read_pars( const char* model_pars_file ) {
    } // get_par2
 
   //=======================================================================================
-
-
 #endif

@@ -75,7 +75,8 @@
       if ( first_time ) { printf("\n\n minuit_fcn : first time\n") ; }
          for ( int hbi=0; hbi<nBinsHT; hbi++ ) {
                for ( int nji=0; nji<nb_nj; nji++ ) {
-                  if ( hbi==0 && nji>=(nb_nj - 2) ) continue ;  // skip top two njets bins for lowest HT.
+                  if ( is_this_Nj_HT_bin_excluded ( nji , hbi ) ) continue;  // So we don't consider excluded Nj_HT bins in our fit
+
                   if ( !( data_Rqcd_err[hbi][nji] > 0. ) ) { continue ; }
                   double delta = data_Rqcd[hbi][nji] - fit_Rqcd_HT[hbi] * fit_SFqcd_njet[nji] ;
                   f += delta*delta / (data_Rqcd_err[hbi][nji] * data_Rqcd_err[hbi][nji] ) ;
@@ -137,9 +138,9 @@
       int histbin(0) ;
       for ( int hbi=0; hbi<nBinsHT; hbi++ ) {
          for ( int nji=0; nji<nb_nj; nji++ ) {
-            histbin ++ ;
-            if ( hbi==0 && nji>=(nb_nj-2) ) continue ; // skip top two njets bins for lowest HT bin.
-               char binlabel[100] ;
+               if ( is_this_Nj_HT_bin_excluded ( nji , hbi ) ) continue;  // So we don't consider excluded Nj_HT bins 
+               histbin ++ ;
+	       char binlabel[100] ;
                sprintf( binlabel, "%s", h_ratio -> GetXaxis() -> GetBinLabel( histbin ) ) ;
                printf( " check %s is nji=%d, hbi=%d\n", binlabel, nji+1, hbi+1 ) ;
                data_Rqcd[hbi][nji] = h_ratio -> GetBinContent( histbin ) ;
@@ -186,8 +187,8 @@
       myMinuit->mncomd("hesse",ierflg) ;
 
 
-      TH1F* h_model  = new TH1F( "h_model", "Model result", nBinsHT * nb_nj, 0.5, nBinsHT * nb_nj + 0.5 ) ;
-      TH1F* h_model2 = new TH1F( "h_model2", "Model result", nBinsHT * nb_nj, 0.5, nBinsHT * nb_nj + 0.5 ) ;
+      TH1F* h_model  = new TH1F( "h_model", "Model result", no_bin_nj_ht_w_excludion_w_mhtc, 0.5, no_bin_nj_ht_w_excludion_w_mhtc + 0.5 ) ;
+      TH1F* h_model2 = new TH1F( "h_model2", "Model result", no_bin_nj_ht_w_excludion_w_mhtc, 0.5, no_bin_nj_ht_w_excludion_w_mhtc + 0.5 ) ;
       h_model -> SetLineWidth(2) ;
       h_model -> SetLineColor(kRed+1) ;
       h_model2 -> SetFillColor(kRed-10) ;
@@ -195,9 +196,9 @@
       histbin = 0 ;
       for ( int hbi=0; hbi<nBinsHT; hbi++ ) {
          for ( int nji=0; nji<nb_nj; nji++ ) {
+               if ( is_this_Nj_HT_bin_excluded ( nji , hbi ) ) continue;  // So we don't consider excluded Nj_HT bins in our fit
                histbin ++ ;
-               if ( hbi==0 && nji>=(nb_nj-2) ) continue ; // skip top two njets bins for lowest HT bin.
-               char binlabel[100] ;
+	       char binlabel[100] ;
                sprintf( binlabel, "%s", h_ratio -> GetXaxis() -> GetBinLabel( histbin ) ) ;
                double model_val = fit_Rqcd_HT[hbi] * fit_SFqcd_njet[nji] ;
                double model_err = 0. ;
@@ -446,10 +447,5 @@
    }
 
   //--------
-
-
-
-
-
 
 #endif

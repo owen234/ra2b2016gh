@@ -143,7 +143,7 @@ void gen_combine_input2(
    // printf("\n\n ######### debug ##########\n") ;
    // for ( int htmhti=4; htmhti<=13; htmhti++ ) {
    //    int hti, mhti ;
-   //    htmht_bin_to_ht_and_mht_bins ( htmhti, hti, mhti );
+   //    translate_htmht_bin_to_ht_and_mht_bins ( htmhti, hti, mhti );
    //    printf( " htmhti=%3d  par_val_ht_mht[%d][%d] = %7.4f\n", htmhti, hti, mhti, par_val_ht_mht[hti][mhti] ) ;
    // } // htmhti
    // printf(" ######### debug ##########\n\n\n") ;
@@ -156,7 +156,7 @@ void gen_combine_input2(
 
                int bi_ht = 0, bi_mht = 0 ;
   
-               htmht_bin_to_ht_and_mht_bins ( bi_htmht, bi_ht, bi_mht );
+               translate_htmht_bin_to_ht_and_mht_bins ( bi_htmht, bi_ht, bi_mht );
 
                if ( is_this_bin_excluded(bi_nj - 1, bi_nb -1, bi_ht - 1, bi_mht - 1 ) ) 
                {

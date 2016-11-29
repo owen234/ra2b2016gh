@@ -37,7 +37,7 @@
 
    TH1F* h_ratio_qcdmc_minus_model ;
 
-   void htmht_bin_to_ht_and_mht_bins( int bi_htmht, int& bi_ht, int& bi_mht ) ;
+   void translate_htmht_bin_to_ht_and_mht_bins( int bi_htmht, int& bi_ht, int& bi_mht ) ;
    void read_qcd( const char* qcd_file ) ;
    void calc_sum( bool verb ) ;
    void print_search_bin_table() ;
@@ -89,7 +89,7 @@
                   bi_hist ++ ;
                   int bi_ht, bi_mht ;
 
-                  htmht_bin_to_ht_and_mht_bins( bi_htmht, bi_ht, bi_mht ) ;
+                  translate_htmht_bin_to_ht_and_mht_bins( bi_htmht, bi_ht, bi_mht ) ;
 
                   if ( bi_ht != bin_ht ) continue ;
                   if ( bi_mht == 1 ) continue ;
@@ -150,7 +150,7 @@
                   bi_hist ++ ;
                   int bi_ht, bi_mht ;
                   
-                  htmht_bin_to_ht_and_mht_bins( bi_htmht, bi_ht, bi_mht ) ;
+                  translate_htmht_bin_to_ht_and_mht_bins( bi_htmht, bi_ht, bi_mht ) ;
 
                   if ( bi_mht == 1 ) continue ;
                   if ( bi_nj != bin_nj ) continue;
@@ -191,7 +191,7 @@
                   bi_hist ++ ;
                   int bi_ht, bi_mht ;
 
-                  htmht_bin_to_ht_and_mht_bins( bi_htmht, bi_ht, bi_mht ) ;
+                  translate_htmht_bin_to_ht_and_mht_bins( bi_htmht, bi_ht, bi_mht ) ;
   
                   if ( bi_nj != bin_nj ) continue;
                   if ( bi_ht != 3 ) continue ;
@@ -230,7 +230,7 @@
                   bi_hist ++ ;
                   int bi_ht, bi_mht ;
    
-                  htmht_bin_to_ht_and_mht_bins( bi_htmht, bi_ht, bi_mht ) ;
+                  translate_htmht_bin_to_ht_and_mht_bins( bi_htmht, bi_ht, bi_mht ) ;
    
                   if ( bi_nb != bin_nb ) continue;
                   if ( bi_mht == 1 ) continue ;
@@ -275,7 +275,7 @@
                   bi_hist ++ ;
                   int bi_ht, bi_mht ;
 
-                  htmht_bin_to_ht_and_mht_bins( bi_htmht, bi_ht, bi_mht ) ;
+                  translate_htmht_bin_to_ht_and_mht_bins( bi_htmht, bi_ht, bi_mht ) ;
 
                   if ( bi_nb != bin_nb ) continue;
                   if ( bi_ht != 3 ) continue ;
@@ -318,7 +318,7 @@
                   bi_hist ++ ;
                   int bi_ht, bi_mht ;
 
-                  htmht_bin_to_ht_and_mht_bins( bi_htmht, bi_ht, bi_mht ) ;
+                  translate_htmht_bin_to_ht_and_mht_bins( bi_htmht, bi_ht, bi_mht ) ;
 
                   if ( bi_mht != bin_mht+1 ) continue ;
                   if ( bi_mht == 1 ) continue ;
@@ -365,7 +365,7 @@
                   bi_hist ++ ;
                   int bi_ht, bi_mht ;
 
-                  htmht_bin_to_ht_and_mht_bins( bi_htmht, bi_ht, bi_mht ) ;
+                  translate_htmht_bin_to_ht_and_mht_bins( bi_htmht, bi_ht, bi_mht ) ;
 
                   if ( bi_ht != 3 ) continue ;
                   if ( bi_mht != bin_mht+1 ) continue ;
@@ -396,7 +396,7 @@
                   bi_hist ++ ;
                   int bi_ht, bi_mht ;
 
-                  htmht_bin_to_ht_and_mht_bins( bi_htmht, bi_ht, bi_mht ) ;
+                  translate_htmht_bin_to_ht_and_mht_bins( bi_htmht, bi_ht, bi_mht ) ;
 
                   if ( bi_ht != 2 ) continue ;
                   if ( bi_nj != bin_nj ) continue ;
@@ -428,7 +428,7 @@
                   bi_hist ++ ;
                   int bi_ht, bi_mht ;
 
-                  htmht_bin_to_ht_and_mht_bins( bi_htmht, bi_ht, bi_mht ) ;
+                  translate_htmht_bin_to_ht_and_mht_bins( bi_htmht, bi_ht, bi_mht ) ;
 
                   if ( bi_ht != 1 ) continue ;
                   if ( bi_nj != bin_nj ) continue ;
@@ -470,7 +470,7 @@
                   bi_hist ++ ;
                   int bi_ht, bi_mht ;
 
-                  htmht_bin_to_ht_and_mht_bins( bi_htmht, bi_ht, bi_mht ) ;
+                  translate_htmht_bin_to_ht_and_mht_bins( bi_htmht, bi_ht, bi_mht ) ;
 
                   if ( bi_htmht != bin_htmht ) continue ;
 
@@ -524,9 +524,11 @@
          for ( int bi_nb=1; bi_nb<=nb_nb; bi_nb++ ) {
             for ( int bi_htmht=1; bi_htmht<=nb_htmht; bi_htmht++ ) {
 
-               TString line ;
-               line.ReadLine( ifs_qcd_ldp ) ;
                if (is_this_bin_excluded(bi_nj-1,bi_nb-1,bi_htmht-1)) continue;
+
+               TString line ;
+	       line.ReadLine( ifs_qcd_ldp ) ;
+
 
                bi_hist ++ ;
                if ( bi_htmht <= 3 ) {
@@ -537,7 +539,7 @@
 
                int bi_ht, bi_mht ;
 
-               htmht_bin_to_ht_and_mht_bins( bi_htmht, bi_ht, bi_mht ) ;
+               translate_htmht_bin_to_ht_and_mht_bins( bi_htmht, bi_ht, bi_mht ) ;
 
 
                char mhtchar[10] ;
@@ -667,7 +669,7 @@
 	    for ( int bin_htmht = 1; bin_htmht <= nb_htmht; bin_htmht++)
 	    {
                int bin_ht = 0, bin_mht = 0;
-               htmht_bin_to_ht_and_mht_bins(bin_htmht, bin_ht,bin_mht);
+               translate_htmht_bin_to_ht_and_mht_bins(bin_htmht, bin_ht,bin_mht);
                if ( bin_ht == bi_ht && bin_mht == bi_mht && par_val_ht_mht[bi_ht][bi_mht] > 0. )
                   partial_sum[3][bin_htmht] += model_val / par_val_ht_mht[bi_ht][bi_mht] ;
 
@@ -698,7 +700,7 @@
          {
 
 	    int bin_ht, bin_mht;
-            htmht_bin_to_ht_and_mht_bins (bin_htmht, bin_ht, bin_mht);
+            translate_htmht_bin_to_ht_and_mht_bins (bin_htmht, bin_ht, bin_mht);
 
 	    char mht_str[10] ; sprintf(mht_str, "%d", bin_mht - 1);
 

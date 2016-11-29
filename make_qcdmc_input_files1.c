@@ -34,9 +34,11 @@
 
 
       FILE* ofp_pars ;
-      if ( (ofp_pars = fopen( "outputfiles/kqcd-parameters-from-qcdmc.txt", "w" ))==NULL ) {
+      const char* kqcd_par_text_file = "outputfiles/kqcd-parameters-from-qcdmc.txt";
+      if ( (ofp_pars = fopen( kqcd_par_text_file, "w" ) )==NULL ) {
          printf("\n\n *** Problem opening outputfiles/kqcd-parameters-from-qcdmc.txt\n\n") ; gSystem -> Exit(-1) ;
       }
+
 
       TH1F* h_ldp = (TH1F*) tf -> Get( "h_ldp" ) ;
       if ( h_ldp == 0x0 ) { printf("\n\n *** Missing h_ldp\n\n") ; return ; }
@@ -44,18 +46,16 @@
       TH1F* h_hdp = (TH1F*) tf -> Get( "h_hdp" ) ;
       if ( h_hdp == 0x0 ) { printf("\n\n *** Missing h_hdp\n\n") ; return ; }
 
-//      int nb_nj(5) ;
-//      int nb_nb(4) ;
-//      int nb_htmht(13) ;
-
       int bi_hist(0) ;
 
-      TH1F* h_ratio = new TH1F( "h_ratio", "H/L ratio", nBinsHT*nb_nj, 0.5, nBinsHT*nb_nj + 0.5 ) ;
+      TH1F* h_ratio = new TH1F( "h_ratio", "H/L ratio", no_bin_nj_ht_w_excludion_w_mhtc, 0.5, no_bin_nj_ht_w_excludion_w_mhtc + 0.5 ) ;
 
       int bi_ratio_hist(0) ;
 
       for ( int bi_ht=1; bi_ht<=3; bi_ht++ ) {
          for ( int bi_nj=1; bi_nj<=nb_nj; bi_nj++ ) {
+
+            if ( is_this_Nj_HT_bin_excluded ( bi_nj-1 , bi_ht-1 ) ) continue;  // So we don't consider excluded Nj_HT bins 
 
             double ldp_nbsum_val(0.) ;
             double ldp_nbsum_err2(0.) ;
@@ -65,7 +65,8 @@
 
             for ( int bi_nb=1; bi_nb<=nb_nb; bi_nb++ ) {
 
-               bi_hist = (bi_nj-1)*(nb_nb)*(nb_htmht) + (bi_nb-1)*(nb_htmht) + bi_ht ;
+               bi_hist = global_bin_with_mhtc(bi_nj, bi_nb, bi_ht, 1);
+               if ( bi_hist < 0 ) continue;
 
                double ldp_val = h_ldp -> GetBinContent( bi_hist ) ;
                double ldp_hist_err = h_ldp -> GetBinError( bi_hist ) ;
@@ -78,16 +79,6 @@
 
                ldp_nbsum_err2 += pow( ldp_hist_err, 2. ) ;
                hdp_nbsum_err2 += pow( hdp_hist_err, 2. ) ;
-
-               TString hist_bin_label( h_ldp -> GetXaxis() -> GetBinLabel( bi_hist ) ) ;
-
-               char label[1000] ;
-               sprintf( label, " %3d  Nj%d-Nb%d-MHTC-HT%d", bi_hist, bi_nj, bi_nb-1, bi_ht ) ;
-
-       ////    printf("  label : %s   ,  hist label %s\n", label, hist_bin_label.Data() ) ;
-
-
-
 
             } // bi_nb
 
@@ -113,10 +104,8 @@
             char label[100] ;
             sprintf( label, "Nj%d-HT%d", bi_nj, bi_ht ) ;
 
-            bool excluded = is_this_bin_excluded( bi_nj-1, 0, bi_ht-1, 0 ) ;
-            if ( !excluded ) {
-               fprintf( ofp_pars, "R_qcd_ldp_Nj%d_HT%d %6.4f +/- %6.4f\n", bi_nj, bi_ht, ratio_val, ratio_err ) ;
-            }
+            fprintf( ofp_pars, "R_qcd_ldp_Nj%d_HT%d %6.4f +/- %6.4f\n", bi_nj, bi_ht, ratio_val, ratio_err ) ;
+
 
             bi_ratio_hist ++ ;
             if ( !(bi_ht==1 && bi_nj>nb_nj-2) ) {
@@ -144,9 +133,11 @@
 
 
       fclose( ofp_nbsum ) ;
-      printf("\n\n Wrote %s\n\n", nbsum_text_file ) ;
+      printf("\n\n Wrote %s\n\n", nbsum_text_file    ) ;
 
       fclose( ofp_pars ) ;
+      printf("\n\n Wrote %s\n\n", kqcd_par_text_file ) ;
+
 
       TFile rf( output_hist_file, "recreate" ) ;
       h_ratio -> Write() ;

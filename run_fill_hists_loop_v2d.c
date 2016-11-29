@@ -3,7 +3,7 @@
 
 #include "fill_hists_loop_v2d.c"
 
-   void run_fill_hists_loop_v2d( const char* indir = "fnal-prod-v9-skims-slimmed" ) {
+   void run_fill_hists_loop_v2d( const char* indir = "fnal-prod-v10-skims-slimmed" ) {
 
       char fpat[10000] ;
       char sample_name[100] ;

@@ -21,7 +21,9 @@ void histio()
 
 void saveHist(const char* filename, const char* pat)
 {
+
   printf("  Saving histograms in %s\n", filename ) ; fflush( stdout ) ;
+
   TList* list = gDirectory->GetList() ;
   TIterator* iter = list->MakeIterator();
 

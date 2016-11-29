@@ -35,17 +35,17 @@
                
                if ( is_this_bin_excluded(bi_nj-1, bi_nb-1, bi_htmht-1) ) continue;
 
-	       bi_hist_with_exclusion++;  // these few lines should be changed when we update the code that produces qcdmc-ratio-v3.root
+	       bi_hist_with_exclusion++;
 
                int bi_ht, bi_mht ;
-               htmht_bin_to_ht_and_mht_bins( bi_htmht, bi_ht, bi_mht ) ;
+               translate_htmht_bin_to_ht_and_mht_bins( bi_htmht, bi_ht, bi_mht ) ;
 
                char label[100] ;
                sprintf( label, " %3d Nj%d-Nb%d-MHT%d-HT%d (%d)", bi_hist_with_exclusion, bi_nj, bi_nb-1, bi_mht-1, bi_ht, bi_htmht-3 ) ;
 
                double model_ratio_val = 0;
                double model_ratio_err = 0;
-
+	       std::cout << bi_ht << " " << bi_mht << std::endl;
                   model_ratio_val = par_val_ht[bi_ht] * par_val_njet[bi_nj] * par_val_ht_mht[bi_ht][bi_mht] * par_val_nb[bi_nb] ;
                   model_ratio_err = model_ratio_val * sqrt(
                          pow( par_err_ht_fit[bi_ht]/par_val_ht[bi_ht], 2. )
@@ -88,7 +88,7 @@
          for ( int bi_nb=1; bi_nb<=nb_nb; bi_nb++ ) {
             for ( int bi_htmht=4; bi_htmht<=nb_htmht; bi_htmht++ ) {
                if ( is_this_bin_excluded(bi_nj-1, bi_nb-1, bi_htmht-1) ) continue;
-               bi_hist_with_exclusion++; // these few lines should be changed when we update the code that produces qcdmc-ratio-v3.root
+               bi_hist_with_exclusion++;
 
 	       float model_val = h_ratio_all -> GetBinContent( bi_hist_with_exclusion ) ;
                float qcdmc_val = h_ratio_qcdmc -> GetBinContent( bi_hist_with_exclusion ) ;

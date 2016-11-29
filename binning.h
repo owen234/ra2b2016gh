@@ -17,18 +17,29 @@
 //
 
 
-void htmht_bin_to_ht_and_mht_bins(int bin_htmht, int& bin_ht, int& bin_mht);
+void translate_htmht_bin_to_ht_and_mht_bins(int bin_htmht, int& bin_ht, int& bin_mht);
 void translate_ht_and_mht_bin_to_htmht_bins(int bin_ht, int bin_mht, int& bin_htmht);
 
 bool is_this_bin_excluded(int bin_nj, int bin_nb, int bin_ht, int bin_mht);
 bool is_this_bin_excluded(int bin_nj, int bin_nb, int bin_htmht);
+bool is_this_Nj_HT_bin_excluded(int bin_nj, int bin_ht);
 
 int global_bin_with_mhtc( int nji, int nbi, int htmhti ) ;
+int global_bin_with_mhtc ( int arg_nji, int arg_nbi, int arg_ht, int arg_mht );
 int global_search_bin ( int arg_nji, int arg_nbi, int arg_htmhti ) ;
 bool is_this_bin_excluded(int bin_no);
 void fill_gbi ();
 bool translate_qcd_bin_to_nj_nb_ht_mht( int qcd_bin_no, int& arg_nj, int& arg_nb, int& arg_ht, int& arg_mht );
 bool translate_search_bin_to_nj_nb_ht_mht( int search_bin_no, int& arg_nj, int& arg_nb, int& arg_ht, int& arg_mht );
+
+int find_njet_bin_no  ( int njet  );
+int find_nbjet_bin_no ( int nbjet );
+int find_htmht_bin_no ( double ht, double mht );
+int translate_qcd_bin_to_search_bin ( int qcd_bin_no );
+int global_bin_with_mhtc_sum_nb ( int arg_nji, int arg_htmhti );
+int global_bin_with_mhtc_sum_nb ( int arg_nji, int arg_ht, int arg_mht );
+int global_bin_only_mhtc_sum_nb ( int arg_nji, int arg_htmhti );
+int global_bin_with_mhtc_nb     ( int arg_nji, int arg_nbi, int arg_htmhti );
 
 using namespace std ;
 
@@ -50,6 +61,7 @@ using namespace std ;
    int   nb_global_w_exclusion_w_mhtc ;
    int   bi_global ;
    int   bi_nbsum_global ;
+   int   bi_nbsum_global_nb;
 
    int   njet_bin_to_be_fixed_in_qcd_model_fit;
 
@@ -57,18 +69,24 @@ using namespace std ;
    int   no_bin_mht [10] = {};
    int   no_bin_bjet[10] = {};
    int   no_bin_njet[10] = {};
+   int   max_no_bin_bjet;
 
    int   no_bin_ht_w_exclusion_w_mhtc  [10] = {};
    int   no_bin_mht_w_exclusion_w_mhtc [10] = {};
    int   no_bin_bjet_w_exclusion_w_mhtc[10] = {};
    int   no_bin_njet_w_exclusion_w_mhtc[10] = {};
+   int   max_no_bin_bjet_w_exclusion_w_mhtc;
+   int   no_bin_nj_ht_w_excludion_w_mhtc;
+
 
    bool  gbi_array_ready(false) ;
    bool  setup_bins_run (false);
    int   gbi_with_mhtc[6][5][14] ;
    int   gbi_search_bins  [6][5][14] ;
 
-//=====================================================================================================
+   int bi_nj, bi_nb, bi_ht, bi_mht, bi_htmht;
+
+   //=====================================================================================================
 
 void setup_bins() {
 
@@ -155,13 +173,13 @@ void setup_bins() {
       nb_global_after_exclusion = 0;
       nb_global_w_exclusion_w_mhtc = 0;
 
-      for ( int bin_nj = 0; bin_nj < nb_nj;    bin_nj++)
-         for ( int bin_nb = 0;    bin_nb < nb_nb;    bin_nb++)
+      for ( int bin_nj = 0; bin_nj < nb_nj;    bin_nj++){
+         for ( int bin_nb = 0;    bin_nb < nb_nb;    bin_nb++){
             for ( int bin_htmht = 1; bin_htmht <= nb_htmht; bin_htmht++)
 	    {
 
                int bin_ht, bin_mht;
-	       htmht_bin_to_ht_and_mht_bins (bin_htmht, bin_ht, bin_mht);
+	       translate_htmht_bin_to_ht_and_mht_bins (bin_htmht, bin_ht, bin_mht);
                if ( !is_this_bin_excluded(bin_nj, bin_nb, bin_ht-1, bin_mht-1 ) ) 
 	       {
 		  if ( bin_htmht > 3) 
@@ -181,9 +199,26 @@ void setup_bins() {
                   no_bin_njet_w_exclusion_w_mhtc[bin_nj    ]++;
 
 	       }//if is_this_bin_excluded
-            }//bin_nj
 
+               if ( bin_mht == 1 && bin_nb == 0 )  // becasuse we only want to loop over nj and ht
+               {
+                  if ( !is_this_Nj_HT_bin_excluded ( bin_nj , bin_ht-1 ) ) {no_bin_nj_ht_w_excludion_w_mhtc++;}
+               }// bi_mht == 1 && bi_nb == 0?
+
+	    }//bin_ht_mht
+	 }//bin_nb
+      }//bin_nj
       fill_gbi();
+
+      for ( int i = 0; i < 10; i++)
+      {
+
+         if ( no_bin_bjet_w_exclusion_w_mhtc[i] > max_no_bin_bjet_w_exclusion_w_mhtc ) max_no_bin_bjet_w_exclusion_w_mhtc = no_bin_bjet_w_exclusion_w_mhtc[i];
+         if ( no_bin_bjet                   [i] > max_no_bin_bjet                    ) max_no_bin_bjet                    = no_bin_bjet                   [i];
+
+      }//i
+
+
       setup_bins_run = true;
    }//setup_bins_run
 } // setup_bins
@@ -213,10 +248,52 @@ bool is_this_bin_excluded(int bin_nj, int bin_nb, int bin_ht, int bin_mht)
 bool is_this_bin_excluded(int bin_nj, int bin_nb, int bin_htmht)
 {
    int bin_ht, bin_mht;
-   htmht_bin_to_ht_and_mht_bins (bin_htmht+1, bin_ht, bin_mht);
+   translate_htmht_bin_to_ht_and_mht_bins (bin_htmht+1, bin_ht, bin_mht);
    return is_this_bin_excluded(bin_nj, bin_nb, bin_ht-1, bin_mht-1);
 
 }
+
+bool is_this_Nj_HT_bin_excluded(int bin_nj, int bin_ht)
+{
+
+   // bin_nj and bin_ht start from zero    
+   int bin_ht2, bin_mht;
+
+   for ( int bin_nb = 0; bin_nb < nb_nb; bin_nb++)
+   {
+      for ( int bin_htmht = 0; bin_htmht < nb_htmht; bin_htmht++ ) 
+      {
+         translate_htmht_bin_to_ht_and_mht_bins (bin_htmht+1, bin_ht2, bin_mht);
+	 if ( bin_ht != bin_ht2-1 ) continue;
+         if ( !is_this_bin_excluded( bin_nj, bin_nb, bin_ht, bin_mht-1 ) ) return false;
+      }//bin_htmht
+   }//bin_nb
+
+   return true;
+
+}//is_this_Nj_HT_bin_excluded
+
+
+
+bool is_this_value_excluded   (int nj, int nb, double ht, double mht)
+{
+   int bi_htmht = find_htmht_bin_no(ht,mht);
+   int bi_nj    = find_njet_bin_no (nj);
+   int bi_nb    = find_nbjet_bin_no(nb);
+
+     
+   if ( bi_htmht < 0 ) return true;
+   if ( bi_nj    < 0 ) return true;
+   if ( bi_nb    < 0 ) return true;
+
+   return is_this_bin_excluded(
+      bi_nj-1,
+      bi_nb-1,
+      bi_htmht-1
+		  );
+
+}
+
 
 bool is_this_bin_excluded(int bin_no){
       int gbi(0) ;
@@ -234,12 +311,23 @@ bool is_this_bin_excluded(int bin_no){
 }  //is_this_bin_excluded
 
 
-void htmht_bin_to_ht_and_mht_bins(int bin_htmht, int& bin_ht, int& bin_mht)
+bool is_this_bin_excluded_nbsum(int bi_nj, int bi_ht, int bi_mht)
+{
+
+         bool bad_bin = 1;
+         for ( int bi_nb = 0; bi_nb < nb_nb; bi_nb++){
+            if ( !is_this_bin_excluded(bi_nj, bi_nb, bi_ht, bi_mht) ) bad_bin = 0;
+         }//tbi_nb
+         return bad_bin;
+
+}
+
+void translate_htmht_bin_to_ht_and_mht_bins(int bin_htmht, int& bin_ht, int& bin_mht)
 {
 
    if ( bin_htmht < 1 || bin_htmht > nb_htmht )
    {
-      std::cout << "Fatal error: ht_mht bin number out of range: " << bin_htmht << std::endl;
+      std::cout << "Function translate_htmht_bin_to_ht_and_mht_bins; Fatal error: ht_mht bin number out of range: " << bin_htmht << std::endl;
       gSystem -> Exit(-1) ;
    }
   
@@ -267,6 +355,8 @@ void htmht_bin_to_ht_and_mht_bins(int bin_htmht, int& bin_ht, int& bin_mht)
 
 void translate_ht_and_mht_bin_to_htmht_bins(int bin_ht, int bin_mht, int& bin_htmht)
 {
+
+   bin_htmht = -1;
 
    if ( bin_ht == 1 && bin_mht == 1 ) bin_htmht = 1;
    if ( bin_ht == 2 && bin_mht == 1 ) bin_htmht = 2;
@@ -300,7 +390,7 @@ void fill_gbi ()
          for ( int nbi=1; nbi<=nb_nb; nbi ++ ) {
             for ( int htmhti=1; htmhti<=nb_htmht; htmhti++ ) {
                int hti, mhti ;
-               htmht_bin_to_ht_and_mht_bins( htmhti, hti, mhti ) ;
+               translate_htmht_bin_to_ht_and_mht_bins( htmhti, hti, mhti ) ;
                bool excluded = is_this_bin_excluded( nji-1, nbi-1, hti-1, mhti-1 ) ;
                if ( !excluded ) {
                   gbi++ ;
@@ -312,7 +402,9 @@ void fill_gbi ()
                      gbi_search_bins[nji][nbi][htmhti] = gbi_no_mhtc ;
 		  }//if htmhti
 		  else                                   //else for if ( htmhti > 3 )
+		  {
                      gbi_search_bins[nji][nbi][htmhti] = -1 ;
+                  }
 
 	       } else {                                 // else for if ( !excluded ) {
                   gbi_with_mhtc[nji][nbi][htmhti] = -1 ;
@@ -330,9 +422,9 @@ int global_bin_with_mhtc ( int arg_nji, int arg_nbi, int arg_htmhti ) {
 
 //all variables start from one
  
-   if ( arg_nji    < 1 || arg_nji    > nb_nj    ) {std::cout << "Error: Njet argument out of range"   << std::endl; return -1; }
-   if ( arg_nbi    < 1 || arg_nbi    > nb_nb    ) {std::cout << "Error: Nbjet argument out of range"  << std::endl; return -1; }
-   if ( arg_htmhti < 1 || arg_htmhti > nb_htmht ) {std::cout << "Error: HT_MHT argument out of range" << std::endl; return -1; }
+   if ( arg_nji    < 1 || arg_nji    > nb_nj    ) {std::cout << "Function global_bin_with_mhtc; Fatal Error Njet argument out of range:"   << arg_nji    << std::endl; gSystem -> Exit(-1) ; }
+   if ( arg_nbi    < 1 || arg_nbi    > nb_nb    ) {std::cout << "Function global_bin_with_mhtc; Fatal Error Nbjet argument out of range:"  << arg_nbi    <<  std::endl; gSystem -> Exit(-1) ; }
+   if ( arg_htmhti < 1 || arg_htmhti > nb_htmht ) {std::cout << "Function global_bin_with_mhtc; Fatal Error HT_MHT argument out of range:" << arg_htmhti << std::endl; gSystem -> Exit(-1) ; }
 
 
    if ( !gbi_array_ready ) {
@@ -344,14 +436,126 @@ int global_bin_with_mhtc ( int arg_nji, int arg_nbi, int arg_htmhti ) {
 
 } // global_bin_with_mhtc
 
+int global_bin_only_mhtc ( int arg_nji, int arg_nbi, int arg_htmhti ) {
+
+//all variables start from one
+
+   if ( arg_nji    < 1 || arg_nji    > nb_nj    ) {std::cout << "Function global_bin_only_mhtc; Fatal Error Njet argument out of range:"   << arg_nji    << std::endl; gSystem -> Exit(-1) ; }
+   if ( arg_nbi    < 1 || arg_nbi    > nb_nb    ) {std::cout << "Function global_bin_only_mhtc; Fatal Error Nbjet argument out of range:"  << arg_nbi    << std::endl; gSystem -> Exit(-1) ; }
+   if ( arg_htmhti < 1 || arg_htmhti > nb_htmht ) {std::cout << "Function global_bin_only_mhtc; Fatal Error HT_MHT argument out of range:" << arg_htmhti << std::endl; gSystem -> Exit(-1) ; }
+
+   int gbi = 0 ;
+
+   for ( int nji=1; nji<=nb_nj; nji++ ) {
+      for ( int nbi=1; nbi<=nb_nb; nbi++ ) {
+         for ( int htmhti=1; htmhti<=nBinsHT; htmhti++ ) {
+            if ( is_this_bin_excluded (nji-1, nbi-1, htmhti-1) ) continue;
+   		gbi++;
+                if ( nji == arg_nji && nbi == arg_nbi && htmhti == arg_htmhti ) return gbi;
+        }//htmhti
+      }//nbi
+   }//nji
+	    return -1;
+
+
+
+} // global_bin_only_mhtc
+
+
+int global_bin_with_mhtc ( int arg_nji, int arg_nbi, int arg_ht, int arg_mht ) {
+
+//all variables start from one
+   int arg_htmht;
+   translate_ht_and_mht_bin_to_htmht_bins ( arg_ht, arg_mht , arg_htmht ); 
+   return global_bin_with_mhtc(arg_nji, arg_nbi, arg_htmht )  ;
+
+} // global_bin_with_mhtc
+
+
+int global_bin_with_mhtc_sum_nb ( int arg_nji, int arg_htmhti ) {
+
+//all variables start from one
+
+   if ( arg_nji    < 1 || arg_nji    > nb_nj    ) {std::cout << "Function global_bin_with_mhtc_sum_nb; Fatal Error Njet argument out of range:"   << arg_nji    << std::endl; gSystem -> Exit(-1) ; }
+   if ( arg_htmhti < 1 || arg_htmhti > nb_htmht ) {std::cout << "Function global_bin_with_mhtc_sum_nb; Fatal Error HT_MHT argument out of range:" << arg_htmhti << std::endl; gSystem -> Exit(-1) ; }
+
+   int gbi_nb_sum = 0 ;
+
+   for ( int nji=1; nji<=nb_nj; nji++ ) {
+      for ( int htmhti=1; htmhti<=nb_htmht; htmhti++ ) {
+         int hti, mhti;
+         if ( is_this_bin_excluded_nbsum (nji-1, hti-1, htmhti-1) ) continue;
+         gbi_nb_sum++;
+         if ( nji == arg_nji && htmhti == arg_htmhti ) return gbi_nb_sum;
+      }//htmhti
+   }//nji
+   return -1;
+
+} // global_bin_with_mhtc
+
+int global_bin_with_mhtc_nb ( int arg_nji, int arg_nbi, int arg_htmhti ) {
+
+//all variables start from one
+
+   if ( arg_nji    < 1 || arg_nji    > nb_nj    ) {std::cout << "Function global_bin_with_mhtc_nb; Fatal Error Njet argument out of range:"   << arg_nji    << std::endl; gSystem -> Exit(-1) ; }
+   if ( arg_nbi    < 1 || arg_nbi    > nb_nb    ) {std::cout << "Function global_bin_with_mhtc_nb; Fatal Error Nbjet argument out of range:"   << arg_nbi    << std::endl; gSystem -> Exit(-1) ; }
+   if ( arg_htmhti < 1 || arg_htmhti > nb_htmht ) {std::cout << "Function global_bin_with_mhtc_nb; Fatal Error HT_MHT argument out of range:" << arg_htmhti << std::endl; gSystem -> Exit(-1) ; }
+
+   int gbi_nb = 0 ;
+
+   for ( int nji=1; nji<=nb_nj; nji++ ) {
+      for ( int htmhti=1; htmhti<=nb_htmht; htmhti++ ) {
+         int hti, mhti;
+         if ( is_this_bin_excluded (nji-1, arg_nbi-1, htmhti-1) ) continue;
+         gbi_nb++;
+         if ( nji == arg_nji && htmhti == arg_htmhti ) return gbi_nb;
+      }//htmhti
+   }//nji
+   return -1;
+
+} // global_bin_with_mhtc
+
+
+int global_bin_only_mhtc_sum_nb ( int arg_nji, int arg_htmhti ) {
+
+//all variables start from one
+
+   if ( arg_nji    < 1 || arg_nji    > nb_nj    ) {std::cout << "Function global_bin_only_mhtc_sum_nb; Fatal Error Njet argument out of range: "   << arg_nji    << std::endl; gSystem -> Exit(-1) ; }
+   if ( arg_htmhti < 1 || arg_htmhti > nb_htmht ) {std::cout << "Function global_bin_only_mhtc_sum_nb; Fatal Error HT_MHT argument out of range: " << arg_htmhti << std::endl; gSystem -> Exit(-1) ; }
+
+   int gbi_nb_sum = 0 ;
+
+   for ( int nji=1; nji<=nb_nj; nji++ ) {
+      for ( int htmhti=1; htmhti<=nBinsHT; htmhti++ ) {
+            int hti, mhti;
+            translate_htmht_bin_to_ht_and_mht_bins ( htmhti, hti, mhti ) ;
+            if ( is_this_bin_excluded_nbsum (nji-1, hti-1, mhti-1) ) continue;
+            gbi_nb_sum++;
+            if ( nji == arg_nji && htmhti == arg_htmhti ) return gbi_nb_sum;
+      }//htmhti
+   }//nji
+   return -1;
+
+} // global_bin_with_mhtc
+
+
+int global_bin_with_mhtc_sum_nb ( int arg_nji, int arg_ht, int arg_mht ) {
+
+//all variables start from one
+   int arg_htmht;
+   translate_ht_and_mht_bin_to_htmht_bins ( arg_ht, arg_mht , arg_htmht );
+   return global_bin_with_mhtc_sum_nb(arg_nji, arg_htmht )  ;
+
+} // global_bin_with_mhtc
+
 
 int global_search_bin ( int arg_nji, int arg_nbi, int arg_htmhti ) {
 
 //all variables start from one
 
-   if ( arg_nji    < 1 || arg_nji    > nb_nj    ) {std::cout << "Error: Njet argument out of range"   << std::endl; return -1; }
-   if ( arg_nbi    < 1 || arg_nbi    > nb_nb    ) {std::cout << "Error: Nbjet argument out of range"  << std::endl; return -1; }
-   if ( arg_htmhti < 1 || arg_htmhti > nb_htmht ) {std::cout << "Error: HT_MHT argument out of range" << std::endl; return -1; }
+   if ( arg_nji    < 1 || arg_nji    > nb_nj    ) {std::cout << "Function global_search_bin; Fatal Error Njet argument out of range: "   << arg_nji    << std::endl; gSystem -> Exit(-1) ; }
+   if ( arg_nbi    < 1 || arg_nbi    > nb_nb    ) {std::cout << "Function global_search_bin; Fatal Error Nbjet argument out of range: "  << arg_nbi    << std::endl; gSystem -> Exit(-1) ; }
+   if ( arg_htmhti < 1 || arg_htmhti > nb_htmht ) {std::cout << "Function global_search_bin; Fatal Error HT_MHT argument out of range: " << arg_htmhti << std::endl; gSystem -> Exit(-1) ; }
 
 
    if ( !gbi_array_ready ) {
@@ -360,14 +564,14 @@ int global_search_bin ( int arg_nji, int arg_nbi, int arg_htmhti ) {
    }
    return gbi_search_bins[arg_nji][arg_nbi][arg_htmhti] ;
 
-} // global_bin_with_mhtc
+} // global_search_bin
 
 
 
 bool translate_search_bin_to_nj_nb_ht_mht( int search_bin_no, int& arg_nj, int& arg_nb, int& arg_ht, int& arg_mht )
 {
 
-   if ( search_bin_no < 1 || search_bin_no > nb_global_after_exclusion ) {std::cout << "Error: Search bin index out of range" << std::endl; return -1; }
+   if ( search_bin_no < 1 || search_bin_no > nb_global_after_exclusion ) {std::cout << "Function translate_search_bin_to_nj_nb_ht_mht; Fatal Error Search bin index out of range: " << std::endl; gSystem -> Exit(-1) ; }
 
    for ( int nji=1; nji<=nb_nj; nji++ )
    {
@@ -379,7 +583,7 @@ bool translate_search_bin_to_nj_nb_ht_mht( int search_bin_no, int& arg_nj, int& 
             {
                arg_nj = nji;
                arg_nb = nbi;
-               htmht_bin_to_ht_and_mht_bins(htmhti,arg_ht,arg_mht);
+               translate_htmht_bin_to_ht_and_mht_bins(htmhti,arg_ht,arg_mht);
                return 1; //successfully found the bin
             }
          }//htmhti
@@ -398,7 +602,7 @@ bool translate_search_bin_to_nj_nb_ht_mht( int search_bin_no, int& arg_nj, int& 
 bool translate_qcd_bin_to_nj_nb_ht_mht( int qcd_bin_no, int& arg_nj, int& arg_nb, int& arg_ht, int& arg_mht )
 {
 
-   if ( qcd_bin_no < 1 || qcd_bin_no > nb_global_w_exclusion_w_mhtc ) {std::cout << "Error: QCD bin index out of range" << std::endl; return -1; }
+   if ( qcd_bin_no < 1 || qcd_bin_no > nb_global_w_exclusion_w_mhtc ) {std::cout << "Function translate_qcd_bin_to_nj_nb_ht_mht; Fatal Error QCD bin index out of range: " << qcd_bin_no << std::endl; gSystem -> Exit(-1) ; }
 
    for ( int nji=1; nji<=nb_nj; nji++ )
    {
@@ -410,7 +614,7 @@ bool translate_qcd_bin_to_nj_nb_ht_mht( int qcd_bin_no, int& arg_nj, int& arg_nb
             {
                arg_nj = nji;
                arg_nb = nbi;
-               htmht_bin_to_ht_and_mht_bins(htmhti,arg_ht,arg_mht);
+               translate_htmht_bin_to_ht_and_mht_bins(htmhti,arg_ht,arg_mht);
                return 1; //successfully found the bin
             }
          } //htmhti
@@ -429,7 +633,7 @@ bool translate_qcd_bin_to_nj_nb_ht_mht( int qcd_bin_no, int& arg_nj, int& arg_nb
 int translate_qcd_bin_to_search_bin ( int qcd_bin_no )
 {
 
-   if ( qcd_bin_no < 1 || qcd_bin_no > nb_global_w_exclusion_w_mhtc ) {std::cout << "Error: QCD bin index out of range" << std::endl; return -1; }
+   if ( qcd_bin_no < 1 || qcd_bin_no > nb_global_w_exclusion_w_mhtc ) {std::cout << "Function translate_qcd_bin_to_search_bin; Fatal Error QCD bin index out of range: " << qcd_bin_no << std::endl; gSystem -> Exit(-1) ; }
 
    int bi_nj, bi_nb, bi_ht, bi_mht, bi_htmht; 
    translate_qcd_bin_to_nj_nb_ht_mht(qcd_bin_no, bi_nj, bi_nb, bi_ht, bi_mht);
@@ -440,5 +644,53 @@ int translate_qcd_bin_to_search_bin ( int qcd_bin_no )
 
 }
 
+int find_htmht_bin_no( double ht, double mht )
+{	
+   int bi_ht, bi_mht ;
+   for ( int bi_htmht = 1; bi_htmht <= nb_htmht; bi_htmht++ )
+   {
+      translate_htmht_bin_to_ht_and_mht_bins( bi_htmht, bi_ht, bi_mht);
+      if ( bi_mht > 3 ) bi_ht--;  //because 
+      if ( bin_edges_mht[bi_mht-1] <= mht && mht <= bin_edges_mht[bi_mht] ) 
+      {
+         if ( bin_edges_ht[bi_mht][bi_ht-1] <= ht && ht <= bin_edges_ht[bi_mht][bi_ht] ) 
+	 {
+            return bi_htmht;
+	 }
+      }
+   }//bi_htmht
+   return -99;
+
+}//find_htmht_bin_no
+
+
+int find_njet_bin_no ( int njet )
+{
+   
+   for ( int bi_nj = 0; bi_nj < nb_nj; bi_nj++)
+   {
+
+      if ( bin_edges_nj[bi_nj] < njet && njet < bin_edges_nj[bi_nj+1] )
+         return bi_nj+1;
+   }//bi_nj
+
+   return -1;
+
+}//find_njet_bin_no
+
+
+int find_nbjet_bin_no( int nbjet )
+{
+
+   for ( int bi_nb = 0; bi_nb < nb_nb; bi_nb++)
+   {
+
+      if ( bin_edges_nb[bi_nb] < nbjet && nbjet < bin_edges_nb[bi_nb+1] )
+         return bi_nb+1;
+   }//bi_nb
+
+   return -1;
+
+}//find_nbjet_bin_no
 
 #endif

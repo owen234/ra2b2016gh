@@ -47,7 +47,7 @@
       double nonqcd_val_hdp[10][10] ;
       double nonqcd_err_hdp[10][10] ;
 
-      TH1F* h_ratio = new TH1F( "h_ratio", "H/L ratio", nBinsHT * nb_nj, 0.5, nBinsHT * nb_nj + 0.5 ) ;
+      TH1F* h_ratio = new TH1F( "h_ratio", "H/L ratio", no_bin_nj_ht_w_excludion_w_mhtc, 0.5, no_bin_nj_ht_w_excludion_w_mhtc + 0.5 ) ;
 
       TH1F* h_ldp_lostlep = new TH1F( "h_ldp_lostlep", "ldp, lostlep", nBinsHT * nb_nj, 0.5, nBinsHT * nb_nj + 0.5 ) ;
       TH1F* h_ldp_hadtau = new TH1F( "h_ldp_hadtau", "ldp, hadtau", nBinsHT * nb_nj, 0.5, nBinsHT * nb_nj + 0.5 ) ;
@@ -66,139 +66,142 @@
       for ( int bi_ht=1; bi_ht<=nBinsHT; bi_ht++ ) {
          for ( int bi_nj=1; bi_nj<=nb_nj; bi_nj++ ) {
 
-               bi_hist ++ ;
+            TString line ;
+///// Next few lines should be changed the next time we have inputs from other background teams 
+            if ( is_this_Nj_HT_bin_excluded ( bi_nj-1 , bi_ht-1 ) )  
+	    {
+//               line.ReadLine( ifs_data ) ;
+               line.ReadLine( ifs_lostlep ) ;
+               line.ReadLine( ifs_hadtau ) ;
+               line.ReadLine( ifs_znunu ) ;
+               continue;
+	    }//is_this_Nj_HT_bin_excluded?
+            bi_hist ++ ;
 
-               TString line ;
-               int global_bi, region_bi ;
-               char region_tag[5] ;
-               char label[100] ;
-               int r_nobs_ldp, r_nobs_hdp ;
-               float nbg_ldp_val, nbg_ldp_stat, nbg_ldp_syst ;
-               float nbg_hdp_val, nbg_hdp_stat, nbg_hdp_syst ;
+            int global_bi, region_bi ;
+            char region_tag[5] ;
+            char label[100] ;
+            int r_nobs_ldp, r_nobs_hdp ;
+            float nbg_ldp_val, nbg_ldp_stat, nbg_ldp_syst ;
+            float nbg_hdp_val, nbg_hdp_stat, nbg_hdp_syst ;
 
 
-              //-------
-               line.ReadLine( ifs_data ) ;
-               sscanf( line.Data(), "%s  %d  %d", label, &r_nobs_ldp, &r_nobs_hdp ) ;
-               printf( "  Data    :   %s  Nldp = %5d ,                        Nhdp = %5d\n",
+            //-------
+            line.ReadLine( ifs_data ) ;
+            sscanf( line.Data(), "%s  %d  %d", label, &r_nobs_ldp, &r_nobs_hdp ) ;
+            printf( "  Data    :   %s  Nldp = %5d ,                        Nhdp = %5d\n",
                     label, r_nobs_ldp, r_nobs_hdp ) ;
 
-               nobs_ldp[bi_ht][bi_nj] = r_nobs_ldp ;
-               nobs_hdp[bi_ht][bi_nj] = r_nobs_hdp ;
+            nobs_ldp[bi_ht][bi_nj] = r_nobs_ldp ;
+            nobs_hdp[bi_ht][bi_nj] = r_nobs_hdp ;
 
-               h_ldp_data -> SetBinContent( bi_hist, r_nobs_ldp ) ;
-               h_ldp_data -> GetXaxis() -> SetBinLabel( bi_hist, label ) ;
+            h_ldp_data -> SetBinContent( bi_hist, r_nobs_ldp ) ;
+            h_ldp_data -> GetXaxis() -> SetBinLabel( bi_hist, label ) ;
 
-               h_hdp_data -> SetBinContent( bi_hist, r_nobs_hdp ) ;
-               h_hdp_data -> GetXaxis() -> SetBinLabel( bi_hist, label ) ;
-
-
-               double total_bg_ldp_val = 0. ;
-               double total_bg_ldp_err2 = 0. ;
-
-               double total_bg_hdp_val = 0. ;
-               double total_bg_hdp_err2 = 0. ;
-
-              //-------
-               line.ReadLine( ifs_lostlep ) ;
-               sscanf( line.Data(), "%s  %f +/- %f +/- %f    %f +/- %f +/- %f",
-                    label,  &nbg_ldp_val, &nbg_ldp_stat, &nbg_ldp_syst,  &nbg_hdp_val, &nbg_hdp_stat, &nbg_hdp_syst ) ;
-               printf( "  Lostlep :   %s  Nldp = %7.1f +/- %5.1f +/- %5.1f ,  Nhdp = %7.1f +/- %5.1f +/- %5.1f\n",
-                    label, nbg_ldp_val, nbg_ldp_stat, nbg_ldp_syst,  nbg_hdp_val, nbg_hdp_stat, nbg_hdp_syst ) ;
-
-               total_bg_ldp_val += nbg_ldp_val ;
-               total_bg_hdp_val += nbg_hdp_val ;
-               total_bg_ldp_err2 += pow( nbg_ldp_stat, 2. ) + pow( nbg_ldp_syst, 2. ) ;
-               total_bg_hdp_err2 += pow( nbg_hdp_stat, 2. ) + pow( nbg_hdp_syst, 2. ) ;
-
-               h_ldp_lostlep -> SetBinContent( bi_hist, nbg_ldp_val ) ;
-               h_ldp_lostlep -> SetBinError( bi_hist, sqrt( pow( nbg_ldp_stat, 2. ) + pow( nbg_ldp_syst, 2. ) ) ) ;
-               h_ldp_lostlep -> GetXaxis() -> SetBinLabel( bi_hist, label ) ;
-
-               h_hdp_lostlep -> SetBinContent( bi_hist, nbg_hdp_val ) ;
-               h_hdp_lostlep -> SetBinError( bi_hist, sqrt( pow( nbg_hdp_stat, 2. ) + pow( nbg_hdp_syst, 2. ) ) ) ;
-               h_hdp_lostlep -> GetXaxis() -> SetBinLabel( bi_hist, label ) ;
-
-              //-------
-               line.ReadLine( ifs_hadtau ) ;
-               sscanf( line.Data(), "%s  %f +/- %f +/- %f    %f +/- %f +/- %f",
-                    label,  &nbg_ldp_val, &nbg_ldp_stat, &nbg_ldp_syst,  &nbg_hdp_val, &nbg_hdp_stat, &nbg_hdp_syst ) ;
-               printf( "  Hadtau  :   %s  Nldp = %7.1f +/- %5.1f +/- %5.1f ,  Nhdp = %7.1f +/- %5.1f +/- %5.1f\n",
-                    label, nbg_ldp_val, nbg_ldp_stat, nbg_ldp_syst,  nbg_hdp_val, nbg_hdp_stat, nbg_hdp_syst ) ;
-
-               total_bg_ldp_val += nbg_ldp_val ;
-               total_bg_hdp_val += nbg_hdp_val ;
-               total_bg_ldp_err2 += pow( nbg_ldp_stat, 2. ) + pow( nbg_ldp_syst, 2. ) ;
-               total_bg_hdp_err2 += pow( nbg_hdp_stat, 2. ) + pow( nbg_hdp_syst, 2. ) ;
-
-               h_ldp_hadtau -> SetBinContent( bi_hist, nbg_ldp_val ) ;
-               h_ldp_hadtau -> SetBinError( bi_hist, sqrt( pow( nbg_ldp_stat, 2. ) + pow( nbg_ldp_syst, 2. ) ) ) ;
-               h_ldp_hadtau -> GetXaxis() -> SetBinLabel( bi_hist, label ) ;
-
-               h_hdp_hadtau -> SetBinContent( bi_hist, nbg_hdp_val ) ;
-               h_hdp_hadtau -> SetBinError( bi_hist, sqrt( pow( nbg_hdp_stat, 2. ) + pow( nbg_hdp_syst, 2. ) ) ) ;
-               h_hdp_hadtau -> GetXaxis() -> SetBinLabel( bi_hist, label ) ;
-
-              //-------
-               line.ReadLine( ifs_znunu ) ;
-               sscanf( line.Data(), "%s  %f +/- %f +/- %f    %f +/- %f +/- %f",
-                    label,  &nbg_ldp_val, &nbg_ldp_stat, &nbg_ldp_syst,  &nbg_hdp_val, &nbg_hdp_stat, &nbg_hdp_syst ) ;
-               printf( "  Znunu   :   %s  Nldp = %7.1f +/- %5.1f +/- %5.1f ,  Nhdp = %7.1f +/- %5.1f +/- %5.1f\n",
-                    label, nbg_ldp_val, nbg_ldp_stat, nbg_ldp_syst,  nbg_hdp_val, nbg_hdp_stat, nbg_hdp_syst ) ;
-
-               total_bg_ldp_val += nbg_ldp_val ;
-               total_bg_hdp_val += nbg_hdp_val ;
-               total_bg_ldp_err2 += pow( nbg_ldp_stat, 2. ) + pow( nbg_ldp_syst, 2. ) ;
-               total_bg_hdp_err2 += pow( nbg_hdp_stat, 2. ) + pow( nbg_hdp_syst, 2. ) ;
-
-               h_ldp_znunu -> SetBinContent( bi_hist, nbg_ldp_val ) ;
-               h_ldp_znunu -> SetBinError( bi_hist, sqrt( pow( nbg_ldp_stat, 2. ) + pow( nbg_ldp_syst, 2. ) ) ) ;
-               h_ldp_znunu -> GetXaxis() -> SetBinLabel( bi_hist, label ) ;
-
-               h_hdp_znunu -> SetBinContent( bi_hist, nbg_hdp_val ) ;
-               h_hdp_znunu -> SetBinError( bi_hist, sqrt( pow( nbg_hdp_stat, 2. ) + pow( nbg_hdp_syst, 2. ) ) ) ;
-               h_hdp_znunu -> GetXaxis() -> SetBinLabel( bi_hist, label ) ;
+            h_hdp_data -> SetBinContent( bi_hist, r_nobs_hdp ) ;
+            h_hdp_data -> GetXaxis() -> SetBinLabel( bi_hist, label ) ;
 
 
-               double total_bg_ldp_err = sqrt( total_bg_ldp_err2 ) ;
-               double total_bg_hdp_err = sqrt( total_bg_hdp_err2 ) ;
+            double total_bg_ldp_val = 0. ;
+            double total_bg_ldp_err2 = 0. ;
 
-               printf( " total BG :   %s  Nldp = %7.1f +/- %5.1f           ,  Nhdp = %7.1f +/- %5.1f          \n",
-                   label, total_bg_ldp_val, total_bg_ldp_err,   total_bg_hdp_val, total_bg_hdp_err ) ;
+            double total_bg_hdp_val = 0. ;
+            double total_bg_hdp_err2 = 0. ;
 
-               double qcd_ldp_val = r_nobs_ldp - total_bg_ldp_val ;
-               double qcd_ldp_err = sqrt( r_nobs_ldp + total_bg_ldp_err*total_bg_ldp_err ) ;
+            //-------
+            line.ReadLine( ifs_lostlep ) ;
+            sscanf( line.Data(), "%s  %f +/- %f +/- %f    %f +/- %f +/- %f",
+                 label,  &nbg_ldp_val, &nbg_ldp_stat, &nbg_ldp_syst,  &nbg_hdp_val, &nbg_hdp_stat, &nbg_hdp_syst ) ;
+            printf( "  Lostlep :   %s  Nldp = %7.1f +/- %5.1f +/- %5.1f ,  Nhdp = %7.1f +/- %5.1f +/- %5.1f\n",
+                 label, nbg_ldp_val, nbg_ldp_stat, nbg_ldp_syst,  nbg_hdp_val, nbg_hdp_stat, nbg_hdp_syst ) ;
 
-               double qcd_hdp_val = r_nobs_hdp - total_bg_hdp_val ;
-               double qcd_hdp_err = sqrt( r_nobs_hdp + total_bg_hdp_err*total_bg_hdp_err ) ;
-               double qcd_hdp_rel_err(0.) ;
-               if ( qcd_hdp_val > 0 ) qcd_hdp_rel_err = qcd_hdp_err / qcd_hdp_val ;
+            total_bg_ldp_val += nbg_ldp_val ;
+            total_bg_hdp_val += nbg_hdp_val ;
+            total_bg_ldp_err2 += pow( nbg_ldp_stat, 2. ) + pow( nbg_ldp_syst, 2. ) ;
+            total_bg_hdp_err2 += pow( nbg_hdp_stat, 2. ) + pow( nbg_hdp_syst, 2. ) ;
 
-               double ratio_val(0.) ;
-               double ratio_err(0.) ;
-               double ratio_rel_err(0.) ;
-               if ( qcd_ldp_val != 0 ) {
-                  ratio_val = qcd_hdp_val / qcd_ldp_val ;
-                  if ( qcd_hdp_val != 0 ) {
-                     ratio_err = fabs(ratio_val) * sqrt( pow( qcd_ldp_err/qcd_ldp_val, 2.) + pow( qcd_hdp_err/qcd_hdp_val, 2. ) ) ;
-                     ratio_rel_err = ratio_err / ratio_val ;
-                  }
+            h_ldp_lostlep -> SetBinContent( bi_hist, nbg_ldp_val ) ;
+            h_ldp_lostlep -> SetBinError( bi_hist, sqrt( pow( nbg_ldp_stat, 2. ) + pow( nbg_ldp_syst, 2. ) ) ) ;
+            h_ldp_lostlep -> GetXaxis() -> SetBinLabel( bi_hist, label ) ;
+
+            h_hdp_lostlep -> SetBinContent( bi_hist, nbg_hdp_val ) ;
+            h_hdp_lostlep -> SetBinError( bi_hist, sqrt( pow( nbg_hdp_stat, 2. ) + pow( nbg_hdp_syst, 2. ) ) ) ;
+            h_hdp_lostlep -> GetXaxis() -> SetBinLabel( bi_hist, label ) ;
+
+            //-------
+            line.ReadLine( ifs_hadtau ) ;
+            sscanf( line.Data(), "%s  %f +/- %f +/- %f    %f +/- %f +/- %f",
+                 label,  &nbg_ldp_val, &nbg_ldp_stat, &nbg_ldp_syst,  &nbg_hdp_val, &nbg_hdp_stat, &nbg_hdp_syst ) ;
+            printf( "  Hadtau  :   %s  Nldp = %7.1f +/- %5.1f +/- %5.1f ,  Nhdp = %7.1f +/- %5.1f +/- %5.1f\n",
+                 label, nbg_ldp_val, nbg_ldp_stat, nbg_ldp_syst,  nbg_hdp_val, nbg_hdp_stat, nbg_hdp_syst ) ;
+
+            total_bg_ldp_val += nbg_ldp_val ;
+            total_bg_hdp_val += nbg_hdp_val ;
+            total_bg_ldp_err2 += pow( nbg_ldp_stat, 2. ) + pow( nbg_ldp_syst, 2. ) ;
+            total_bg_hdp_err2 += pow( nbg_hdp_stat, 2. ) + pow( nbg_hdp_syst, 2. ) ;
+
+            h_ldp_hadtau -> SetBinContent( bi_hist, nbg_ldp_val ) ;
+            h_ldp_hadtau -> SetBinError( bi_hist, sqrt( pow( nbg_ldp_stat, 2. ) + pow( nbg_ldp_syst, 2. ) ) ) ;
+            h_ldp_hadtau -> GetXaxis() -> SetBinLabel( bi_hist, label ) ;
+
+            h_hdp_hadtau -> SetBinContent( bi_hist, nbg_hdp_val ) ;
+            h_hdp_hadtau -> SetBinError( bi_hist, sqrt( pow( nbg_hdp_stat, 2. ) + pow( nbg_hdp_syst, 2. ) ) ) ;
+            h_hdp_hadtau -> GetXaxis() -> SetBinLabel( bi_hist, label ) ;
+
+            //-------
+            line.ReadLine( ifs_znunu ) ;
+            sscanf( line.Data(), "%s  %f +/- %f +/- %f    %f +/- %f +/- %f",
+                 label,  &nbg_ldp_val, &nbg_ldp_stat, &nbg_ldp_syst,  &nbg_hdp_val, &nbg_hdp_stat, &nbg_hdp_syst ) ;
+            printf( "  Znunu   :   %s  Nldp = %7.1f +/- %5.1f +/- %5.1f ,  Nhdp = %7.1f +/- %5.1f +/- %5.1f\n",
+                 label, nbg_ldp_val, nbg_ldp_stat, nbg_ldp_syst,  nbg_hdp_val, nbg_hdp_stat, nbg_hdp_syst ) ;
+
+            total_bg_ldp_val += nbg_ldp_val ;
+            total_bg_hdp_val += nbg_hdp_val ;
+            total_bg_ldp_err2 += pow( nbg_ldp_stat, 2. ) + pow( nbg_ldp_syst, 2. ) ;
+            total_bg_hdp_err2 += pow( nbg_hdp_stat, 2. ) + pow( nbg_hdp_syst, 2. ) ;
+
+            h_ldp_znunu -> SetBinContent( bi_hist, nbg_ldp_val ) ;
+            h_ldp_znunu -> SetBinError( bi_hist, sqrt( pow( nbg_ldp_stat, 2. ) + pow( nbg_ldp_syst, 2. ) ) ) ;
+            h_ldp_znunu -> GetXaxis() -> SetBinLabel( bi_hist, label ) ;
+
+            h_hdp_znunu -> SetBinContent( bi_hist, nbg_hdp_val ) ;
+            h_hdp_znunu -> SetBinError( bi_hist, sqrt( pow( nbg_hdp_stat, 2. ) + pow( nbg_hdp_syst, 2. ) ) ) ;
+            h_hdp_znunu -> GetXaxis() -> SetBinLabel( bi_hist, label ) ;
+
+
+            double total_bg_ldp_err = sqrt( total_bg_ldp_err2 ) ;
+            double total_bg_hdp_err = sqrt( total_bg_hdp_err2 ) ;
+
+            printf( " total BG :   %s  Nldp = %7.1f +/- %5.1f           ,  Nhdp = %7.1f +/- %5.1f          \n",
+                label, total_bg_ldp_val, total_bg_ldp_err,   total_bg_hdp_val, total_bg_hdp_err ) ;
+
+            double qcd_ldp_val = r_nobs_ldp - total_bg_ldp_val ;
+            double qcd_ldp_err = sqrt( r_nobs_ldp + total_bg_ldp_err*total_bg_ldp_err ) ;
+
+            double qcd_hdp_val = r_nobs_hdp - total_bg_hdp_val ;
+            double qcd_hdp_err = sqrt( r_nobs_hdp + total_bg_hdp_err*total_bg_hdp_err ) ;
+	    double qcd_hdp_rel_err(0.) ;
+            if ( qcd_hdp_val > 0 ) qcd_hdp_rel_err = qcd_hdp_err / qcd_hdp_val ;
+
+            double ratio_val(0.) ;
+            double ratio_err(0.) ;
+            double ratio_rel_err(0.) ;
+            if ( qcd_ldp_val != 0 ) {
+               ratio_val = qcd_hdp_val / qcd_ldp_val ;
+               if ( qcd_hdp_val != 0 ) {
+                  ratio_err = fabs(ratio_val) * sqrt( pow( qcd_ldp_err/qcd_ldp_val, 2.) + pow( qcd_hdp_err/qcd_hdp_val, 2. ) ) ;
+                  ratio_rel_err = ratio_err / ratio_val ;
                }
+            }
 
-               printf( " QCD      :   %s  Nldp = %7.1f +/- %5.1f           ,  Nhdp = %7.1f +/- %5.1f  (%6.3f)      R(H/L) = %6.3f +/- %6.3f  (%6.3f)\n",
-                   label, qcd_ldp_val, qcd_ldp_err,   qcd_hdp_val, qcd_hdp_err, qcd_hdp_rel_err,    ratio_val, ratio_err, ratio_rel_err ) ;
+            printf( " QCD      :   %s  Nldp = %7.1f +/- %5.1f           ,  Nhdp = %7.1f +/- %5.1f  (%6.3f)      R(H/L) = %6.3f +/- %6.3f  (%6.3f)\n",
+                label, qcd_ldp_val, qcd_ldp_err,   qcd_hdp_val, qcd_hdp_err, qcd_hdp_rel_err,    ratio_val, ratio_err, ratio_rel_err ) ;
 
-               printf("\n") ;
+            printf("\n") ;
 
-               if ( !(bi_ht==1 && bi_nj>nb_nj-2) ) {  // skip top two njets bins for lowest HT
-                  h_ratio -> SetBinContent( bi_hist, ratio_val ) ;
-                  h_ratio -> SetBinError( bi_hist, ratio_err ) ;
-               } else {
-                  h_ratio -> SetBinContent( bi_hist, -9 ) ;
-                  h_ratio -> SetBinError( bi_hist, 0. ) ;
-               }
-               h_ratio -> GetXaxis() -> SetBinLabel( bi_hist, label ) ;
-
+	    h_ratio -> SetBinContent( bi_hist, ratio_val ) ;
+            h_ratio -> SetBinError( bi_hist, ratio_err ) ;
+            h_ratio -> GetXaxis() -> SetBinLabel( bi_hist, label ) ;
 
          } // bi_nj
       } // bi_ht
