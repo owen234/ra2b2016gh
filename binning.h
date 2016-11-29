@@ -398,7 +398,7 @@ bool translate_search_bin_to_nj_nb_ht_mht( int search_bin_no, int& arg_nj, int& 
 bool translate_qcd_bin_to_nj_nb_ht_mht( int qcd_bin_no, int& arg_nj, int& arg_nb, int& arg_ht, int& arg_mht )
 {
 
-   if ( qcd_bin_no < 1 || qcd_bin_no > nb_global_w_exclusion_w_mhtc ) {std::cout << "Error: QCD bin index out of range" << std::endl; return -1; }
+   if ( qcd_bin_no < 1 || qcd_bin_no > nb_global_w_exclusion_w_mhtc ) {std::cout << "Error1: QCD bin index out of range : qcd_bin_no=" << qcd_bin_no << std::endl; return -1; }
 
    for ( int nji=1; nji<=nb_nj; nji++ )
    {
@@ -429,7 +429,7 @@ bool translate_qcd_bin_to_nj_nb_ht_mht( int qcd_bin_no, int& arg_nj, int& arg_nb
 int translate_qcd_bin_to_search_bin ( int qcd_bin_no )
 {
 
-   if ( qcd_bin_no < 1 || qcd_bin_no > nb_global_w_exclusion_w_mhtc ) {std::cout << "Error: QCD bin index out of range" << std::endl; return -1; }
+   if ( qcd_bin_no < 1 || qcd_bin_no > nb_global_w_exclusion_w_mhtc ) {std::cout << "Error2: QCD bin index out of range : qcd_bin_no=" << qcd_bin_no << std::endl; return -1; }
 
    int bi_nj, bi_nb, bi_ht, bi_mht, bi_htmht; 
    translate_qcd_bin_to_nj_nb_ht_mht(qcd_bin_no, bi_nj, bi_nb, bi_ht, bi_mht);
