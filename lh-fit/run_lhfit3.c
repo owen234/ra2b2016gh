@@ -68,12 +68,12 @@
 
   //---------------
 
-   void run_lhfit1( const char* wsfile = "outputfiles/ws-lhfit-test3.root",
+   void run_lhfit3( const char* wsfile = "outputfiles/ws-lhfit3.root",
                        float fixed_sig_strength = 0.,
                        bool make_all_plots = true,
                        bool fix_nuisance_pars = false,
                        bool fix_bg_mu_pars = false,
-                       const char* qcd_mc_file = "../outputfiles/nbsum-input-qcd.txt"
+                       const char* qcd_mc_file = ""
                       ) {
 
       setup_bins() ;
@@ -1150,7 +1150,7 @@
       saveHist( hist_file, "h*" ) ;
 
 
-   } // run_lhfit1
+   } // run_lhfit3
 
   //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 

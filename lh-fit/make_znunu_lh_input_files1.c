@@ -16,6 +16,8 @@
                                ) {
       setup_bins();
 
+      gSystem -> Exec( "mkdir -p outputfiles" ) ;
+
       double trig_eff[6] = {0., 0.982, 0.985, 0.995, 1.00, 1.00 } ; // inclusive MET trig eff, index 1 = MHTC.
                                                                     // see email from Aditee on Nov 3, 2016.
 

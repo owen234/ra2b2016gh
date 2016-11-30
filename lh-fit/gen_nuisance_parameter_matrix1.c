@@ -52,10 +52,10 @@
 
   //---------
 
-   void gen_nuisance_parameter_matrix1( const char* infile = "outputfiles/lhfit-results-ws-lhfit-test3/kqcd-parameter-fit-covmat.txt",
+   void gen_nuisance_parameter_matrix1( const char* infile = "outputfiles/lhfit-results-ws-lhfit3/kqcd-parameter-fit-covmat.txt",
                                         const char* outfile = "outputfiles/nuisance-parameter-matrix.txt",
                                         const char* outfile_simple = "outputfiles/nuisance-parameter-matrix-simple.txt",
-                                        const char* wsfile = "outputfiles/ws-lhfit-test3.root" ) {
+                                        const char* wsfile = "outputfiles/ws-lhfit3.root" ) {
 
       gDirectory -> Delete( "h*" ) ;
 

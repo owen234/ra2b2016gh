@@ -48,14 +48,13 @@
   //=================================================================================
 
    void build_2016_ws3(
-                            const char* outfile = "outputfiles/ws-lhfit-test3.root",
+                            const char* outfile = "outputfiles/ws-lhfit3.root",
                             const char* fname_ldp_lostlep = "outputfiles/nbsum-ldp-input-lostlep.txt",
                             const char* fname_ldp_hadtau  = "outputfiles/nbsum-ldp-input-hadtau.txt",
                             const char* fname_ldp_znunu   = "outputfiles/nbsum-ldp-input-znunu.txt",
                             const char* fname_hdp_lostlep = "outputfiles/nbsum-hdp-input-lostlep.txt",
                             const char* fname_hdp_hadtau  = "outputfiles/nbsum-hdp-input-hadtau.txt",
                             const char* fname_hdp_znunu   = "outputfiles/nbsum-hdp-input-znunu.txt",
-                            //const char* fname_data    = "../outputfiles/nbsum-input-fakedata2.txt",
                             const char* fname_data    = "../outputfiles/nbsum-input-data.txt",
                             const char* fname_sigmc   = "../outputfiles/nbsum-input-T1bbbbH.txt"
                           ) {

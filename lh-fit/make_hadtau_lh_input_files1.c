@@ -22,6 +22,8 @@
 
       setup_bins();
 
+      gSystem -> Exec( "mkdir -p outputfiles" ) ;
+
       gDirectory -> Delete( "h*" ) ;
 
       TFile* tf_input = new TFile( input_root_file, "read" ) ;

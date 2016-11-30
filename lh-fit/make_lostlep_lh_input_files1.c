@@ -19,6 +19,8 @@
 
       setup_bins();
 
+      gSystem -> Exec( "mkdir -p outputfiles" ) ;
+
       //bool verb(false) ;
       bool verb(true) ;
 

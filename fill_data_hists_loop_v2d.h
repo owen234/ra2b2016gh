@@ -23,6 +23,11 @@ public :
 
    //----------
    void set_bi() ;
+   int   bi_nj ;
+   int   bi_nb ;
+   int   bi_ht ;
+   int   bi_mht ;
+   int   bi_htmht ;
 
    void translate_global_bin( int gbi, int& tbi_nj, int& tbi_nb, int& tbi_htmht, int& tbi_ht, int& tbi_mht ) ;
    void translate_global_bin_nbsum( int gbi_nbsum, int& tbi_nj, int& tbi_htmht, int& tbi_ht, int& tbi_mht ) ;

@@ -20,7 +20,7 @@
 
 void gen_combine_input3(
    const char* model_pars_file          = "../outputfiles/model-pars-data3.txt",
-   const char* model_pars_file2         = "outputfiles/lhfit-results-ws-lhfit-test3/kqcd-parameter-fit-results.txt",
+   const char* model_pars_file2         = "outputfiles/lhfit-results-ws-lhfit3/kqcd-parameter-fit-results.txt",
    const char* np_matrix_file           = "outputfiles/nuisance-parameter-matrix.txt",
    const char* mc_minus_model_hist_file = "outputfiles/model-ratio-hist4.root",
    const char* data_file                = "../outputfiles/combine-input-data.txt",
