@@ -1,0 +1,221 @@
+
+  Tue Nov 29 12:27:53 PST 2016
+
+---------
+  make_hadtau_lh_input_files1.c
+    inputs:
+      ../non-qcd-inputs-fall16a/HadTauEstimation_data_formatted.root
+    outputs:
+      outputfiles/combine-input-hadtau.txt
+      outputfiles/nbsum-ldp-input-hadtau.txt
+      outputfiles/nbsum-hdp-input-hadtau.txt
+
+---------
+  make_lostlep_lh_input_files1.c
+    inputs:
+      ../non-qcd-inputs-fall16a/LLPrediction_QCD_LDP.root
+      ../non-qcd-inputs-fall16a/LLPrediction_QCD_HDP.root
+    outputs:
+      outputfiles/combine-input-lostlep.txt
+      outputfiles/nbsum-ldp-input-lostlep.txt
+      outputfiles/nbsum-hdp-input-lostlep.txt
+
+---------
+  make_znunu_lh_input_files1.c
+    inputs:
+      ../non-qcd-inputs-fall16a/ZinvHistos_ldp.root
+      ../non-qcd-inputs-fall16a/ZinvHistos_hdp.root
+    outputs:
+      outputfiles/combine-input-znunu.txt
+      outputfiles/nbsum-ldp-input-znunu.txt
+      outputfiles/nbsum-hdp-input-znunu.txt
+
+---------
+  ../fill_data_hists_loop_v2d.c
+    inputs:
+      skimmed data files.  See ../fill_data_hists_loop_v2d.h
+    outputs:
+      ../outputfiles/hists-data-v2d.root
+
+---------
+  ../make_data_input_files1.c
+    inputs:
+      ../outputfiles/hists-data-v2d.root
+    outputs:
+      ../outputfiles/combine-input-data.txt
+      ../outputfiles/nbsum-input-data.txt
+
+---------
+  ../run_fill_hists_loop_v2d_signal.c (uses ../fill_hists_loop_v2d.c)
+    inputs:
+      skimmed signal MC files.  See ../run_fill_hists_loop_v2d_signal.c
+    outputs:
+      ../outputfiles/hists-v2d-T1*.root
+
+---------
+  ../run_make_signalmc_input_files1.c (uses ../make_signalmc_input_files1.c)
+    inputs:
+      ../outputfiles/hists-v2d-T1*.root
+    outputs:
+      ../outputfiles/nbsum-input-T1*.txt
+
+---------
+   build_2016_ws3.c
+     inputs:
+       outputfiles/nbsum-ldp-input-lostlep.txt
+       outputfiles/nbsum-ldp-input-hadtau.txt
+       outputfiles/nbsum-ldp-input-znunu.txt
+       outputfiles/nbsum-hdp-input-lostlep.txt
+       outputfiles/nbsum-hdp-input-hadtau.txt
+       outputfiles/nbsum-hdp-input-znunu.txt
+       ../outputfiles/nbsum-input-data.txt
+       ../outputfiles/nbsum-input-T1bbbbH.txt
+     output:
+       outputfiles/ws-lhfit3.root
+
+   Execute it this way:
+     .L RooProdPdfLogSum.cxx+
+     .L RooPoissonLogEval.cxx+
+     .L build_2016_ws3.c+
+     build_2016_ws3()
+
+---------
+   run_lhfit1.c
+     inputs:
+       outputfiles/ws-lhfit-test3.root
+     output:
+       lots of files in outputfiles/lhfit-results-ws-lhfit3 directory
+       Summary is outputfiles/lhfit-results-ws-lhfit3/qcdlhfit-plots.pdf
+
+
+---------
+   gen_nuisance_parameter_matrix1.c
+     inputs:
+       outputfiles/lhfit-results-ws-lhfit3/kqcd-parameter-fit-covmat.txt
+       outputfiles/ws-lhfit3.root
+     outputs:
+       outputfiles/nuisance-parameter-matrix.txt
+       outputfiles/nuisance-parameter-matrix-simple.txt
+
+
+---------
+++++++++++++++
+  You will need some of the things that were also part of the chi2 fit workflow.
+  This is a summary of the minimum number of things that are also used here.
+---------
+   ../data_turnon1.c
+      inputs:
+         data skim files.  See ../data_turnon1.c code.
+      outputs:
+         outputfiles/data-turnon.root
+
+---------
+   ../run_fill_hists_loop_v2d.c (for all samples) or just ../fill_hists_loop_v2d.c for QCD
+      inputs:
+         skimmed MC files.  See code above
+      outputs:
+         ../outputfiles/hists-v2d-qcd.root
+
+---------
+   ../draw_qcd_ratio_v3.c
+      inputs:
+         ../outputfiles/hists-v2d-qcd.root
+      outputs:
+         ../outputfiles/qcdmc-ratio-v3.root
+
+---------
+   ../make_qcdmc_input_files1.c
+      inputs:
+         ../outputfiles/hists-v2d-qcd.root
+      outputs:
+         ../outputfiles/nbsum-input-qcd.txt
+         ../outputfiles/modelfit-input-qcdmc.root
+         ../outputfiles/kqcd-parameters-from-qcdmc.txt
+
+---------
+   ../modelfit3.c
+      inputs:
+         ../outputfiles/outputfiles/modelfit-input-qcdmc.root
+      outputs:
+         ../outputfiles/qcdmc-chi2-fit-model-pars.txt
+
+---------
+  make_lostlep_input_files2.c, make_hadtau_input_files2.c, make_znunu_input_files2.c
+      input is files from other BG teams in non-qcd-inputs
+      output is outputfiles/nbsum-input-lostlep.txt
+                outputfiles/nbsum-input-hadtau.txt
+                outputfiles/nbsum-input-znunu.txt
+                outputfiles/combine-input-lostlep.txt
+                outputfiles/combine-input-hadtau.txt
+                outputfiles/combine-input-znunu.txt
+                outputfiles/nbsum-stat-syst-lostlep.txt
+                outputfiles/nbsum-stat-syst-hadtau.txt
+                outputfiles/nbsum-stat-syst-znunu.txt
+      from the command line
+         .L make_lostlep_input_files1.c
+         make_lostlep_input_files1()
+         .L make_hadtau_input_files1.c
+         make_hadtau_input_files1()
+         .L make_znunu_input_files1.c
+         make_znunu_input_files1()
+
+---------
+  gen_modelfit_input1.c
+      input is
+         outputfiles/nbsum-input-data.txt
+         outputfiles/nbsum-input-lostlep.txt
+         outputfiles/nbsum-input-hadtau.txt
+         outputfiles/nbsum-input-znunu.txt
+      output is
+         outputfiles/modelfit-input-all.txt
+         outputfiles/modelfit-input-data.root
+      from the command line
+         .L gen_modelfit_input1.c
+         gen_modelfit_input1()
+
+---------
+   run_modelfit3_on_data.c  (includes modelfit3.c)
+      input is
+         outputfiles/modelfit-input-data.root
+      output is
+         outputfiles/data-chi2-fit-model-pars.txt
+      from the command line
+         .L run_modelfit3_on_data.c
+         run_modelfit3_on_data()
+
+---------
+   ../syst_2015_v2.c
+      inputs:
+         qcd MC skimmed root files.  See syst_2015_v2.h
+      output:
+         ../outputfiles/syst-2015-v2.root
+
+---------
+   ../draw_badjet_cat_v3.c
+      inputs:
+        ../outputfiles/syst-2015-v2.root
+      outputs:
+        ../outputfiles/model-pars-qcdmc3.txt
+
+++++++++++++++
+
+---------
+   create_model_ratio_hist4.c
+     inputs:
+       ../outputfiles/model-pars-qcdmc3.txt
+       ../outputfiles/kqcd-parameters-from-qcdmc.txt
+       ../outputfiles/qcdmc-ratio-v3.root
+     outputs:
+       outputfiles/model-ratio-hist4.root
+
+
+---------
+   gen_combine_input3.c
+     inputs:
+       ../outputfiles/model-pars-data3.txt
+       outputfiles/lhfit-results-ws-lhfit-test3/kqcd-parameter-fit-results.txt
+       outputfiles/nuisance-parameter-matrix.txt
+       outputfiles/model-ratio-hist4.root
+
+
+
