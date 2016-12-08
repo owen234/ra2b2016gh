@@ -51,7 +51,7 @@ void draw_badjet_cat_v3(const char* infile = "outputfiles/syst-2015-v2.root" ) {
       gDirectory -> Delete( "h*" ) ;
 
       TCanvas* can = new TCanvas( "can_draw_badjet_cat", "", 800, 600 ) ;
-      TCanvas* can2 = new TCanvas( "can2_draw_badjet_cat", "", 500, 600 ) ;
+      TCanvas* can2(0x0) ;
 
       int nbins(5) ;
 
@@ -70,12 +70,20 @@ void draw_badjet_cat_v3(const char* infile = "outputfiles/syst-2015-v2.root" ) {
    // fmiss_val[5] = 0.011 ;  fmiss_err[5] = 0.002 ;
    
 
+   bool first(true) ;
+
    for ( int ht_level = nBinsHT-1; ht_level >= 0; ht_level--)
    {
 
       if ( ht_level == 0 ) strcpy (htstr, "htl");
       if ( ht_level == 1 ) strcpy (htstr, "htm");
       if ( ht_level == 2 ) strcpy (htstr, "hth");
+
+      if ( ht_level==0 ) {
+         nbins = 3 ;
+      } else {
+         nbins = 5 ;
+      }
 
       TString ht_str = htstr;
 
@@ -304,6 +312,7 @@ void draw_badjet_cat_v3(const char* infile = "outputfiles/syst-2015-v2.root" ) {
          gStyle -> SetPadTopMargin(0) ;
          gStyle -> SetPadRightMargin(0) ;
          gStyle -> SetOptTitle(0) ;
+         gStyle -> SetPadLeftMargin(0.10) ; //*****
          TPad* inset_pad = new TPad( pname, "", 0.25, 0.25, 0.90, 0.90 ) ;
          hp_all_c -> SetMaximum( 0.1 * ( hp_all_c->GetMaximum()) ) ;
          hp_all_c -> SetMinimum( -0.05 * ( hp_all_c->GetMaximum()) ) ;
@@ -369,11 +378,17 @@ void draw_badjet_cat_v3(const char* infile = "outputfiles/syst-2015-v2.root" ) {
     //------------
 
 
-      gStyle -> SetPadTopMargin(0.09) ;
-      gStyle -> SetPadBottomMargin(0.10) ;
-      gStyle -> SetPadRightMargin(0.05) ;
-      gStyle -> SetPadLeftMargin(0.20) ;
-      gStyle -> SetOptTitle(0) ;
+
+      if ( first ) {
+         gStyle -> SetPadTopMargin(0.09) ;
+         gStyle -> SetPadBottomMargin(0.10) ;
+         gStyle -> SetPadRightMargin(0.05) ;
+         gStyle -> SetPadLeftMargin(0.20) ;
+         gStyle -> SetOptTitle(0) ;
+         can2 = new TCanvas( "can2_draw_badjet_cat", "", 500, 600 ) ;
+         first = false ;
+      }
+      can2 -> cd() ;
 
       TLegend* l2 = new TLegend( 0.50, 0.80, 0.95, 0.95 ) ;
       l2 -> AddEntry( h_rprime, "Overall" ) ;
@@ -420,6 +435,7 @@ void draw_badjet_cat_v3(const char* infile = "outputfiles/syst-2015-v2.root" ) {
       }
       gStyle -> SetOptTitle(1) ;
 
+
       h_rprime -> Draw("l") ;
       h_fmissfpass_bj_in_dphi -> Draw("l same") ;
       h_fmissfpass_bj_in_dphi_c -> Draw("hist l same") ;
@@ -428,12 +444,16 @@ void draw_badjet_cat_v3(const char* infile = "outputfiles/syst-2015-v2.root" ) {
       h_rprime -> Draw("l same") ;
       h_rprime_c -> Draw("hist l same") ;
 
+         printf("\n\n *** debug1 : here's the h_rprime histogram contents.\n") ;
+         h_rprime -> Print("all") ;
+
       l2 -> Draw() ;
 
       gPad -> SetGridy(1) ;
 
       sprintf( fname, "outputfiles/badjet-Rqcd-vs-mht-bin-%s.pdf", htstr ) ;
       can2 -> SaveAs( fname ) ;
+
 
 
     //----------------------------------------

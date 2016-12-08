@@ -8,8 +8,8 @@
 #include "../get_hist.h"
 #include "../binning.h"
 
-   void make_znunu_lh_input_files1( const char* ldp_input_root_file = "../non-qcd-inputs-fall16a/ZinvHistos_ldp.root",
-                                 const char* hdp_input_root_file = "../non-qcd-inputs-fall16a/ZinvHistos_hdp.root",
+   void make_znunu_lh_input_files1( const char* ldp_input_root_file = "../non-qcd-inputs-fall16b/ZinvHistos_ldp.root",
+                                 const char* hdp_input_root_file = "../non-qcd-inputs-fall16b/ZinvHistos_hdp.root",
                                  const char* output_text_file = "outputfiles/combine-input-znunu.txt",
                                  const char* nbsum_ldp_text_file  = "outputfiles/nbsum-ldp-input-znunu.txt",
                                  const char* nbsum_hdp_text_file  = "outputfiles/nbsum-hdp-input-znunu.txt"
@@ -157,6 +157,24 @@
          h_systerr_ldp[si] = get_hist( tf_ldp, "hzvvDYsysPur" ) ;
          h_systerr_hdp[si] = get_hist( tf_hdp, "hzvvDYsysPur" ) ;
          sprintf( systerr_name[si], "hzvvDYsysPur" ) ;
+         si++ ;
+         n_systerr = si ;
+
+         h_systerr_ldp[si] = get_hist( tf_ldp, "hzvvgJEtrgErr" ) ;
+         h_systerr_hdp[si] = get_hist( tf_hdp, "hzvvgJEtrgErr" ) ;
+         sprintf( systerr_name[si], "hzvvgJEtrgErr" ) ;
+         si++ ;
+         n_systerr = si ;
+
+         h_systerr_ldp[si] = get_hist( tf_ldp, "hgJSFerr" ) ;
+         h_systerr_hdp[si] = get_hist( tf_hdp, "hgJSFerr" ) ;
+         sprintf( systerr_name[si], "hgJSFerr" ) ;
+         si++ ;
+         n_systerr = si ;
+
+         h_systerr_ldp[si] = get_hist( tf_ldp, "hzvvgJFdirErr" ) ;
+         h_systerr_hdp[si] = get_hist( tf_hdp, "hzvvgJFdirErr" ) ;
+         sprintf( systerr_name[si], "hzvvgJFdirErr" ) ;
          si++ ;
          n_systerr = si ;
 

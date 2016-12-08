@@ -383,6 +383,149 @@
 
 
 
+    //============= All Njet + HT-MHT bin combinations
+
+
+      all_bins_summed = 0 ;
+
+
+      for ( int bin_htmht = 4; bin_htmht <= nb_htmht; bin_htmht++) {
+
+         char hname[100] ;
+         char htitle[100] ;
+         sprintf( hname, "h_njhtmht%02d_proj", bin_htmht-3 ) ;
+         sprintf( htitle, "Njets, HTMHT box %d", bin_htmht-3 ) ;
+         hp = new TH1F( hname, htitle, nb_nj, 0.5, nb_nj+0.5 ) ;
+
+         for ( int bi_nj=1; bi_nj<=nb_nj; bi_nj++ ) {
+
+            sum_nbins = 0 ;
+
+            for ( int bi_nb=1; bi_nb<=nb_nb; bi_nb++ ) {
+               for ( int bi_htmht=4; bi_htmht<=nb_htmht; bi_htmht++ ) {
+
+                  if (is_this_bin_excluded(bi_nj-1,bi_nb-1,bi_htmht-1)) continue;
+
+                  int bi_ht, bi_mht ;
+
+                  htmht_bin_to_ht_and_mht_bins( bi_htmht, bi_ht, bi_mht ) ;
+
+                  int search_bi = global_search_bin( bi_nj, bi_nb, bi_htmht ) ;
+                  if ( search_bi <= 0 ) { printf( "\n\n *** Illegal search bin index: bi_nj=%d, bi_nb=%d, bi_htmht=%d\n\n", bi_nj, bi_nb, bi_htmht ) ; gSystem->Exit(-1) ; }
+
+                  if ( bi_mht == 1 ) continue ; // don't include MHTC (bi_mht==1)
+                  if ( bi_htmht != bin_htmht ) continue;
+                  sum_index_array[sum_nbins] = search_bi ;
+                  sum_nbins++ ;
+
+               } // bi_htmht
+            } // bi_nb
+
+            all_bins_summed += sum_nbins ;
+
+            printf("\n\n Calculating search HT-MHT box %d\n", bin_htmht-3 ) ;
+            calc_sum( verb ) ;
+
+            char sum_label[100] ;
+            sprintf( sum_label, "bin_HTMHTbox%02dnj%d_proj", bin_htmht-3, bi_nj ) ;
+
+            if ( sum_nbins == 0 ) continue ;
+
+            fprintf( ofp_text, " %20s  %8.1f +/- %8.1f  %3d ", sum_label, binsum_val, binsum_err, sum_nbins ) ;
+            for ( int i=0; i<sum_nbins; i++ ) { fprintf( ofp_text, " %3d ", sum_index_array[i] ) ; }
+            fprintf( ofp_text, "\n" ) ;
+
+            printf( "%20s : %8.1f +/- %8.1f (without correlations %8.1f)\n", sum_label, binsum_val, binsum_err, binsum_err_nocorrelations ) ;
+
+            int hb = bi_nj ;
+            hp -> SetBinContent( hb, binsum_val ) ;
+            hp -> SetBinError( hb, binsum_err ) ;
+            hp -> GetXaxis() -> SetBinLabel( hb, sum_label ) ;
+
+         } //bi_nj
+
+      }//bin_htmht
+
+      hp -> GetXaxis() -> LabelsOption( "v" ) ;
+
+      printf(" All bins summed, Njet + HT-MHT box combinations: %3d\n", all_bins_summed ) ;
+      if ( all_bins_summed != 174 ) { printf("\n\n *** Wrong total.\n\n") ; gSystem -> Exit(-1) ; }
+
+
+
+    //============= All Nb + HT-MHT bin combinations
+
+
+      all_bins_summed = 0 ;
+
+
+      for ( int bin_htmht = 4; bin_htmht <= nb_htmht; bin_htmht++) {
+
+         char hname[100] ;
+         char htitle[100] ;
+         sprintf( hname, "h_nbhtmht%02d_proj", bin_htmht-3 ) ;
+         sprintf( htitle, "Nb, HTMHT box %d", bin_htmht-3 ) ;
+         hp = new TH1F( hname, htitle, nb_nb, 0.5, nb_nb+0.5 ) ;
+
+
+         for ( int bi_nb=1; bi_nb<=nb_nb; bi_nb++ ) {
+            sum_nbins = 0 ;
+
+            for ( int bi_nj=1; bi_nj<=nb_nj; bi_nj++ ) {
+               for ( int bi_htmht=4; bi_htmht<=nb_htmht; bi_htmht++ ) {
+
+                  if (is_this_bin_excluded(bi_nj-1,bi_nb-1,bi_htmht-1)) continue;
+
+                  int bi_ht, bi_mht ;
+
+                  htmht_bin_to_ht_and_mht_bins( bi_htmht, bi_ht, bi_mht ) ;
+
+                  int search_bi = global_search_bin( bi_nj, bi_nb, bi_htmht ) ;
+                  if ( search_bi <= 0 ) { printf( "\n\n *** Illegal search bin index: bi_nj=%d, bi_nb=%d, bi_htmht=%d\n\n", bi_nj, bi_nb, bi_htmht ) ; gSystem->Exit(-1) ; }
+
+                  if ( bi_mht == 1 ) continue ; // don't include MHTC (bi_mht==1)
+                  if ( bi_htmht != bin_htmht ) continue;
+                  sum_index_array[sum_nbins] = search_bi ;
+                  sum_nbins++ ;
+
+               } // bi_htmht
+            } //bi_nj
+
+            all_bins_summed += sum_nbins ;
+
+            printf("\n\n Calculating search HT-MHT box %d\n", bin_htmht-3 ) ;
+            calc_sum( verb ) ;
+
+            char sum_label[100] ;
+            sprintf( sum_label, "bin_HTMHTbox%02dnb%d_proj", bin_htmht-3, bi_nb-1 ) ;
+
+            if ( sum_nbins == 0 ) continue ;
+
+            fprintf( ofp_text, " %20s  %8.1f +/- %8.1f  %3d ", sum_label, binsum_val, binsum_err, sum_nbins ) ;
+            for ( int i=0; i<sum_nbins; i++ ) { fprintf( ofp_text, " %3d ", sum_index_array[i] ) ; }
+            fprintf( ofp_text, "\n" ) ;
+
+            printf( "%20s : %8.1f +/- %8.1f (without correlations %8.1f)\n", sum_label, binsum_val, binsum_err, binsum_err_nocorrelations ) ;
+
+            int hb = bi_nb ;
+            hp -> SetBinContent( hb, binsum_val ) ;
+            hp -> SetBinError( hb, binsum_err ) ;
+            hp -> GetXaxis() -> SetBinLabel( hb, sum_label ) ;
+
+         } // bi_nb
+
+      }//bin_htmht
+
+      hp -> GetXaxis() -> LabelsOption( "v" ) ;
+
+      printf(" All bins summed, Nb + HT-MHT box combinations: %3d\n", all_bins_summed ) ;
+      if ( all_bins_summed != 174 ) { printf("\n\n *** Wrong total.\n\n") ; gSystem -> Exit(-1) ; }
+
+
+
+
+
+
 
 
       printf("\n\n Closing output text file: %s\n\n", output_text_file ) ;
@@ -562,7 +705,7 @@
 
          sum_err2_nocorrelations += pow( this_bin_err, 2. ) ;
 
-         printf("  calc_sum %3d :  %9.2f +/- %6.2f  (%5.1f, %5.1f, %5.1f)\n",
+         if ( verb ) printf("  calc_sum %3d :  %9.2f +/- %6.2f  (%5.1f, %5.1f, %5.1f)\n",
             sum_index_array[sbi], nqcd_val, this_bin_err, sqrt( this_bin_syst_err2 ), nldp_err, mcc_rel_err ) ;
 
       } // sbi

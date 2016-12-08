@@ -106,7 +106,8 @@
 
     //-------------------
       //double ymax(3100.) ;
-      double ymax(18100.) ;
+      //double ymax(18100.) ;
+      double ymax(68100.) ;
       double ymin(0.002) ;
 
       h_hdp_evts -> SetMarkerStyle( 20 ) ;

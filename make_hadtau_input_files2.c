@@ -5,6 +5,7 @@
 #include "TH1.h"
 #include "TString.h"
 #include "TSystem.h"
+#include "TMath.h"
 #include "binning.h"
 #include "get_hist.h"
 
@@ -14,7 +15,7 @@
 
    //------
 
-   void make_hadtau_input_files2( const char* input_root_file  = "non-qcd-inputs-fall16a/HadTauEstimation_data_formatted.root",
+   void make_hadtau_input_files2( const char* input_root_file  = "non-qcd-inputs-fall16b/ARElog94_36.35fb_HadTauEstimation_data_formatted_V11.root",
                                   const char* output_text_file = "outputfiles/combine-input-hadtau.txt",
                                   const char* nbsum_text_file  = "outputfiles/nbsum-input-hadtau.txt"
                                ) {
@@ -266,6 +267,12 @@
                   if ( hdp_stat_over_sqrtn > 1.5 ) hdp_stat_over_sqrtn = 1.0 ;
                }
 
+               if ( TMath::IsNaN( ldp_val ) ) ldp_val = 0. ;
+               if ( TMath::IsNaN( ldp_err ) ) ldp_err = 0. ;
+               if ( TMath::IsNaN( ldp_syst ) ) ldp_syst = 0. ;
+               if ( TMath::IsNaN( hdp_val ) ) hdp_val = 0. ;
+               if ( TMath::IsNaN( hdp_err ) ) hdp_err = 0. ;
+               if ( TMath::IsNaN( hdp_syst ) ) hdp_syst = 0. ;
                printf(               "%s      %8.1f +/- %5.1f +/- %5.1f          %8.1f +/- %5.1f +/- %5.1f\n",
                    label,
                    ldp_val, ldp_err, ldp_syst,
@@ -330,6 +337,8 @@
                   ldp_val = h_pred_lowdphi -> GetBinContent( bi_hist ) ;
                   ldp_hist_err = h_pred_lowdphi -> GetBinError( bi_hist ) ;
                }
+               if ( TMath::IsNaN( ldp_val ) ) ldp_val = 0. ;
+               if ( TMath::IsNaN( ldp_hist_err ) ) ldp_hist_err = 0. ;
                double ldp_err = 1. ;
                if ( ldp_val > 0 ) ldp_err = ldp_hist_err ;
 
@@ -339,6 +348,8 @@
                   hdp_val = h_pred_highdphi -> GetBinContent( bi_hist ) ;
                   hdp_hist_err = h_pred_highdphi -> GetBinError( bi_hist ) ;
                }
+               if ( TMath::IsNaN( hdp_val ) ) hdp_val = 0. ;
+               if ( TMath::IsNaN( hdp_hist_err ) ) hdp_hist_err = 0. ;
                double hdp_err = 1. ;
                if ( hdp_val > 0 ) hdp_err = hdp_hist_err ;
 

@@ -80,7 +80,7 @@
      build_2016_ws3()
 
 ---------
-   run_lhfit1.c
+   run_lhfit3.c
      inputs:
        outputfiles/ws-lhfit-test3.root
      output:
@@ -216,6 +216,20 @@
        outputfiles/lhfit-results-ws-lhfit-test3/kqcd-parameter-fit-results.txt
        outputfiles/nuisance-parameter-matrix.txt
        outputfiles/model-ratio-hist4.root
+
+###############################################################################################
+
+---------
+   binsums_qcd1.c
+      inputs:
+         outputfiles/combine-input-all.txt
+      outputs
+         outputfiles/binsums-qcd.txt
+         outputfiles/binsums-qcd.root
+
+
+
+
 
 
 

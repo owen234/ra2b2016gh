@@ -1,5 +1,6 @@
 #include "TH1.h"
 #include "TFile.h"
+#include "TSystem.h"
 
 #ifndef input_files_h
 #define input_files_h

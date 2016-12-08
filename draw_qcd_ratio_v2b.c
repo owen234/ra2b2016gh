@@ -1021,20 +1021,20 @@
       sprintf( fname, "outputfiles/qcd-ratio-%s.root", plottype ) ;
       saveHist( fname, "h*" ) ;
 
-      printf("\n\n") ;
-      printf("=================================================================================================================================\n") ;
-      for ( int bi=1; bi<=h_ldp->GetNbinsX(); bi++ ) {
-         printf("  %25s : LDP = %9.1f +/- %5.1f ,   HDP = %9.1f +/- %5.1f ,   H/L = %6.3f +/- %6.3f ,   DR = %5.2f +/- %5.2f\n",
-            h_ratio->GetXaxis()->GetBinLabel(bi),
-            h_ldp -> GetBinContent(bi), h_ldp -> GetBinError(bi),
-            h_hdp -> GetBinContent(bi), h_hdp -> GetBinError(bi),
-            h_ratio -> GetBinContent(bi), h_ratio -> GetBinError(bi),
-            h_double_ratio -> GetBinContent(bi), h_double_ratio -> GetBinError(bi)
-            ) ;
-         if ( bi%13 == 0 ) { printf("=============================================================================================================================================\n") ; }
-         if ( (bi-3)%13 == 0 || bi==3 ) { printf("---------------------------------------------------------------------------------------------------------------------------------------------\n") ; }
-      } // bi
-      printf("\n\n") ;
+///   printf("\n\n") ;
+///   printf("=================================================================================================================================\n") ;
+///   for ( int bi=1; bi<=h_ldp->GetNbinsX(); bi++ ) {
+///      printf("  %25s : LDP = %9.1f +/- %5.1f ,   HDP = %9.1f +/- %5.1f ,   H/L = %6.3f +/- %6.3f ,   DR = %5.2f +/- %5.2f\n",
+///         h_ratio->GetXaxis()->GetBinLabel(bi),
+///         h_ldp -> GetBinContent(bi), h_ldp -> GetBinError(bi),
+///         h_hdp -> GetBinContent(bi), h_hdp -> GetBinError(bi),
+///         h_ratio -> GetBinContent(bi), h_ratio -> GetBinError(bi),
+///         h_double_ratio -> GetBinContent(bi), h_double_ratio -> GetBinError(bi)
+///         ) ;
+///      if ( bi%13 == 0 ) { printf("=============================================================================================================================================\n") ; }
+///      if ( (bi-3)%13 == 0 || bi==3 ) { printf("---------------------------------------------------------------------------------------------------------------------------------------------\n") ; }
+///   } // bi
+///   printf("\n\n") ;
 
    } // draw_qcd_ratio_v2b
 

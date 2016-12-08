@@ -11,7 +11,9 @@
 #include "TSystem.h"
 #include <fstream>
 
+#include "histio.c"
 #include "binning.h"
+
 
    void gen_modelfit_input1(
          const char* data_file    = "outputfiles/nbsum-input-data.txt",
@@ -21,6 +23,8 @@
          const char* output_hist_file = "outputfiles/modelfit-input-data.root"
                          ) {
 
+
+      gDirectory -> Delete( "h*" ) ;
 
       setup_bins() ;
       ifstream ifs_data ;
@@ -203,6 +207,13 @@
          } // bi_nj
       } // bi_ht
 
+      TH1F* h_ldp_allnonqcd = (TH1F*) h_ldp_lostlep -> Clone( "h_ldp_allnonqcd" ) ;
+      h_ldp_allnonqcd -> Add( h_ldp_hadtau ) ;
+      h_ldp_allnonqcd -> Add( h_ldp_znunu ) ;
+
+      TH1F* h_hdp_allnonqcd = (TH1F*) h_hdp_lostlep -> Clone( "h_hdp_allnonqcd" ) ;
+      h_hdp_allnonqcd -> Add( h_hdp_hadtau ) ;
+      h_hdp_allnonqcd -> Add( h_hdp_znunu ) ;
 
 
 
@@ -240,6 +251,11 @@
       gStyle -> SetPadBottomMargin(0.20) ;
       gStyle -> SetOptStat(0) ;
 
+
+
+
+      saveHist( output_hist_file, "h*", false ) ;
+
      //-------
 
       TCanvas* can_ratio = new TCanvas( "can_ratio", "Ratio", 900, 800 ) ;
@@ -272,19 +288,19 @@
       can_ldp -> Update() ; can_ldp -> Draw() ;
       can_ldp -> SaveAs( "outputfiles/modelfit-input-ldp-liny-full.pdf" ) ;
 
-      h_ldp_data -> SetMaximum( 1.1 * (h_ldp_data -> GetBinContent(1)) ) ;
+      h_ldp_data -> SetMaximum( 1.1 * (h_ldp_data -> GetBinContent(2)) ) ;
       can_ldp -> Update() ; can_ldp -> Draw() ;
       can_ldp -> SaveAs( "outputfiles/modelfit-input-ldp-liny-zoom1.pdf" ) ;
 
-      h_ldp_data -> SetMaximum( 1.1 * (h_ldp_data -> GetBinContent(11)) ) ;
+      h_ldp_data -> SetMaximum( 1.1 * (h_ldp_data -> GetBinContent(8)) ) ;
       can_ldp -> Update() ; can_ldp -> Draw() ;
       can_ldp -> SaveAs( "outputfiles/modelfit-input-ldp-liny-zoom2.pdf" ) ;
 
-      h_ldp_data -> SetMaximum( 1.1 * (h_ldp_data -> GetBinContent(2)) ) ;
+      h_ldp_data -> SetMaximum( 1.1 * (h_ldp_data -> GetBinContent(13)) ) ;
       can_ldp -> Update() ; can_ldp -> Draw() ;
       can_ldp -> SaveAs( "outputfiles/modelfit-input-ldp-liny-zoom3.pdf" ) ;
 
-      h_ldp_data -> SetMaximum( 3 * (h_ldp_data -> GetBinContent(5)) ) ;
+      h_ldp_data -> SetMaximum( 3 * (h_ldp_data -> GetBinContent(8)) ) ;
       h_ldp_data -> SetMinimum(0.5) ;
       gPad -> SetLogy(1) ;
       can_ldp -> Update() ; can_ldp -> Draw() ;
@@ -314,15 +330,15 @@
       can_hdp -> Update() ; can_hdp -> Draw() ;
       can_hdp -> SaveAs( "outputfiles/modelfit-input-hdp-liny-full.pdf" ) ;
 
-      h_hdp_data -> SetMaximum( 1.1 * (h_hdp_data -> GetBinContent(5)) ) ;
+      h_hdp_data -> SetMaximum( 1.1 * (h_hdp_data -> GetBinContent(7)) ) ;
       can_hdp -> Update() ; can_hdp -> Draw() ;
       can_hdp -> SaveAs( "outputfiles/modelfit-input-hdp-liny-zoom1.pdf" ) ;
 
-      h_hdp_data -> SetMaximum( 1.1 * (h_hdp_data -> GetBinContent(9)) ) ;
+      h_hdp_data -> SetMaximum( 1.1 * (h_hdp_data -> GetBinContent(12)) ) ;
       can_hdp -> Update() ; can_hdp -> Draw() ;
       can_hdp -> SaveAs( "outputfiles/modelfit-input-hdp-liny-zoom2.pdf" ) ;
 
-      h_hdp_data -> SetMaximum( 3 * (h_hdp_data -> GetBinContent(1)) ) ;
+      h_hdp_data -> SetMaximum( 3 * (h_hdp_data -> GetBinContent(2)) ) ;
       h_hdp_data -> SetMinimum(0.5) ;
       gPad -> SetLogy(1) ;
       can_hdp -> Update() ; can_hdp -> Draw() ;
@@ -332,10 +348,11 @@
 
 
 
-      TFile rf( output_hist_file, "recreate" ) ;
-      h_ratio -> Write() ;
-      rf.Close() ;
-      printf("\n\n Saved ratio histogram in %s\n\n", output_hist_file ) ;
+  //  TFile rf( output_hist_file, "recreate" ) ;
+  //  h_ratio -> Write() ;
+  //  rf.Close() ;
+  //  printf("\n\n Saved ratio histogram in %s\n\n", output_hist_file ) ;
+
 
 
 

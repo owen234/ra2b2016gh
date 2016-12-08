@@ -8,6 +8,7 @@
 #include "TRegexp.h"
 #include "TDirectory.h"
 #include "TObject.h"
+#include "TSystem.h"
 #include "TKey.h"
 #include "TH1.h"
 //#include "histio.h"
@@ -19,7 +20,7 @@ void histio()
 {
 }
 
-void saveHist(const char* filename, const char* pat)
+void saveHist(const char* filename, const char* pat, bool delete_hists = true )
 {
   printf("  Saving histograms in %s\n", filename ) ; fflush( stdout ) ;
   TList* list = gDirectory->GetList() ;
@@ -40,7 +41,7 @@ void saveHist(const char* filename, const char* pat)
   outf.Close() ;
 
   delete iter ;
-  gDirectory->DeleteAll();//This line will remove histrograms from memory. Without this line, when we create a histogram, I will be saved everytime we call saveHist function. Important when we use "run_all.C"
+  if ( delete_hists ) gDirectory->DeleteAll();//This line will remove histrograms from memory. Without this line, when we create a histogram, I will be saved everytime we call saveHist function. Important when we use "run_all.C"
 
 }
 

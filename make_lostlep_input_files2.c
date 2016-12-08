@@ -10,8 +10,8 @@
 
 
    void make_lostlep_input_files2(
-                                 const char* ldp_input_root_file = "non-qcd-inputs-fall16a/LLPrediction_QCD_LDP.root",
-                                 const char* hdp_input_root_file = "non-qcd-inputs-fall16a/LLPrediction_QCD_HDP.root",
+                                 const char* ldp_input_root_file = "non-qcd-inputs-fall16b/LLPrediction_QCDLDP_notCombined.root",
+                                 const char* hdp_input_root_file = "non-qcd-inputs-fall16b/LLPrediction_QCDHDP_notCombined.root",
                                  const char* output_text_file = "outputfiles/combine-input-lostlep.txt",
                                  const char* nbsum_text_file = "outputfiles/nbsum-input-lostlep.txt"
                                ) {

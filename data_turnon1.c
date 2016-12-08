@@ -31,18 +31,35 @@
    // ch_met.Add("fnal-prod-v9-skims-slimmed/tree_LDP/tree_MET_2016C-slimskim.root") ;
    // ch_met.Add("fnal-prod-v9-skims-slimmed/tree_LDP/tree_MET_2016D-slimskim.root") ;
      //-----------
-      ch_ht.Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_JetHT_2016B-slimskim.root") ;
-      ch_ht.Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_JetHT_2016C-slimskim.root") ;
-      ch_ht.Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_JetHT_2016D-slimskim.root") ;
-      ch_ht.Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_JetHT_2016E-slimskim.root") ;
-      ch_ht.Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_JetHT_2016F-slimskim.root") ;
-      ch_ht.Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_JetHT_2016G-slimskim.root") ;
-      ch_met.Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_MET_2016B-slimskim.root") ;
-      ch_met.Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_MET_2016C-slimskim.root") ;
-      ch_met.Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_MET_2016D-slimskim.root") ;
-      ch_met.Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_MET_2016E-slimskim.root") ;
-      ch_met.Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_MET_2016F-slimskim.root") ;
-      ch_met.Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_MET_2016G-slimskim.root") ;
+   // ch_ht.Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_JetHT_2016B-slimskim.root") ;
+   // ch_ht.Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_JetHT_2016C-slimskim.root") ;
+   // ch_ht.Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_JetHT_2016D-slimskim.root") ;
+   // ch_ht.Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_JetHT_2016E-slimskim.root") ;
+   // ch_ht.Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_JetHT_2016F-slimskim.root") ;
+   // ch_ht.Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_JetHT_2016G-slimskim.root") ;
+   // ch_met.Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_MET_2016B-slimskim.root") ;
+   // ch_met.Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_MET_2016C-slimskim.root") ;
+   // ch_met.Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_MET_2016D-slimskim.root") ;
+   // ch_met.Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_MET_2016E-slimskim.root") ;
+   // ch_met.Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_MET_2016F-slimskim.root") ;
+   // ch_met.Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_MET_2016G-slimskim.root") ;
+     //-----------
+      ch_ht.Add("fnal-prod-v11-skims-slimmed/tree_LDP/tree_JetHT_2016B-slimskim.root") ;
+      ch_ht.Add("fnal-prod-v11-skims-slimmed/tree_LDP/tree_JetHT_2016C-slimskim.root") ;
+      ch_ht.Add("fnal-prod-v11-skims-slimmed/tree_LDP/tree_JetHT_2016D-slimskim.root") ;
+      ch_ht.Add("fnal-prod-v11-skims-slimmed/tree_LDP/tree_JetHT_2016E-slimskim.root") ;
+      ch_ht.Add("fnal-prod-v11-skims-slimmed/tree_LDP/tree_JetHT_2016F-slimskim.root") ;
+      ch_ht.Add("fnal-prod-v11-skims-slimmed/tree_LDP/tree_JetHT_2016G-slimskim.root") ;
+      ch_ht.Add("fnal-prod-v11-skims-slimmed/tree_LDP/tree_JetHT_2016H2-slimskim.root") ;
+      ch_ht.Add("fnal-prod-v11-skims-slimmed/tree_LDP/tree_JetHT_2016H3-slimskim.root") ;
+      ch_met.Add("fnal-prod-v11-skims-slimmed/tree_LDP/tree_MET_2016B-slimskim.root") ;
+      ch_met.Add("fnal-prod-v11-skims-slimmed/tree_LDP/tree_MET_2016C-slimskim.root") ;
+      ch_met.Add("fnal-prod-v11-skims-slimmed/tree_LDP/tree_MET_2016D-slimskim.root") ;
+      ch_met.Add("fnal-prod-v11-skims-slimmed/tree_LDP/tree_MET_2016E-slimskim.root") ;
+      ch_met.Add("fnal-prod-v11-skims-slimmed/tree_LDP/tree_MET_2016F-slimskim.root") ;
+      ch_met.Add("fnal-prod-v11-skims-slimmed/tree_LDP/tree_MET_2016G-slimskim.root") ;
+      ch_met.Add("fnal-prod-v11-skims-slimmed/tree_LDP/tree_MET_2016H2-slimskim.root") ;
+      ch_met.Add("fnal-prod-v11-skims-slimmed/tree_LDP/tree_MET_2016H3-slimskim.root") ;
      //-----------
 
 
