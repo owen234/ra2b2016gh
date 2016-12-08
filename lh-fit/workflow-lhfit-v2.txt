@@ -82,7 +82,7 @@
 ---------
    run_lhfit3.c
      inputs:
-       outputfiles/ws-lhfit-test3.root
+       outputfiles/ws-lhfit3.root
      output:
        lots of files in outputfiles/lhfit-results-ws-lhfit3 directory
        Summary is outputfiles/lhfit-results-ws-lhfit3/qcdlhfit-plots.pdf
