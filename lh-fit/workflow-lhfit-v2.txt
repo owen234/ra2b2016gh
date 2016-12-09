@@ -76,6 +76,7 @@
    Execute it this way:
      .L RooProdPdfLogSum.cxx+
      .L RooPoissonLogEval.cxx+
+     .L RooPosDefCorrGauss.cxx+
      .L build_2016_ws3.c+
      build_2016_ws3()
 
