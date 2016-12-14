@@ -22,12 +22,14 @@
   using namespace RooFit;
   using namespace RooStats;
 
-   void constrained_scan( const char* wsfile = "outputfiles/ws-lhfit-test3.root",
-                          const char* new_poi_name="mu_qcd_hdp_Nj1_HT1",
+   void constrained_scan( const char* wsfile = "outputfiles/ws-lhfit3.root",
+                          ///////const char* new_poi_name="mu_qcd_hdp_Nj1_HT1",
+                          //////const char* new_poi_name="mu_allnonqcd_ldp_Nj5_HT3",
+                          const char* new_poi_name="mu_allnonqcd_ldp_Nj1_HT1",
                           double constraintWidth=1.5,
                           int npoiPoints = 10,
-                          double poiMinVal = 1.,
-                          double poiMaxVal = 5000.0,
+                          double poiMinVal = 5000.,
+                          double poiMaxVal = 7000.,
                           double ymax = 9.,
                           int verbLevel=1  ) {
 

@@ -86,6 +86,7 @@
       allBGmuPars            = new RooArgSet("allBGmuPars") ;
       RooArgSet* observedParametersList = new RooArgSet("observables") ;
 
+
       RooArgSet pdflist ;
 
       sprintf( pname, "sig_strength" ) ;
@@ -102,37 +103,6 @@
 
 
 
-///   printf("\n  QCD Model parameters:\n") ;
-
-///   RooAbsReal* rv_qcd_kht[10] ;
-///   RooAbsReal* rv_qcd_snjet[10] ;
-
-///   int n_qcd_kht_pars(3) ;
-
-///   rv_qcd_kht[1] = new RooRealVar( "Kqcd_ht1", "Kqcd_ht1", 0.71, 0., 5. ) ;
-///   rv_qcd_kht[2] = new RooRealVar( "Kqcd_ht2", "Kqcd_ht2", 0.09, 0., 5. ) ;
-///   rv_qcd_kht[3] = new RooRealVar( "Kqcd_ht3", "Kqcd_ht3", 0.02, 0., 5. ) ;
-
-///   printf("\n Njet parameters:\n") ;
-///   for ( int bi=1; bi<=nb_nj; bi++ ) {
-///      char pname[100] ;
-///      sprintf( pname, "Sqcd_njet%d", bi ) ;
-///      float initial_val(1.0) ;
-///      if ( bi==1 ) initial_val = 0.67 ;
-///      if ( bi==2 ) initial_val = 1.00 ;
-///      if ( bi==3 ) initial_val = 1.45 ;
-///      if ( bi==4 ) initial_val = 2.85 ;
-///      if ( bi==5 ) initial_val = 7.96 ;
-///      /////rv_qcd_snjet[bi] = new RooRealVar( pname, pname, initial_val, 0., 40. ) ;
-///      rv_qcd_snjet[bi] = new RooRealVar( pname, pname, initial_val, 0., 200. ) ;
-///      printf(" %s ", pname ) ;
-///      if ( bi == (njet_bin_to_be_fixed_in_qcd_model_fit+1) ) {
-///         ((RooRealVar*) rv_qcd_snjet[bi]) -> setConstant( kTRUE ) ;
-///         printf(" fixed to 1\n") ;
-///      } else {
-///         printf("\n") ;
-///      }
-///   }
 
 
 
@@ -205,23 +175,6 @@
             continue ;
          }
 
-//      //-- fuck the HT1 bins
-//       if ( fb_hbi==1 ) {
-//          ts.ReadLine( ifs_sigmc ) ;
-//          continue ;
-//       }
-
-//      //-- and the HT2 bins
-//       if ( fb_hbi==2 ) {
-//          ts.ReadLine( ifs_sigmc ) ;
-//          continue ;
-//       }
-
-//      //-- only keep Nj4-HT3
-//       if ( fb_nji!=4 ) {
-//          ts.ReadLine( ifs_sigmc ) ;
-//          continue ;
-//       }
 
          printf( " %30s,  Njet index %d,  HT index %d\n", bin_name, fb_nji, fb_hbi ) ;
          printf( "      data    : LDP %5d            ,   HDP %4d\n", data_ldp_val, data_hdp_val ) ;
@@ -229,14 +182,6 @@
 
          fflush(stdout) ;
 
-
-  ///    sprintf( pname, "R_qcd_ldp_%s", bin_name ) ;
-  ///    RooFormulaVar* rv_R_qcd_ldp = new RooFormulaVar( pname, "@0 * @1",
-  ///       RooArgSet(
-  ///          *(rv_qcd_kht[ fb_hbi ]),
-  ///          *(rv_qcd_snjet[ fb_nji ])
-  ///                ) ) ;
-  ///    rv_R_qcd_ldp -> Print() ;
 
          sprintf( pname, "R_qcd_ldp_%s", bin_name_underscore ) ;
          RooAbsReal* rv_R_qcd_ldp = new RooRealVar( pname, pname, 0.10, 0., 5. ) ;
@@ -347,15 +292,39 @@
 
 
 
+      //--- add these for later convenience
+         sprintf( pname, "mu_allnonqcd_ldp_%s", bin_name_underscore ) ;
+         RooFormulaVar* rv_mu_allnonqcd_ldp = new RooFormulaVar( pname, "@0 + @1 + @2", RooArgSet(
+             *rv_mu_lostlep_ldp, *rv_mu_hadtau_ldp, *rv_mu_znunu_ldp ) ) ;
+         rv_mu_allnonqcd_ldp -> Print() ;
+
+         sprintf( pname, "mu_allnonqcd_hdp_%s", bin_name_underscore ) ;
+         RooFormulaVar* rv_mu_allnonqcd_hdp = new RooFormulaVar( pname, "@0 + @1 + @2", RooArgSet(
+             *rv_mu_lostlep_hdp, *rv_mu_hadtau_hdp, *rv_mu_znunu_hdp ) ) ;
+         rv_mu_allnonqcd_hdp -> Print() ;
+
+
+
+
+
+         /////////////////////// sprintf( pname, "n_ldp_%s", bin_name_underscore ) ;
+         /////////////////////// RooFormulaVar* rv_n_ldp = new RooFormulaVar( pname, "@0 + @1 + @2 + @3 + @4", RooArgSet(
+         ///////////////////////     *rv_mu_qcd_ldp, *rv_mu_lostlep_ldp, *rv_mu_hadtau_ldp, *rv_mu_znunu_ldp, *rv_mu_sig_ldp ) ) ;
+         /////////////////////// rv_n_ldp -> Print() ;
+
+         /////////////////////// sprintf( pname, "n_hdp_%s", bin_name_underscore ) ;
+         /////////////////////// RooFormulaVar* rv_n_hdp = new RooFormulaVar( pname, "@0 + @1 + @2 + @3 + @4", RooArgSet(
+         ///////////////////////     *rv_mu_qcd_hdp, *rv_mu_lostlep_hdp, *rv_mu_hadtau_hdp, *rv_mu_znunu_hdp, *rv_mu_sig_hdp ) ) ;
+         /////////////////////// rv_n_hdp -> Print() ;
 
          sprintf( pname, "n_ldp_%s", bin_name_underscore ) ;
-         RooFormulaVar* rv_n_ldp = new RooFormulaVar( pname, "@0 + @1 + @2 + @3 + @4", RooArgSet(
-             *rv_mu_qcd_ldp, *rv_mu_lostlep_ldp, *rv_mu_hadtau_ldp, *rv_mu_znunu_ldp, *rv_mu_sig_ldp ) ) ;
+         RooFormulaVar* rv_n_ldp = new RooFormulaVar( pname, "@0 + @1 + @2", RooArgSet(
+             *rv_mu_qcd_ldp, *rv_mu_allnonqcd_ldp, *rv_mu_sig_ldp ) ) ;
          rv_n_ldp -> Print() ;
 
          sprintf( pname, "n_hdp_%s", bin_name_underscore ) ;
-         RooFormulaVar* rv_n_hdp = new RooFormulaVar( pname, "@0 + @1 + @2 + @3 + @4", RooArgSet(
-             *rv_mu_qcd_hdp, *rv_mu_lostlep_hdp, *rv_mu_hadtau_hdp, *rv_mu_znunu_hdp, *rv_mu_sig_hdp ) ) ;
+         RooFormulaVar* rv_n_hdp = new RooFormulaVar( pname, "@0 + @1 + @2", RooArgSet(
+             *rv_mu_qcd_hdp, *rv_mu_allnonqcd_hdp, *rv_mu_sig_hdp ) ) ;
          rv_n_hdp -> Print() ;
 
 
@@ -486,6 +455,7 @@
       workspace.defineSet( "all_nuisance_pars", *allNuisances, kFALSE ) ;  // for convenience. do not import if missing.  should already be in there.
       workspace.defineSet( "all_nuisance_pdfs", *allNuisancePdfs, kFALSE ) ;  // for convenience. do not import if missing.  should already be in there.
       workspace.defineSet( "all_bg_mu_pars", *allBGmuPars, kFALSE ) ;  // for convenience. do not import if missing.  should already be in there.
+
 
       workspace.Print() ;
 
