@@ -19,6 +19,27 @@ void syst_2015_v2::Loop( int max_dump, bool verb )
 
    setup_bins() ;
 
+
+
+
+   gDirectory -> Delete( "h*" ) ;
+
+   loadHist( "outputfiles/data-turnon.root" ) ;
+
+   TH1F* h_turnon[10] ;
+
+   for ( int nj = 1; nj <= nb_nj; nj++) {
+
+      TString nj_str         ; nj_str         .Form("%d",nj);
+
+      h_turnon[nj] = (TH1F*) gDirectory -> FindObject( "h_eff_nj"+nj_str ) ;
+      if ( h_turnon[nj] == 0x0 ) { printf("\n\n *** missing nj%d turnon.\n\n", nj) ; return ; }
+
+   } // nj
+
+
+
+
    TH1::SetDefaultSumw2(); // to make sure all TH1 histograms have Sumw2 enabled
 
    setup_bins();
@@ -210,6 +231,13 @@ void syst_2015_v2::Loop( int max_dump, bool verb )
       nb = fChain->GetEntry(jentry);   nbytes += nb;
 
       double hw = Weight * lumi_ ;
+
+
+
+
+
+
+
 
 
      //--- apply new baseline.
@@ -522,6 +550,18 @@ void syst_2015_v2::Loop( int max_dump, bool verb )
 
       if ( bi_global < 1 ) continue ; //--- only keep events in search or QCD control.
 
+     //--- Apply trigger efficiency weight
+      int turnon_bin(0) ;
+      float trig_eff(1.) ;
+      if ( bi_nj>=1 && bi_nj<= nb_nj ) {
+         if ( MHT < (h_turnon[bi_nj] -> GetXaxis() -> GetXmax()) ) {
+            turnon_bin = h_turnon[bi_nj] -> GetXaxis() -> FindBin( MHT ) ;
+         } else {
+            turnon_bin = h_turnon[bi_nj] -> GetNbinsX() ;
+         }
+      }
+      trig_eff = h_turnon[bi_nj] -> GetBinContent( turnon_bin ) ;
+      hw = hw * trig_eff ;
 
     //------
 

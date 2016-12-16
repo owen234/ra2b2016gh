@@ -63,12 +63,17 @@
      //-----------
 
 
-      int nbin(10) ;
-      double xbins[11] = {0., 200., 220, 240, 260, 280, 300, 340, 400, 500, 700 } ;
+      ///////////int nbin(10) ;
+      ///////////double xbins[11] = {0., 200., 220, 240, 260, 280, 300, 340, 400, 500, 700 } ;
+
+      int nbin(13) ;
+      double xbins[14] = {0., 200., 210, 220, 230, 240, 250, 260, 280, 300, 340, 400, 500, 700 } ;
 
       TH1F* denom_h_mht_nj[10];
       TH1F* numer_h_mht_nj[10];
       TH1F* h_eff_nj[10];
+
+      TLegend* legend = new TLegend( 0.70, 0.25, 0.85, 0.45 ) ;
 
       for ( int nj = 0; nj < nb_nj; nj++)
       {
@@ -86,6 +91,8 @@
          /////ch_met.Draw("MHT>>h_mht_nj"+nj_str+"_numer", "HBHEIsoNoiseFilter == 1 && HBHENoiseFilter == 1 && eeBadScFilter == 1 && EcalDeadCellTriggerPrimitiveFilter == 1 && NVtx > 0 && JetID && HT>900 && (MET>100 && CaloMET>80 && MET/CaloMET<5) && pass_ht800_trig && (pass_pfmet100_trig||pass_pfmetnomu100_trig) && NJets >= "+ nj_cut_low_str + " && NJets < " + nj_cut_high_str ) ;
          ch_met.Draw("MHT>>h_mht_nj"+nj_str+"_numer", "HBHEIsoNoiseFilter == 1 && HBHENoiseFilter == 1 && eeBadScFilter == 1 && EcalDeadCellTriggerPrimitiveFilter == 1 && NVtx > 0 && JetID && HT>900 && (MET>100 && CaloMET>80 && MET/CaloMET<5) && pass_ht800_trig && (pass_pfmet100_trig||pass_pfmetnomu100_trig || pass_pfmet110_trig||pass_pfmetnomu110_trig || pass_pfmet120_trig||pass_pfmetnomu120_trig) && NJets >= "+ nj_cut_low_str + " && NJets < " + nj_cut_high_str ) ;
          can -> Update() ; can -> Draw() ;
+
+         printf(" nj=%d, nj_str = %s , NJets >= %s && NJets < %s\n", nj, nj_str.Data(), nj_cut_low_str.Data(), nj_cut_high_str.Data() ) ;
 
          add_overflow( denom_h_mht_nj[nj] ) ;
          add_overflow( numer_h_mht_nj[nj] ) ;
@@ -109,12 +116,18 @@
          } // bi
  
          gStyle -> SetOptStat(0) ;
+         gStyle -> SetOptTitle(0) ;
 
          h_eff_nj[nj] -> SetMaximum( 1.05 ) ;
          h_eff_nj[nj] -> SetMinimum( 0.4 ) ;
 
          h_eff_nj[nj] -> SetMarkerStyle(20+nj) ;
-         h_eff_nj[nj] -> SetMarkerColor(2+nj) ;
+         int mci = 2+nj ;
+         if ( mci >= 5 ) mci++ ;
+         h_eff_nj[nj] -> SetMarkerColor(mci) ;
+         char label[100] ;
+         sprintf( label, "Njets bin %d", nj+1 ) ;
+         legend -> AddEntry( h_eff_nj[nj], label ) ;
       }//nj
 
       h_eff_nj[0] -> Draw() ;
@@ -123,6 +136,7 @@
       for ( int nj = 1; nj < nb_nj; nj++) {
          h_eff_nj[nj] -> Draw("same") ;
       }
+      legend -> Draw() ;
       can -> Update() ; can -> Draw() ;
       can -> SaveAs( "outputfiles/data-turnon1.pdf" ) ;
 

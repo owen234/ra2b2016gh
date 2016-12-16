@@ -229,7 +229,33 @@
          outputfiles/binsums-qcd.root
 
 
+###############################################################################################
 
+---------
+   calc_model_ratios_v5.c
+      inputs:
+         ../outputfiles/model-pars-qcdmc3.txt
+            Made by ../draw_badjet_cat_v3.c (input is ../outputfiles/syst-2015-v2.root)
+         ../outputfiles/kqcd-parameters-from-qcdmc.txt
+            Made by ../make_qcdmc_input_files1.c (input is ../outputfiles/hists-v2d-qcd.root)
+      outputs:
+         outputfiles/calc-model-ratios-v5.root
+
+---------
+   draw_qcd_ratio_v5.c
+      inputs:
+         ../outputfiles/hists-v2d-qcd.root
+      outputs:
+         outputfiles/qcd-ratio-nbsum.root
+
+---------
+   run_draw_ratios_mc_and_model_v5.c ( calls draw_ratios_mc_and_model_v5.c )
+      inputs:
+         outputfiles/qcd-ratio-nbsum.root
+         outputfiles/calc-model-ratios-v5.root
+      outputs:
+         outputfiles/model-mc-comp-v5/plot-ratio-ht*.pdf
+         outputfiles/model-mc-comp-v5/plot-dr-ht*.pdf
 
 
 
