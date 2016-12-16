@@ -196,33 +196,10 @@ fill_hists_loop_v2d::fill_hists_loop_v2d(TTree *tree, const char* samplename_arg
 // used to generate this class and read the Tree.
    if (tree == 0) {
 
-#ifdef SINGLE_TREE
-      // The following code should be used if you want this class to access
-      // a single tree instead of a chain
-      TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject("Memory Directory");
-      if (!f || !f->IsOpen()) {
-         f = new TFile("Memory Directory");
-      }
-      f->GetObject("tree",tree);
+      printf("\n\n *** Don't call this without explicitly providing a tree pointer.  No auto setup.\n\n") ;
+      printf("  Try using run_fill_hists_loop_v2d.c\n\n\n") ;
+      gSystem -> Exit(-1) ;
 
-#else // SINGLE_TREE
-
-      // The following code should be used if you want this class to access a chain
-      // of trees.
-      TChain * chain = new TChain("tree","");
-      chain->Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_QCD_HT-500to700-slimskim.root/tree");
-      chain->Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_QCD_HT-700to1000-slimskim.root/tree");
-      chain->Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_QCD_HT-1000to1500-slimskim.root/tree");
-      chain->Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_QCD_HT-1500to2000-slimskim.root/tree");
-      chain->Add("fnal-prod-v10-skims-slimmed/tree_LDP/tree_QCD_HT-2000toInf-slimskim.root/tree");
-
-      chain->Add("fnal-prod-v10-skims-slimmed/tree_signal/tree_QCD_HT-500to700-slimskim.root/tree");
-      chain->Add("fnal-prod-v10-skims-slimmed/tree_signal/tree_QCD_HT-700to1000-slimskim.root/tree");
-      chain->Add("fnal-prod-v10-skims-slimmed/tree_signal/tree_QCD_HT-1000to1500-slimskim.root/tree");
-      chain->Add("fnal-prod-v10-skims-slimmed/tree_signal/tree_QCD_HT-1500to2000-slimskim.root/tree");
-      chain->Add("fnal-prod-v10-skims-slimmed/tree_signal/tree_QCD_HT-2000toInf-slimskim.root/tree");
-      tree = chain;
-#endif // SINGLE_TREE
 
    }
    Init(tree);

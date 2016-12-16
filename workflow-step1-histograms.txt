@@ -20,14 +20,13 @@
         data_turnon1()
 
  -------
-  fill_hists_loop_v2d.c
+  run_fill_hists_loop_v2d.c  ( uses fill_hists_loop_v2d.c )
       input is slimmed skims of QCD MC and outputfiles/data-turnon.root file above for QCD fake-met
       output is
          outputfiles/hists-v2c-qcd.root
       from the command line
-         .L fill_hists_loop_v2d.c
-         fill_hists_loop_v2d f
-         f.Loop()
+         .L run_fill_hists_loop_v2d.c
+         run_fill_hists_loop_v2d()
 
  -------
   *** Optional.  Not used for AN material ***

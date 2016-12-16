@@ -10,8 +10,8 @@
 
 
    void make_lostlep_lh_input_files1(
-                                 const char* ldp_input_root_file = "../non-qcd-inputs-fall16b/LLPrediction_QCDLDP_notCombined.root",
-                                 const char* hdp_input_root_file = "../non-qcd-inputs-fall16b/LLPrediction_QCDHDP_notCombined.root",
+                                 const char* ldp_input_root_file = "../non-qcd-inputs-fall16c/LLPrediction_QCDLDP_notCombined.root",
+                                 const char* hdp_input_root_file = "../non-qcd-inputs-fall16c/LLPrediction_QCDHDP_notCombined.root",
                                  const char* output_text_file = "outputfiles/combine-input-lostlep.txt",
                                  const char* nbsum_ldp_text_file = "outputfiles/nbsum-ldp-input-lostlep.txt",
                                  const char* nbsum_hdp_text_file = "outputfiles/nbsum-hdp-input-lostlep.txt"
@@ -94,8 +94,10 @@
          sprintf( systerr_name[si], "SingleLepPurity" ) ;
          si++ ;
 
-         h_systerr_ldp[si]  = get_hist( tf_ldp, "Prediction_data/totalPredDiLepFoundSysUp_LL" ) ;
-         h_systerr_hdp[si]  = get_hist( tf_hdp, "Prediction_data/totalPredDiLepFoundSysUp_LL" ) ;
+         //////////////////h_systerr_ldp[si]  = get_hist( tf_ldp, "Prediction_data/totalPredDiLepFoundSysUp_LL" ) ;
+         //////////////////h_systerr_hdp[si]  = get_hist( tf_hdp, "Prediction_data/totalPredDiLepFoundSysUp_LL" ) ;
+         h_systerr_ldp[si]  = get_hist( tf_ldp, "Prediction_data/totalPredDiLepSRSysUp_LL" ) ;
+         h_systerr_hdp[si]  = get_hist( tf_hdp, "Prediction_data/totalPredDiLepSRSysUp_LL" ) ;
          sprintf( systerr_name[si], "DiLepFound" ) ;
          si++ ;
 
@@ -179,8 +181,10 @@
          sprintf( staterr_name[si], "SingleLepPurity" ) ;
          si++ ;
 
-         h_staterr_ldp[si]  = get_hist( tf_ldp, "Prediction_data/totalPredDiLepFoundStatUp_LL" ) ;
-         h_staterr_hdp[si]  = get_hist( tf_hdp, "Prediction_data/totalPredDiLepFoundStatUp_LL" ) ;
+         ////////////////////h_staterr_ldp[si]  = get_hist( tf_ldp, "Prediction_data/totalPredDiLepFoundStatUp_LL" ) ;
+         ////////////////////h_staterr_hdp[si]  = get_hist( tf_hdp, "Prediction_data/totalPredDiLepFoundStatUp_LL" ) ;
+         h_staterr_ldp[si]  = get_hist( tf_ldp, "Prediction_data/totalPredDiLepSRStatUp_LL" ) ;
+         h_staterr_hdp[si]  = get_hist( tf_hdp, "Prediction_data/totalPredDiLepSRStatUp_LL" ) ;
          sprintf( staterr_name[si], "DiLepFound" ) ;
          si++ ;
 

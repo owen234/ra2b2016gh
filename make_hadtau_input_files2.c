@@ -15,7 +15,7 @@
 
    //------
 
-   void make_hadtau_input_files2( const char* input_root_file  = "non-qcd-inputs-fall16b/ARElog98_36.35ifb_HadTauEstimation_data_formatted_V11.root",
+   void make_hadtau_input_files2( const char* input_root_file  = "non-qcd-inputs-fall16c/ARElog98_36.35ifb_HadTauEstimation_data_formatted_V11.root",
                                   const char* output_text_file = "outputfiles/combine-input-hadtau.txt",
                                   const char* nbsum_text_file  = "outputfiles/nbsum-input-hadtau.txt"
                                ) {

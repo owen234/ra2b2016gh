@@ -8,8 +8,8 @@
 #include "../get_hist.h"
 #include "../binning.h"
 
-   void make_znunu_lh_input_files1( const char* ldp_input_root_file = "../non-qcd-inputs-fall16b/ZinvHistos_ldp.root",
-                                 const char* hdp_input_root_file = "../non-qcd-inputs-fall16b/ZinvHistos_hdp.root",
+   void make_znunu_lh_input_files1( const char* ldp_input_root_file = "../non-qcd-inputs-fall16c/ZinvHistos_ldp.root",
+                                 const char* hdp_input_root_file = "../non-qcd-inputs-fall16c/ZinvHistos_hdp.root",
                                  const char* output_text_file = "outputfiles/combine-input-znunu.txt",
                                  const char* nbsum_ldp_text_file  = "outputfiles/nbsum-ldp-input-znunu.txt",
                                  const char* nbsum_hdp_text_file  = "outputfiles/nbsum-hdp-input-znunu.txt"
@@ -112,9 +112,12 @@
          si++ ;
          n_systerr = si ;
 
-         h_systerr_ldp[si] = get_hist( tf_ldp, "hzvvDYMCstat" ) ;
-         h_systerr_hdp[si] = get_hist( tf_hdp, "hzvvDYMCstat" ) ;
-         sprintf( systerr_name[si], "hzvvDYMCstat" ) ;
+         //////////////////h_systerr_ldp[si] = get_hist( tf_ldp, "hzvvDYMCstat" ) ;
+         //////////////////h_systerr_hdp[si] = get_hist( tf_hdp, "hzvvDYMCstat" ) ;
+         //////////////////sprintf( systerr_name[si], "hzvvDYMCstat" ) ;
+         h_systerr_ldp[si] = get_hist( tf_ldp, "hDYMCstat" ) ;
+         h_systerr_hdp[si] = get_hist( tf_hdp, "hDYMCstat" ) ;
+         sprintf( systerr_name[si], "hDYMCstat" ) ;
          si++ ;
          n_systerr = si ;
 
@@ -130,9 +133,12 @@
          si++ ;
          n_systerr = si ;
 
-         h_systerr_ldp[si] = get_hist( tf_ldp, "hzvvZgDRerrUp" ) ;
-         h_systerr_hdp[si] = get_hist( tf_hdp, "hzvvZgDRerrUp" ) ;
-         sprintf( systerr_name[si], "hzvvZgDRerrUp" ) ;
+         ///////////////////h_systerr_ldp[si] = get_hist( tf_ldp, "hzvvZgDRerrUp" ) ;
+         ///////////////////h_systerr_hdp[si] = get_hist( tf_hdp, "hzvvZgDRerrUp" ) ;
+         ///////////////////sprintf( systerr_name[si], "hzvvZgDRerrUp" ) ;
+         h_systerr_ldp[si] = get_hist( tf_ldp, "hZgDRerrUp" ) ;
+         h_systerr_hdp[si] = get_hist( tf_hdp, "hZgDRerrUp" ) ;
+         sprintf( systerr_name[si], "hZgDRerrUp" ) ;
          si++ ;
          n_systerr = si ;
 
@@ -142,9 +148,12 @@
          si++ ;
          n_systerr = si ;
 
-         h_systerr_ldp[si] = get_hist( tf_ldp, "hzvvDYsysNjUp" ) ;
-         h_systerr_hdp[si] = get_hist( tf_hdp, "hzvvDYsysNjUp" ) ;
-         sprintf( systerr_name[si], "hzvvDYsysNjUp" ) ;
+         /////////////////////h_systerr_ldp[si] = get_hist( tf_ldp, "hzvvDYsysNjUp" ) ;
+         /////////////////////h_systerr_hdp[si] = get_hist( tf_hdp, "hzvvDYsysNjUp" ) ;
+         /////////////////////sprintf( systerr_name[si], "hzvvDYsysNjUp" ) ;
+         h_systerr_ldp[si] = get_hist( tf_ldp, "hDYsysNjUp" ) ;
+         h_systerr_hdp[si] = get_hist( tf_hdp, "hDYsysNjUp" ) ;
+         sprintf( systerr_name[si], "hDYsysNjUp" ) ;
          si++ ;
          n_systerr = si ;
 
@@ -172,9 +181,12 @@
          si++ ;
          n_systerr = si ;
 
-         h_systerr_ldp[si] = get_hist( tf_ldp, "hzvvgJFdirErr" ) ;
-         h_systerr_hdp[si] = get_hist( tf_hdp, "hzvvgJFdirErr" ) ;
-         sprintf( systerr_name[si], "hzvvgJFdirErr" ) ;
+         //////////////////h_systerr_ldp[si] = get_hist( tf_ldp, "hzvvgJFdirErr" ) ;
+         //////////////////h_systerr_hdp[si] = get_hist( tf_hdp, "hzvvgJFdirErr" ) ;
+         //////////////////sprintf( systerr_name[si], "hzvvgJFdirErr" ) ;
+         h_systerr_ldp[si] = get_hist( tf_ldp, "hgJFdirErrUp" ) ;
+         h_systerr_hdp[si] = get_hist( tf_hdp, "hgJFdirErrUp" ) ;
+         sprintf( systerr_name[si], "hgJFdirErr" ) ;
          si++ ;
          n_systerr = si ;
 

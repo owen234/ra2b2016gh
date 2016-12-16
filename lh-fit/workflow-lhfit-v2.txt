@@ -46,20 +46,6 @@
       ../outputfiles/nbsum-input-data.txt
 
 ---------
-  ../run_fill_hists_loop_v2d_signal.c (uses ../fill_hists_loop_v2d.c)
-    inputs:
-      skimmed signal MC files.  See ../run_fill_hists_loop_v2d_signal.c
-    outputs:
-      ../outputfiles/hists-v2d-T1*.root
-
----------
-  ../run_make_signalmc_input_files1.c (uses ../make_signalmc_input_files1.c)
-    inputs:
-      ../outputfiles/hists-v2d-T1*.root
-    outputs:
-      ../outputfiles/nbsum-input-T1*.txt
-
----------
    build_2016_ws3.c
      inputs:
        outputfiles/nbsum-ldp-input-lostlep.txt
@@ -69,7 +55,7 @@
        outputfiles/nbsum-hdp-input-hadtau.txt
        outputfiles/nbsum-hdp-input-znunu.txt
        ../outputfiles/nbsum-input-data.txt
-       ../outputfiles/nbsum-input-T1bbbbH.txt
+       nbsum-input-signal-dummy.txt
      output:
        outputfiles/ws-lhfit3.root
 

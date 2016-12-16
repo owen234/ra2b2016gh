@@ -56,7 +56,7 @@
                             const char* fname_hdp_hadtau  = "outputfiles/nbsum-hdp-input-hadtau.txt",
                             const char* fname_hdp_znunu   = "outputfiles/nbsum-hdp-input-znunu.txt",
                             const char* fname_data    = "../outputfiles/nbsum-input-data.txt",
-                            const char* fname_sigmc   = "../outputfiles/nbsum-input-T1bbbbH.txt"
+                            const char* fname_sigmc   = "nbsum-input-signal-dummy.txt"
                           ) {
 
 
