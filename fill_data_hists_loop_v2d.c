@@ -104,6 +104,12 @@ void fill_data_hists_loop_v2d::Loop( bool verb, int nloop )
    TH1F* h_calomet = new TH1F( "h_calomet", "Calomet", 100, 0., 400. ) ;
    TH1F* h_met = new TH1F( "h_met", "MET", 100, 0., 400. ) ;
 
+   TH1F* h_ht_ldp_mhtc = new TH1F( "h_ht_ldp_mhtc", "HT, LDP, MHTC", 50, 0., 5000. ) ;
+   TH1F* h_ht_ldp_mht1 = new TH1F( "h_ht_ldp_mht1", "HT, LDP, MHT1", 50, 0., 5000. ) ;
+   TH1F* h_ht_ldp_mht2 = new TH1F( "h_ht_ldp_mht2", "HT, LDP, MHT2", 50, 0., 5000. ) ;
+   TH1F* h_ht_ldp_mht3 = new TH1F( "h_ht_ldp_mht3", "HT, LDP, MHT3", 50, 0., 5000. ) ;
+   TH1F* h_ht_ldp_mht4 = new TH1F( "h_ht_ldp_mht4", "HT, LDP, MHT4", 50, 0., 5000. ) ;
+
    Long64_t nentries = fChain->GetEntries();
 
    printf("\n\n") ;
@@ -193,7 +199,8 @@ void fill_data_hists_loop_v2d::Loop( bool verb, int nloop )
       if ( EcalDeadCellTriggerPrimitiveFilter != 1 ) isjunk = true ;
       if ( NVtx <= 0 ) isjunk = true ;
       if ( !JetID ) isjunk = true ;
-      ///////if ( badMuonEvent ) isjunk = true ;
+      if ( badMuonEvent ) isjunk = true ; // *** Added back in on Feb 3, 2017.  There was a bug in the skim code for this.
+
       ///////if ( MET/CaloMET > 5 )  isjunk = true ;
       if ( ! noMuonJet ) isjunk = true ;  // **** new for v9, should be redundant with above
       if ( PFCaloMETRatio >= 5 ) isjunk = true ;  // **** new for v9, should be redundant with above
@@ -283,6 +290,12 @@ void fill_data_hists_loop_v2d::Loop( bool verb, int nloop )
                if ( BTags > bin_edges_nb[nb] && BTags < bin_edges_nb[nb+1] ) h_ldp_nb[nb] -> Fill( bi_nbsum_global, hw ) ;
 
          if ( bi_mht == 1 ) h_mhtc_ldp -> Fill( bi_mhtc_plot , hw ) ;
+
+         if ( bi_mht == 1 && HT>300 ) h_ht_ldp_mhtc -> Fill( HT, hw ) ;
+         if ( bi_mht == 2 && HT>300 ) h_ht_ldp_mht1 -> Fill( HT, hw ) ;
+         if ( bi_mht == 3 && HT>350 ) h_ht_ldp_mht2 -> Fill( HT, hw ) ;
+         if ( bi_mht == 4 && HT>500 ) h_ht_ldp_mht3 -> Fill( HT, hw ) ;
+         if ( bi_mht == 5 && HT>750 ) h_ht_ldp_mht4 -> Fill( HT, hw ) ;
       }
 
 

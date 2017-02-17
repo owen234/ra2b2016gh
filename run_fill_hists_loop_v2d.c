@@ -3,7 +3,7 @@
 
 #include "fill_hists_loop_v2d.c"
 
-   void run_fill_hists_loop_v2d( const char* indir = "fnal-prod-v11-skims-slimmed" ) {
+   void run_fill_hists_loop_v2d( ) {
 
       char fpat[10000] ;
       char sample_name[100] ;
@@ -11,10 +11,34 @@
       int n_added ;
       fill_hists_loop_v2d* fhl ;
 
+      char indir[10000] ;
+      sprintf( indir, "fnal-prod-v11-skims-slimmed" ) ;
+
    //----------------------
 
       ch = new TChain("tree") ;
       sprintf( sample_name, "qcd" ) ;
+
+      ////////////////////// sprintf( fpat, "%s/tree_LDP/tree_QCD_HT-200to300-slimskim.root", indir ) ;
+      ////////////////////// n_added = ch->Add(fpat) ;
+      ////////////////////// printf("  Added %d files matching %s to sample %s\n", n_added, fpat, sample_name ) ;
+
+      ////////////////////// sprintf( fpat, "%s/tree_LDP/tree_QCD_HT-300to500-slimskim.root", indir ) ;
+      ////////////////////// n_added = ch->Add(fpat) ;
+      ////////////////////// printf("  Added %d files matching %s to sample %s\n", n_added, fpat, sample_name ) ;
+
+
+      ////////////////////// sprintf( fpat, "%s/tree_signal/tree_QCD_HT-200to300-slimskim.root", indir ) ;
+      ////////////////////// n_added = ch->Add(fpat) ;
+      ////////////////////// printf("  Added %d files matching %s to sample %s\n", n_added, fpat, sample_name ) ;
+
+      ////////////////////// sprintf( fpat, "%s/tree_signal/tree_QCD_HT-300to500-slimskim.root", indir ) ;
+      ////////////////////// n_added = ch->Add(fpat) ;
+      ////////////////////// printf("  Added %d files matching %s to sample %s\n", n_added, fpat, sample_name ) ;
+
+
+
+
 
       sprintf( fpat, "%s/tree_LDP/tree_QCD_HT-500to700-slimskim.root", indir ) ;
       n_added = ch->Add(fpat) ;
@@ -35,6 +59,8 @@
       sprintf( fpat, "%s/tree_LDP/tree_QCD_HT-2000toInf-slimskim.root", indir ) ;
       n_added = ch->Add(fpat) ;
       printf("  Added %d files matching %s to sample %s\n", n_added, fpat, sample_name ) ;
+
+
 
       sprintf( fpat, "%s/tree_signal/tree_QCD_HT-500to700-slimskim.root", indir ) ;
       n_added = ch->Add(fpat) ;
@@ -59,6 +85,15 @@
       fhl = new fill_hists_loop_v2d( ch, sample_name ) ;
       fhl -> Loop() ;
 
+   //----------------------
+
+
+
+
+      sprintf( indir, "fnal-prod-v9-skims-slimmed" ) ;
+
+
+
 
    //----------------------
 
@@ -76,7 +111,7 @@
 //    fhl = new fill_hists_loop_v2d( ch, sample_name ) ;
 //    fhl -> Loop() ;
 
-   //----------------------
+// //----------------------
 
 //    ch = new TChain("tree") ;
 //    sprintf( sample_name, "lostlep" ) ;

@@ -163,7 +163,11 @@ void fill_hists_loop_v2d::Loop( bool verb, int nloop )
       h_ldp_weight[sbi] = new TH1F( hname, hname, 100, 0., 2. ) ;
    }
 
-
+   TH1F* h_ht_ldp_mhtc = new TH1F( "h_ht_ldp_mhtc", "HT, LDP, MHTC", 50, 0., 5000. ) ;
+   TH1F* h_ht_ldp_mht1 = new TH1F( "h_ht_ldp_mht1", "HT, LDP, MHT1", 50, 0., 5000. ) ;
+   TH1F* h_ht_ldp_mht2 = new TH1F( "h_ht_ldp_mht2", "HT, LDP, MHT2", 50, 0., 5000. ) ;
+   TH1F* h_ht_ldp_mht3 = new TH1F( "h_ht_ldp_mht3", "HT, LDP, MHT3", 50, 0., 5000. ) ;
+   TH1F* h_ht_ldp_mht4 = new TH1F( "h_ht_ldp_mht4", "HT, LDP, MHT4", 50, 0., 5000. ) ;
 
    Long64_t nentries = fChain->GetEntries();
 
@@ -282,7 +286,7 @@ void fill_hists_loop_v2d::Loop( bool verb, int nloop )
       }
 
 
-      ///////if ( badMuonEvent ) isjunk = true ;
+      if ( badMuonEvent ) isjunk = true ; // --- Feb 7, 2017 : add this back in due to bug(?) in noMuonJet
       ///////if ( MET/CaloMET > 5 )  isjunk = true ;
       if ( ! noMuonJet ) isjunk = true ;  // **** new for v9, should be redundant with above
       if ( PFCaloMETRatio > 5 ) isjunk = true ;  // **** new for v9, should be redundant with above
@@ -307,14 +311,14 @@ void fill_hists_loop_v2d::Loop( bool verb, int nloop )
 
          int turnon_bin(0) ;
          float trig_eff(1.) ;
-         if ( bi_nj>=1 && bi_nj<= nb_nj ) {
-            if ( MHT < (h_turnon[bi_nj] -> GetXaxis() -> GetXmax()) ) {
-               turnon_bin = h_turnon[bi_nj] -> GetXaxis() -> FindBin( MHT ) ;
-            } else {
-               turnon_bin = h_turnon[bi_nj] -> GetNbinsX() ;
-            }
-         }
-         trig_eff = h_turnon[bi_nj] -> GetBinContent( turnon_bin ) ;
+     /// if ( bi_nj>=1 && bi_nj<= nb_nj ) {
+     ///    if ( MHT < (h_turnon[bi_nj] -> GetXaxis() -> GetXmax()) ) {
+     ///       turnon_bin = h_turnon[bi_nj] -> GetXaxis() -> FindBin( MHT ) ;
+     ///    } else {
+     ///       turnon_bin = h_turnon[bi_nj] -> GetNbinsX() ;
+     ///    }
+     /// }
+     /// trig_eff = h_turnon[bi_nj] -> GetBinContent( turnon_bin ) ;
          hw = hw * trig_eff ;
 
          /////////////////if ( ! (pass_pfmet100_trig || pass_pfmetnomu100_trig) ) continue ;
@@ -381,6 +385,11 @@ void fill_hists_loop_v2d::Loop( bool verb, int nloop )
 
          if ( bi_mht == 1 ) h_mhtc_ldp -> Fill( bi_mhtc_plot , hw ) ;
          if ( bi_mht == 1 ) h_mhtc_nbsum_ldp -> Fill( bi_mhtc_nbsum_plot , hw ) ;
+         if ( bi_mht == 1 && HT>300 ) h_ht_ldp_mhtc -> Fill( HT, hw ) ;
+         if ( bi_mht == 2 && HT>300 ) h_ht_ldp_mht1 -> Fill( HT, hw ) ;
+         if ( bi_mht == 3 && HT>350 ) h_ht_ldp_mht2 -> Fill( HT, hw ) ;
+         if ( bi_mht == 4 && HT>500 ) h_ht_ldp_mht3 -> Fill( HT, hw ) ;
+         if ( bi_mht == 5 && HT>750 ) h_ht_ldp_mht4 -> Fill( HT, hw ) ;
       }
 
 

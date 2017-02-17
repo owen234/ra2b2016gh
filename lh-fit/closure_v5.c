@@ -13,6 +13,19 @@
 
    void closure_v5( const char* infile = "outputfiles/model-ratio-hist4.root" ) {
 
+  // Canvas size
+  int W = 1200;
+  int H = 740;
+  int H_ref = 740;
+  int W_ref = 800;
+  float T = 0.10*H_ref;
+  float B = 0.06*H_ref;
+  float L = 0.16*W_ref;
+  float R = 0.04*W_ref;
+
+
+
+
       bool do_text_binlabels(false) ;
       setup_bins();
       gStyle -> SetOptStat(0) ;
@@ -125,20 +138,63 @@
 
 
 
-      TCanvas* can1 = (TCanvas*) gDirectory -> FindObject( "can1_closure_v5" ) ;
-      if ( can1 == 0x0 ) { can1 = new TCanvas( "can1_closure_v5", "QCD closure", 1600, 900 ) ; }
+      TCanvas* can1 = (TCanvas*) gDirectory -> FindObject( "canvas" ) ;
+      if ( can1 == 0x0 ) { can1 = new TCanvas( "canvas", "QCD closure", 10, 10, W, H ) ; }
       can1 -> Clear() ;
 
+      TCanvas* canvas = can1 ;
+
+  canvas->SetFillColor(0);
+  canvas->SetBorderMode(0);
+  canvas->SetFrameFillStyle(0);
+  canvas->SetFrameBorderMode(0);
+  canvas->SetLeftMargin( L/W );
+  canvas->SetRightMargin( R/W );
+  canvas->SetTopMargin( T/H );
+  canvas->SetBottomMargin( B/H );
+  canvas->SetTickx(0);
+  canvas->SetTicky(0);
+
+  canvas->Divide(1, 2);
 
      //--------
 
-      TPad* pad_top = new TPad( "pad_top", "", 0., 0.35, 1., 1. ) ;
-      pad_top -> SetTopMargin(0.15) ;
-      pad_top -> SetBottomMargin( 0.0 ) ;
-      pad_top -> SetRightMargin(0.03) ;
-      pad_top -> Draw() ;
-      pad_top -> cd() ;
+////  TPad* pad_top = new TPad( "pad_top", "", 0., 0.35, 1., 1. ) ;
+////  pad_top -> SetTopMargin(0.15) ;
+////  pad_top -> SetBottomMargin( 0.0 ) ;
+////  pad_top -> SetRightMargin(0.03) ;
+////  pad_top -> Draw() ;
+////  pad_top -> cd() ;
 
+
+  TPad* canvas_up = (TPad*) canvas->GetListOfPrimitives()->FindObject("canvas_1");
+  TPad* canvas_dw = (TPad*) canvas->GetListOfPrimitives()->FindObject("canvas_2");
+
+  TPad* pad_top = canvas_up ;
+
+  //
+  // define the size
+  double up_height     = 0.8;  // please tune so that the upper figures size will meet your requirement
+  double dw_correction = 1.30; // please tune so that the smaller canvas size will work in your environment
+  double font_size_dw  = 0.1;  // please tune the font size parameter for bottom figure
+  double dw_height     = (1. - up_height) * dw_correction;
+  double dw_height_offset = 0.04; // KH, added to put the bottom one closer to the top panel
+
+  //
+  // set pad size
+  canvas_up->SetPad(0., 1 - up_height,    1., 1.00);
+  canvas_dw->SetPad(0., 0.,               1., dw_height+dw_height_offset);
+  //
+  canvas_up->SetFrameFillColor(0);
+  canvas_up->SetFillColor(0);
+  canvas_up->SetTopMargin(0.12);
+  canvas_up->SetLeftMargin(0.1);
+  //
+  canvas_dw->SetFillColor(0);
+  canvas_dw->SetFrameFillColor(0);
+  canvas_dw->SetBottomMargin(0.35);
+  canvas_dw->SetTopMargin(0);
+  canvas_dw->SetLeftMargin(0.1);
 
       h_hdp_model -> SetLineColor( 4 ) ;
       TH1F* h_hdp_model_copy1 = (TH1F*) h_hdp_model -> Clone( "h_hdp_model_copy1" ) ;
